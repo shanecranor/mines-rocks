@@ -4,21 +4,28 @@ import Image from 'next/image'
 import { useState } from 'react'
 
 const API_URL = "https://canvas.shanecranor.workers.dev/?req="
-async function fetchData() {
+async function fetchCourseList() {
   const response = await fetch(
     `${API_URL}api/v1/courses?enrollment_state=active`
   );
   return (await response.json());
 }
-function parseData(data) {
-  return data.map(
+async function fetchAssignments(course_id) {
+  const response = await fetch(
+    `${API_URL}api/v1/courses/${course_id}/assignments`
+  );
+  return (await response.json());
+}
+function parseCourseList(courseList) {
+  return courseList.map(
     (course) => {
-      return <p>{course.name}</p>
+      return (course?.course_code.includes("2022") && <p>{course.name}{course.id}</p>)
     }
   )
 }
 const Home: NextPage = () => {
-  const [data, setData] = useState();
+  const [courseList, setCourseList] = useState();
+  const [assignments, setAssignments] = useState();
   return (
     <>
       <Head>
@@ -28,8 +35,13 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <button onClick={async () => setData(await fetchData())}>get data</button><br />
-        {data ? parseData(data) : "not loaded"}
+        <button onClick={async () => setCourseList(await fetchCourseList())}>get CourseList</button><br />
+        <button onClick={async () => setAssignments(await fetchAssignments("40233"))}>get Assignements</button>
+        <br></br>
+        {courseList ? parseCourseList(courseList) : "not loaded"}
+        <br></br>
+        <div dangerouslySetInnerHTML={{ __html: assignments[0].description }}></div>
+        {assignments ? JSON.stringify(assignments) : "not loaded"}
 
       </main>
     </>
