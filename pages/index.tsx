@@ -12,7 +12,7 @@ async function fetchCourseList() {
 }
 async function fetchAssignments(course_id) {
   const response = await fetch(
-    `${API_URL}api/v1/courses/${course_id}/assignments`
+    `${API_URL}api/v1/courses/${course_id}/assignments?per_page=1000`
   );
   return (await response.json());
 }
@@ -40,7 +40,7 @@ const Home: NextPage = () => {
         <br></br>
         {courseList ? parseCourseList(courseList) : "not loaded"}
         <br></br>
-        <div dangerouslySetInnerHTML={{ __html: assignments[0].description }}></div>
+        {assignments && <div dangerouslySetInnerHTML={{ __html: assignments[0].description }}></div>}
         {assignments ? JSON.stringify(assignments) : "not loaded"}
 
       </main>
