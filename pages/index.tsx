@@ -2,7 +2,6 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState } from 'react'
-
 const API_URL = "https://canvas.shanecranor.workers.dev/?req="
 async function fetchCourseList() {
   const response = await fetch(
@@ -16,33 +15,35 @@ async function fetchAssignments(course_id: string) {
   );
   return (await response.json());
 }
-function parseAssignments(assignments: any, setAssignments: any, course_id: string){
+function parseAssignments(assignments: any, setAssignments: any, course_id: string) {
   console.log(assignments)
-  if(!assignments[course_id]){
+  if (!assignments[course_id]) {
     console.log(course_id)
     return <button onClick={async () => {
       const data = await fetchAssignments(course_id)
-      setAssignments((old) => ({...old, [course_id]: data}))
+      setAssignments((old) => ({ ...old, [course_id]: data }))
     }}>
       Load Assignments
-      </button>
+    </button>
   }
-  return JSON.stringify(assignments[course_id])
+  return <ul>{assignments[course_id].map(
+    item => <li>{item.name}</li>
+  )}</ul>
 }
 function parseCourseList(courseList, assignments, setAssignments) {
   return courseList.map(
     (course: any) => {
-      return (course?.course_code.includes("2022") && 
-      <>
-        <p>{course.name}{course.id}</p>
-        {parseAssignments(assignments, setAssignments, course.id)}
-      </>)
+      return (course?.course_code.includes("2022") &&
+        <>
+          <p>{course.name}{course.id}</p>
+          {parseAssignments(assignments, setAssignments, course.id)}
+        </>)
     }
   )
 }
 const Home: NextPage = () => {
   const [courseList, setCourseList] = useState();
-  const [assignments, setAssignments] = useState({"40460": ["class", "youmom"]});
+  const [assignments, setAssignments] = useState({});
   return (
     <>
       <Head>
