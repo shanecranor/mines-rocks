@@ -62,7 +62,7 @@ function parseCourseList(courseList, assignments, setAssignments) {
     (course: any) => {
       return (course?.course_code.includes("2022") &&
         <>
-          <p>{course.name}{course.id}</p>
+          <p>{course.name} {course.id}</p>
           {parseAssignments(assignments, setAssignments, course.id)}
         </>)
     }
@@ -75,7 +75,6 @@ function assignmentsToCal(assignments, courseList, categories) {
   for (const course in assignments) {
     const courseName = courseList.filter(item => (item.id == course))[0].course_code.split(".")[1]
     if (assignments[course].length <= 0) { continue }
-
     for (const assignment in assignments[course]) {
       const currentAssignment = assignments[course][assignment]
       //skip to next assignment if no due date is assigned
@@ -99,7 +98,7 @@ function assignmentsToCal(assignments, courseList, categories) {
         id: idx,
         group: groupID,
         title: currentAssignment.name,
-        start_time: moment(currentAssignment.due_at).add(-2, "day"),
+        start_time: moment(currentAssignment.due_at).add(-1, "day"),
         end_time: moment(currentAssignment.due_at)
       }
       out.items.push(calItem)
@@ -113,7 +112,7 @@ const Home: NextPage = () => {
   const [courseList, setCourseList] = useState();
   const [assignments, setAssignments] = useState({});
   const [calendarItems, setCalendarItems] = useState();
-  const [categories, setCategories] = useState("Quiz|Lab|Discussion|Self-Check:|Activity:|HW|Worksheet");
+  const [categories, setCategories] = useState("Quiz|Lab|Activity:|HW|Worksheet");
   return (
     <>
       <Head>
@@ -138,6 +137,7 @@ const Home: NextPage = () => {
         {calendarItems && <Timeline
           groups={calendarItems.groups}
           items={calendarItems.items}
+          stackItems
           defaultTimeStart={moment().add(-4, 'day')}
           defaultTimeEnd={moment().add(20, 'day')}
           height={500}
