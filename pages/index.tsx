@@ -2,34 +2,14 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState } from 'react'
-import Timeline from 'react-calendar-timeline'
+import Timeline, {
+  TimelineMarkers,
+  TodayMarker,
+  CursorMarker
+} from 'react-calendar-timeline'
 import moment from 'moment'
+import { redirect } from 'next/dist/server/api-utils'
 // const groups = [{ id: 1, title: 'group 1' }, { id: 2, title: 'group 2' }]
-
-const items = [
-  {
-    id: 1,
-    group: 1,
-    title: 'item 1',
-    start_time: moment(),
-    end_time: moment().add(2, 'day')
-  },
-  {
-    id: 2,
-    group: 2,
-    title: 'item 2',
-    start_time: moment().add(-0.5, 'hour'),
-    end_time: moment().add(0.5, 'hour')
-  },
-  {
-    id: 3,
-    group: 1,
-    title: 'item 3',
-    start_time: moment().add(3, 'day'),
-    end_time: moment().add(4, 'day')
-  }
-]
-
 
 const API_URL = "https://canvas.shanecranor.workers.dev/?req="
 async function fetchCourseList() {
@@ -68,6 +48,7 @@ function parseCourseList(courseList, assignments, setAssignments) {
     }
   )
 }
+
 function assignmentsToCal(assignments, courseList, categories) {
   const categoryList = categories.split("|")
   const out = { groups: [], items: [] };
@@ -80,7 +61,7 @@ function assignmentsToCal(assignments, courseList, categories) {
       //skip to next assignment if no due date is assigned
       if (!currentAssignment.due_at) continue
       let category = categoryList.filter(cat => currentAssignment.name.includes(cat))
-      if (!category.length) category.push("other")
+      if (!category.length) category.push("")
       const groupTitle = `${courseName}: ${category[0]}`
       const groupMatch = out.groups.filter(group => group.title == groupTitle)
       // if no groups match the correct title create new group
@@ -89,17 +70,29 @@ function assignmentsToCal(assignments, courseList, categories) {
         groupID = out.groups.length
         out.groups.push({
           id: groupID,
-          title: groupTitle
+          title: groupTitle,
+          groupProps: {
+            style: {
+              background: "blue"
+            }
+          }
         })
       } else { //otherwise get group id from match
         groupID = groupMatch[0].id
       }
+      console.log(currentAssignment.name)
+      console.log(currentAssignment.has_submitted_submissions)
       const calItem = {
         id: idx,
         group: groupID,
         title: currentAssignment.name,
-        start_time: moment(currentAssignment.due_at).add(-1, "day"),
-        end_time: moment(currentAssignment.due_at)
+        start_time: moment(currentAssignment.due_at).add(-2, "day"),
+        end_time: moment(currentAssignment.due_at),
+        itemProps: {
+          style: {
+            background: currentAssignment.has_submitted_submissions ? "rgba(0,0,255,0.5)" : "red"
+          }
+        }
       }
       out.items.push(calItem)
       idx++
@@ -112,7 +105,7 @@ const Home: NextPage = () => {
   const [courseList, setCourseList] = useState();
   const [assignments, setAssignments] = useState({});
   const [calendarItems, setCalendarItems] = useState();
-  const [categories, setCategories] = useState("Quiz|Lab|Activity:|HW|Worksheet");
+  const [categories, setCategories] = useState("");
   return (
     <>
       <Head>
@@ -123,7 +116,11 @@ const Home: NextPage = () => {
 
       <main>
         <p>Per Class Text Categories (use "|" as a seperator):</p>
-        <input type="text" value={categories} style={{ width: "100%", "margin-bottom": "20px" }}></input>
+        <input type="text"
+          value={categories}
+          style={{ width: "100%", "margin-bottom": "20px" }}
+          onChange={(e) => setCategories(e.target.value)}
+        ></input>
         <button onClick={async () => setCourseList(await fetchCourseList())}>get CourseList</button><br />
         {/* <button onClick={async () => setAssignments(await fetchAssignments("40233"))}>get Assignements</button> */}
         <br></br>
@@ -137,11 +134,16 @@ const Home: NextPage = () => {
         {calendarItems && <Timeline
           groups={calendarItems.groups}
           items={calendarItems.items}
+          horizontalLineClassNamesForGroup={group =>
+            [`group-${group.id}`]
+          }
           stackItems
-          defaultTimeStart={moment().add(-4, 'day')}
+          defaultTimeStart={moment().add(-2, 'day')}
           defaultTimeEnd={moment().add(20, 'day')}
-          height={500}
-        />}
+        ><TimelineMarkers>
+            <TodayMarker />
+          </TimelineMarkers>
+        </Timeline>}
       </main>
     </>
   )

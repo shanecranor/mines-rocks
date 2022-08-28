@@ -165,3 +165,7 @@ a {
 .react-calendar-timeline .rct-calendar-header {
   border: 1px solid #bbb;
 }
+
+.highlight {
+  background: rgb(54, 252, 222) !important;
+}
