@@ -66,7 +66,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main>
-        <p>Per Class Text Categories (use "|" as a seperator):</p>
+        <p>Per Class Text Categories (use &quot;|&quot; as a seperator):</p>
         <input type="text"
           value={categories}
           style={{ width: "100%", "marginBottom": "20px" }}

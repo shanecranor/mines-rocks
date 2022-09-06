@@ -4,23 +4,23 @@ import Timeline, {
 	CursorMarker
 } from 'react-calendar-timeline'
 import moment from 'moment'
-function assignmentsToCal(assignments, courseList, categories) {
+function assignmentsToCal(assignments: any, courseList: any, categories: any) {
 	const categoryList = categories.split("|")
 	const out = { groups: [], items: [] };
 	let idx = 0;
 	for (const course in assignments) {
-		const courseName = courseList.filter(item => (item.id == course))[0].course_code.split(".")[1]
+		const courseName = courseList.filter((item: any) => (item.id == course))[0].course_code.split(".")[1]
 		if (assignments[course].length <= 0) { continue }
 		for (const assignment in assignments[course]) {
 			const currentAssignment = assignments[course][assignment]
 			//skip to next assignment if no due date is assigned
 			if (!currentAssignment.due_at) continue
-			let category = categoryList.filter(cat => currentAssignment.name.includes(cat))
+			let category = categoryList.filter((cat: string) => currentAssignment.name.includes(cat))
 			if (!category.length) category.push("")
 			const groupTitle = `${courseName}: ${category[0]}`
-			const groupMatch = out.groups.filter(group => group.title == groupTitle)
+			const groupMatch = out.groups.filter((group: any) => group.title == groupTitle)
 			// if no groups match the correct title create new group
-			let groupID;
+			let groupID: number;
 			if (!groupMatch.length) {
 				groupID = out.groups.length
 				out.groups.push({
