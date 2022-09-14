@@ -13,4 +13,4 @@ yarn dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the assignment viewer demo I made.
 Open [http://localhost:3000/example](http://localhost:3000/example) to see the simple example query demo
 
-You can modify the query for the example by changing the const ENDPOINT in [/pages/example.tsx](https://github.com/shanecranor/canvas-assignment-viewer/blob/main/pages/example.tsx#L17)
+You can modify the query for the example by changing the const ENDPOINT in [/pages/example.tsx](https://github.com/shanecranor/canvas-api-project/blob/main/pages/example.tsx#L17)
