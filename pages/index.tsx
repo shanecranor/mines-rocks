@@ -22,7 +22,7 @@ async function fetchCourseList(key?: string) {
 }
 async function fetchAssignments(course_id: string, key?: string) {
   const response = await fetch(
-    `${API_URL(key)}api/v1/courses/${course_id}/assignments?per_page=1000`
+    `${API_URL(key)}api/v1/courses/${course_id}/assignments?per_page=1000&include[]=submission`
   );
   return (await response.json());
 }

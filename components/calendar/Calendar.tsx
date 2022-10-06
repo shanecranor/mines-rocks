@@ -35,8 +35,6 @@ function assignmentsToCal(assignments: any, courseList: any, categories: any) {
 			} else { //otherwise get group id from match
 				groupID = groupMatch[0].id
 			}
-			console.log(currentAssignment.name)
-			console.log(currentAssignment.has_submitted_submissions)
 			const calItem = {
 				id: idx,
 				group: groupID,
@@ -45,7 +43,7 @@ function assignmentsToCal(assignments: any, courseList: any, categories: any) {
 				end_time: moment(currentAssignment.due_at),
 				itemProps: {
 					style: {
-						background: currentAssignment.has_submitted_submissions ? "rgba(0,0,255,0.5)" : "red"
+						background: currentAssignment?.submission?.submitted_at ? "rgba(0,0,255,0.5)" : "red"
 					}
 				}
 			}
@@ -53,7 +51,6 @@ function assignmentsToCal(assignments: any, courseList: any, categories: any) {
 			idx++
 		}
 	}
-	console.log(out)
 	return out
 }
 
