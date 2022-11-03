@@ -14,6 +14,8 @@ function API_URL(key?: string) {
   if (API_KEY) return `https://canvas.shanecranor.workers.dev/?bearer=${API_KEY}&req=`
   console.error(".env.local API key not found and no key passed")
 }
+
+
 async function fetchCourseList(key?: string) {
   const response = await fetch(
     `${API_URL(key)}api/v1/courses?per_page=1000`
@@ -61,6 +63,83 @@ const Home: NextPage = () => {
   const [assignments, setAssignments] = useState({});
   const [categories, setCategories] = useState("");
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
+  async function formatDataForDB(raw_data, all_keys){
+    const objectMap = (obj, fn) =>
+    Object.fromEntries(Object.entries(obj).map(
+      ([k, v], i) => [k, fn(v, k, i)]
+    ))
+    //clean json from values
+    let output_data = objectMap(raw_data, 
+      (value, key, index) => (
+        typeof(value) == "object" && value !== null ? JSON.stringify(value) : value
+      )
+    )
+ 
+    // give every assignment every key set to null if it doesn't have
+    for (let k in all_keys) 
+      if (output_data[all_keys[k]] == null)
+        output_data[all_keys[k]] = null
+    //exit if datapoint has no ID
+    if (output_data.id == null) return
+    for (const [key, val] of Object.entries(output_data)){
+      //if key is in the key list don't do anything
+      if (all_keys.includes(key)) continue
+      //if additional_data isn't an object yet, make it an object
+      if(output_data.additional_data == null)
+        output_data.additional_data = {}
+      //move the key from output_data to the additional_data object
+      output_data.additional_data[key] = val
+      delete output_data[key]
+    }
+    return output_data
+  }
+  async function submitData(){
+    const start_time = performance.now()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+    const { data: course_keys, error: get_cols_course_error } = await supabase.rpc('get_cols', { table_id: 'Courses' })
+    if(get_cols_course_error) console.log(get_cols_course_error)
+    let bulk_course_data = []
+    for (let i in courseList){
+      const course_data = await formatDataForDB(courseList[i], course_keys)
+      if (!course_data) continue
+      bulk_course_data.push(course_data)
+    }
+    console.log("SENDING COURSE METADATA")
+    const { error: course_error } = await supabase
+    .from('Courses')
+    .upsert(bulk_course_data)
+    if(course_error){
+      console.log(bulk_course_data)
+      console.log(course_error)
+    }
+
+    //parse assignments by course
+    const { data: assignment_keys, error } = await supabase.rpc('get_cols', { table_id: 'Assignments' })
+    for (let i in courseList){
+      let bulk_assignment_data = []
+      //skip to next course if course has no ID
+      if(!assignments[courseList[i].id]) continue
+      for(let j in assignments[courseList[i].id]){
+        const assignment_data = formatDataForDB(assignments[courseList[i].id][j], assignment_keys)
+        bulk_assignment_data.push(assignment_data)
+      }
+      const { error } = await supabase
+        .from('Assignments')
+        .upsert(bulk_assignment_data)
+        if(error){
+          console.log(`ERROR on ${courseList[i].name}`)
+          console.log(courseList[i])
+          console.log(bulk_assignment_data)
+          console.log(error)
+        }
+
+    }
+    const end_time = performance.now()
+    console.log(`${end_time - start_time} milliseconds`)
+  }
   return (
     <>
       <Head>
@@ -71,77 +150,7 @@ const Home: NextPage = () => {
 
       <main>
         <button onClick = {async () => {
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-          )
-        
-          const objectMap = (obj, fn) =>
-          Object.fromEntries(
-            Object.entries(obj).map(
-              ([k, v], i) => [k, fn(v, k, i)]
-            )
-          )
-          const start_time = performance.now()
-          
-          // for (let i in courseList){
-          //   console.log(courseList[i])
-          //   const course_data = objectMap(courseList[i], 
-          //     (value, key, index) => (
-          //       typeof(value) == "object" && value !== null ? JSON.stringify(value) : value
-          //     )
-          //   )
-          //   console.log("SENDING COURSE METADATA")
-          //   const { error } = await supabase
-          //   .from('Courses')
-          //   .upsert(course_data)
-          //   console.log(error)
-          // }
-          const { data: assignment_keys, error } = await supabase.rpc('get_cols', { table_id: 'Assignments' })
-          for (let i in courseList){
-            let bulk_assignment_data = []
-            if(!assignments[courseList[i].id]){
-              continue
-            }
-            for(let j in assignments[courseList[i].id]){
-              const assignment_data = objectMap(assignments[courseList[i].id][j], 
-                (value, key, index) => (
-                  typeof(value) == "object" && value !== null ? JSON.stringify(value) : value
-                )
-              )
-              if (assignment_data.id == null){
-                continue
-              }
-              // give every assignment every key set to null if it doesn't have
-              for (let k in assignment_keys){
-                if (assignment_data[assignment_keys[k]] == null){
-                  assignment_data[assignment_keys[k]] = null
-                }
-              }
-              for (const [key, val] of Object.entries(assignment_data)){
-                if (!assignment_keys.includes(key)){
-                  if(assignment_data.additional_data == null){
-                    assignment_data.additional_data = {}
-                  }
-                  assignment_data.additional_data[key] = val
-                  delete assignment_data[key]
-                  
-                }
-              }
-              bulk_assignment_data.push(assignment_data)
-            }
-            const { error } = await supabase
-              .from('Assignments')
-              .upsert(bulk_assignment_data)
-              if(error){
-                console.log(`ERROR on ${courseList[i].name}`)
-                console.log(courseList[i])
-                console.log(bulk_assignment_data)
-              }
-              console.log(error)
-          }
-          const end_time = performance.now()
-          console.log(`${end_time - start_time} milliseconds`)
+          await submitData()
         }
         }>click to post to database</button>
         <p>Per Class Text Categories (use &quot;|&quot; as a seperator):</p>
