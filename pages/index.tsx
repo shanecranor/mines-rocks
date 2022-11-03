@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 import { redirect } from 'next/dist/server/api-utils'
 import Calendar from '../components/calendar/Calendar'
-let API_KEY = process.env.NEXT_PUBLIC_API_KEY
+let API_KEY: any = process.env.NEXT_PUBLIC_API_KEY
 function API_URL(key?: string) {
   if (!API_KEY) {
     API_KEY = localStorage.getItem('API_KEY')
@@ -22,7 +22,7 @@ async function fetchCourseList(key?: string) {
 }
 async function fetchAssignments(course_id: string, key?: string) {
   const response = await fetch(
-    `${API_URL(key)}api/v1/courses/${course_id}/assignments?per_page=1000&include[]=submission`
+    `${API_URL(key)}api/v1/courses/${course_id}/assignments?per_page=1000&include[]=submission&include[]=score_statistics`
   );
   return (await response.json());
 }
