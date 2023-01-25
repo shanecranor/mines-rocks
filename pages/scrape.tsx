@@ -15,7 +15,12 @@ function API_URL(key?: string) {
   console.error(".env.local API key not found and no key passed")
 }
 
-
+async function fetchGroupData(course_id: string, key?: string){
+  const response = await fetch(
+    `${API_URL(key)}api/v1/courses/${course_id}/assignment_groups `
+  );
+  return (await response.json());
+}
 async function fetchCourseList(key?: string) {
   const response = await fetch(
     `${API_URL(key)}api/v1/courses?per_page=1000`
@@ -45,12 +50,21 @@ function parseAssignments(assignments: any, setAssignments: any, course_id: stri
     item => <li key={item.id}>{item.name} {JSON.stringify(item.score_statistics)}</li>
   )}</ul>
 }
-function parseCourseList(courseList: any, assignments: any, setAssignments: Function, key?: string) {
+function parseCourseList(courseList: any, assignments: any, setAssignments: Function, groupData:any, setGroupData: any, key?: string) {
   return courseList.map(
     (course: any) => {
+      
       return (
         <>
-          <p>{course.name} {course.id}</p>
+
+          <p>          <button onClick={
+            async ()=> {
+              const data = await fetchGroupData(course.id, key);
+              console.log(data)
+              setGroupData((old) => ({...old, [course.id]: data }));
+            }}>
+            get course groups</button>
+            {course.name} {course.id} <br/> groupdata:{JSON.stringify(groupData[course])} </p> 
           {parseAssignments(assignments, setAssignments, course.id, key)}
         </>)
     }
@@ -60,6 +74,7 @@ function parseCourseList(courseList: any, assignments: any, setAssignments: Func
 
 const Home: NextPage = () => {
   const [courseList, setCourseList] = useState();
+  const [groupData, setGroupData ] = useState({});
   const [assignments, setAssignments] = useState({});
   const [categories, setCategories] = useState("");
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
@@ -93,14 +108,9 @@ const Home: NextPage = () => {
     }
     return output_data
   }
-  async function submitData(){
-    const start_time = performance.now()
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
-    const { data: course_keys, error: get_cols_course_error } = await supabase.rpc('get_cols', { table_id: 'Courses' })
-    if(get_cols_course_error) console.log(get_cols_course_error)
+  async function submitCourses(supabase){
+    const { data: course_keys, error: error } = await supabase.rpc('get_cols', { table_id: 'Courses' })
+    if(error) console.log(error)
     let bulk_course_data = []
     for (let i in courseList){
       const course_data = await formatDataForDB(courseList[i], course_keys)
@@ -115,8 +125,8 @@ const Home: NextPage = () => {
       console.log(bulk_course_data)
       console.log(course_error)
     }
-
-    //parse assignments by course
+  }
+  async function submitAssignments(supabase){
     const { data: assignment_keys, error } = await supabase.rpc('get_cols', { table_id: 'Assignments' })
     for (let i in courseList){
       let bulk_assignment_data = []
@@ -137,6 +147,40 @@ const Home: NextPage = () => {
         }
 
     }
+  }
+  async function submitSubmissions(supabase) {
+    const { data: submission_keys, error } = await supabase.rpc('get_cols', { table_id: 'Assignments' })
+    for (let i in courseList){
+      let bulk_submission_data = []
+      //skip to next course if course has no ID
+      if(!assignments[courseList[i].id]) continue
+      for(let j in assignments[courseList[i].id]){
+        if(!assignments[courseList[i].id][j].submission) continue
+        const submission_data = formatDataForDB(
+          assignments[courseList[i].id][j].submission, submission_keys)
+        bulk_submission_data.push(submission_data)
+      }
+      const { error } = await supabase
+        .from('Assignments')
+        .upsert(bulk_submission_data)
+        if(error){
+          console.log(`ERROR on ${courseList[i].name}`)
+          console.log(courseList[i])
+          console.log(bulk_assignment_data)
+          console.log(error)
+        }
+
+    }
+  }
+  async function submitData(){
+    const start_time = performance.now()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+    await submitCourses(supabase)
+    //parse assignments by course
+    await submitAssignments(supabase)
     const end_time = performance.now()
     console.log(`${end_time - start_time} milliseconds`)
   }
@@ -164,7 +208,7 @@ const Home: NextPage = () => {
         <button onClick={async () => setCourseList(await fetchCourseList(canvasApiKey))}>get CourseList</button><br />
         {/* <button onClick={async () => setAssignments(await fetchAssignments("40233"))}>get Assignements</button> */}
         <br></br>
-        {courseList ? parseCourseList(courseList, assignments, setAssignments, canvasApiKey) : "not loaded"}
+        {courseList ? parseCourseList(courseList, assignments, setAssignments, groupData, setGroupData, canvasApiKey) : "not loaded"}
         <br></br>
         {/* {assignments && <div dangerouslySetInnerHTML={{ __html: assignments[0].description }}></div>} */}
         {/* {assignments ? JSON.stringify(assignments) : "not loaded"} */}

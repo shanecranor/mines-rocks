@@ -35,7 +35,7 @@ function assignmentsToCal(assignments: any, courseList: any, categories: any) {
 			} else { //otherwise get group id from match
 				groupID = groupMatch[0].id
 			}
-			console.log(currentAssignment.score_statistics)
+			// console.log(currentAssignment.score_statistics)
 			const calItem = {
 				id: idx,
 				group: groupID,
