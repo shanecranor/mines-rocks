@@ -24,7 +24,7 @@ function API_URL(key?: string) {
 }
 async function fetchCourseList(key?: string) {
   const response = await fetch(
-    `${API_URL(key)}api/v1/courses?per_page=1000` //&enrollment_state=active
+    `${API_URL(key)}api/v1/courses?per_page=1000&enrollment_state=active`
   );
   return (await response.json());
 }

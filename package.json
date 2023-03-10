@@ -10,8 +10,16 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.5",
+    "apexcharts": "^3.36.3",
+    "chart.js": "^4.1.1",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "date-fns": "^2.29.3",
+    "faker": "^5.5.3",
     "next": "12.2.5",
-    "react-dom": "18.2.0"
+    "react-apexcharts": "^1.4.0",
+    "react-chartjs-2": "^5.1.0",
+    "react-dom": "18.2.0",
+    "react-query": "^3.39.3"
   },
   "devDependencies": {
     "@types/node": "18.7.9",
