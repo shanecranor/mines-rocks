@@ -69,8 +69,8 @@ function parseAssignments(assignments: any, setAssignments: any, course_id: stri
     data: item,
     backgroundColor: `rgba(${(item[0].category*40)%255}, 30, ${(item[0].category*50)%255}, 0.6)`,
   }))
-  console.log("GROUPDATA")
-  console.log(groupData)
+  // console.log("GROUPDATA")
+  // console.log(groupData)
  
   const data = {
 		datasets:
@@ -80,7 +80,7 @@ function parseAssignments(assignments: any, setAssignments: any, course_id: stri
     plugins: {
     tooltip: {
       callbacks: {
-         label: function(t, d) {
+         label: function(t: any, d: any) {
             return t.raw.v;
          }
       }

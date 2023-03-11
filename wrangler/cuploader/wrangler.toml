@@ -1,0 +1,8 @@
+name = "cuploader"
+main = "index.ts"
+compatibility_date = "2023-03-11"
+usage_model = "bundled"
+env = { }
+
+[triggers]
+crons = [ ]

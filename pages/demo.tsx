@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react'
 import { redirect } from 'next/dist/server/api-utils'
 import { Chart as ChartJS, LinearScale, PointElement, Tooltip, Legend } from 'chart.js';
 import { TimeScale, Colors } from 'chart.js'
-import { Bubble } from 'react-chartjs-2';
-import { homedir } from 'os'
 import 'chartjs-adapter-date-fns';
 import { enUS } from 'date-fns/locale';
 ChartJS.register(LinearScale, TimeScale, PointElement, Tooltip, Legend, Colors);
@@ -48,6 +46,16 @@ function parseCourseList(courseList: any, assignments: any, setAssignments: Func
 
 const Demo: NextPage = () => {
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
+	// const { isLoading, error, data: coursesData } = useQuery(
+	// 	{
+	// 		queryKey: "courseData", 
+	// 		queryFn: () => fetchCourses(),
+	// 		refetchOnWindowFocus: false, 
+	// 		staleTime: 1000 * 60 * 60 * 3, 
+	// 		cacheTime: 1000 * 60 * 60 * 3  
+	// 		//it will only refetch if the page is open for 3 hours
+	// 	}
+	// )
   return (
     <>
       <Head>
