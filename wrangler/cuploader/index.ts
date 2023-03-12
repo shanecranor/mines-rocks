@@ -1,57 +1,96 @@
-interface RoutesObj {
-  [routeName: string]: Route;
+import { createClient } from '@supabase/supabase-js'
+interface RouterObj {
+  [routeName: string]: RouteInfo;
 }
-interface Route {
-  route: string;
-  params?: string[];
-  supabase?: string; //remove questionmark
+interface RouteInfo {
+  endpoint: string;
+  params?: string[]; // parameters to replace in the endpoint
+  supabaseTable: string; // table to upsert data to
+  requiredKeys?: string[];
 }
-const routes = <RoutesObj> {
+
+const router = <RouterObj> {
   getCourses: {
-    route: "api/v1/courses?per_page=1000",
-    supabase: ""
+    endpoint: "api/v1/courses?per_page=1000",
+    supabaseTable: "course_summary_data",
+    requiredKeys: ["id", "name"]
   },
   getCourseData: {
-    route: "api/v1/courses/course_id/assignments?per_page=1000&include[]=submission&include[]=score_statistics",
-    params: ["course_id"]
+    endpoint: "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics",
+    params: ["course_id"],
+    supabaseTable: "assignment_data"
   },
 }
 
+const API_URL = "https://elearning.mines.edu/"
+
 export default {
-  async fetch(request: Request) {
-    const API_URL = "https://elearning.mines.edu/"
-    // fetch canvas course id  (could do this on the client if we wanted, prolly don't tho)
-    // clean and send this data to supabase
-    // fetch canvas assignments from course id
-    // fetch assignment groups from course id as well
-    // clean and send this data to a different supabase
+  async fetch(request: Request, {SUPABASE_URL, SUPABASE_SERVICE_ROLE} : {SUPABASE_URL: string, SUPABASE_SERVICE_ROLE: string}) {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE)
     const { searchParams } = new URL(request.url)
+    // get the route from the url params
     let route = <string | null> searchParams.get("route")
-    const AUTH_TOKEN = searchParams.get('bearer')
     if(!route) return new Response("ERROR: No route")
-    route = <string> route;
-    let endpoint = routes[route]
-    if(!endpoint) return new Response("ERROR: Invalid route")
+    // get the canvas auth token from the url params
+    const AUTH_TOKEN = searchParams.get('bearer')
     if(!AUTH_TOKEN) return new Response("ERROR: No auth token")
-    let endpoint_str = endpoint.route
-    for(let i = 0; endpoint.params && i < endpoint.params.length; i++){
-      const param = endpoint.params[i]
+    // the router object will tell us what to do based on the route string
+    let routeInfo = router[route]
+    if(!routeInfo) return new Response("ERROR: Invalid route")
+    let endpoint = routeInfo.endpoint
+    // replace the params in the endpoint
+    // with the values from the url params in the worker request
+    for(let i = 0; routeInfo.params && i < routeInfo.params.length; i++){
+      const param = routeInfo.params[i]
       const value = searchParams.get(param)
       if(!value) return new Response(`Empty value for ${param}`)
-      endpoint_str = endpoint_str.replace(param, value )
+      endpoint = endpoint.replace(param, value)
     }
-    const queryURL = `${API_URL}${endpoint_str}`
-    // add test to the url params to see the query url
+    const queryURL = `${API_URL}${endpoint}`
+    // return the query url if the test param is set for testing and debugging
     if(searchParams.get('test')){
       return new Response(queryURL)
     }
+    // fetch the data from the canvas api
     const response = await fetch(queryURL,
       { headers: { Authorization:
             `Bearer ${AUTH_TOKEN}`
       }}
     )
+    // return the error if the response is not 200
+    if(response.status !== 200){
+      return new Response(`ERROR: ${response.status} ${response.statusText}`)
+    }
     const data = await response.json()
-    const encodedData = JSON.stringify(data)
+    // get the column names from the supabase psql function
+    const { data: table_keys } = await supabase.rpc(
+      'list_columns', { table_id: routeInfo.supabaseTable }
+    )
+
+    const cleanData = data.map((row: any) => {
+      // add null values for missing keys
+      for(let key of table_keys){
+        if(!row[key]){
+          row[key] = null
+        }
+      }
+      // remove keys that don't exist in the table
+      for(let key in row){
+        if(!table_keys.includes(key)) delete row[key]
+      }
+      return row;
+    }).filter((row: any) => {
+      // filter out rows that don't have the required keys
+      if(!routeInfo.requiredKeys) return true
+      for (let key of routeInfo.requiredKeys){
+        if(!row[key]) return false
+      }
+      return true
+    })
+    const { data: return_data, error } = await 
+      supabase.from(routeInfo.supabaseTable).upsert(cleanData)
+    if(error) return new Response(`Upsert ERROR: ${error}`)
+    const encodedData = JSON.stringify(cleanData)
     return new Response(
       encodedData, {
         headers: {
