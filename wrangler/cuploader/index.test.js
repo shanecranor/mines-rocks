@@ -1,3 +1,4 @@
+//TODO: store env vars in .dev.env so they can be used in tests... rn this shit broke broke
 import { unstable_dev } from 'wrangler';
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 
