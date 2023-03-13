@@ -26,7 +26,7 @@ const router = <RouterObj> {
     },
     {
       endpointName: "assignment_groups",
-      endpoint: "api/v1/courses/course_id/assignment_groups ",
+      endpoint: "api/v1/courses/course_id/assignment_groups",
       params: ["course_id"],
       supabaseTable: "assignment_group_data",
     }
@@ -123,7 +123,7 @@ async function doRoute(routeInfo: RouteInfo, AUTH_TOKEN: string, searchParams: U
   })
   const { data: return_data, error } = await 
     supabase.from(routeInfo.supabaseTable).upsert(cleanData)
-  if(error) return `Upsert ERROR: ${error}`
+  if(error) return `Upsert ERROR: ${JSON.stringify(error)}`
   return cleanData
 }
 
