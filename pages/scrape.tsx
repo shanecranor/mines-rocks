@@ -19,7 +19,9 @@ async function fetchGroupData(course_id: string, key?: string){
   const response = await fetch(
     `${API_URL(key)}api/v1/courses/${course_id}/assignment_groups `
   );
-  return (await response.json());
+  const data = await response.json();
+  console.log(data)
+  return (data);
 }
 async function fetchCourseList(key?: string) {
   const response = await fetch(
@@ -67,8 +69,8 @@ function parseCourseList(courseList: any, assignments: any, setAssignments: Func
             get course groups</button>
             {course.name} {course.id} 
             <br/> 
-            {JSON.stringify(course)}
-            {/* groupdata:{JSON.stringify(groupData[course])}  */}
+            {/* {JSON.stringify(course)} */}
+            groupdata:{JSON.stringify(groupData[course])} 
             </p> 
           {parseAssignments(assignments, setAssignments, course.id, key)}
         </>)
