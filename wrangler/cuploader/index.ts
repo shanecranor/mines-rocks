@@ -41,19 +41,24 @@ export default {
     const { searchParams } = new URL(request.url)
     // get the route from the url params
     let route = <string | null> searchParams.get("route")
-    if(!route) return new Response("ERROR: No route")
+    if(!route) return new Response("ERROR: No route", {status: 400})
     // get the canvas auth token from the url params
     const AUTH_TOKEN = searchParams.get('bearer')
-    if(!AUTH_TOKEN) return new Response("ERROR: No auth token")
+    if(!AUTH_TOKEN) return new Response("ERROR: No auth token", {status: 401})
     // the router object will tell us what to do based on the route string
     let routeInfoList = router[route]
-    if(!routeInfoList) return new Response("ERROR: Invalid route")
+    if(!routeInfoList) return new Response("ERROR: Invalid route", {status: 418})
     // loop through each endpoint in the route
+    let status = 200
     let responses = {}
     for( let i = 0; i < routeInfoList.length; i++){
       let routeInfo = routeInfoList[i]
+      const responseData = await doRoute(routeInfo, AUTH_TOKEN, searchParams, supabase)
       responses = {...responses, 
-        [routeInfo.endpointName]: await doRoute(routeInfo, AUTH_TOKEN, searchParams, supabase)
+        [routeInfo.endpointName]: responseData
+      }
+      if (typeof responseData === 'string'){
+        status = 500
       }
     }
 
@@ -64,7 +69,8 @@ export default {
           'Access-Control-Allow-Headers' : '*',
           'Access-Control-Allow-Origin' : '*',
           'content-type': 'application/json;charset=UTF-8'
-        }
+        },
+        status: status
       }
     )
   },
