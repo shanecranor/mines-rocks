@@ -35,22 +35,18 @@ async function fetchCourseList(key?: string) {
 
 const Home: NextPage = () => {
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
-  const [courseStateList, setCourseStateList] = useState(
-    {
-      includeList: [], 
-      uploadStatus: [],
-    })
+  const [courseIncludeList, setCourseIncludeList] = useState( [] )
+  const [courseUploadList, setCourseUploadList] = useState( [] )
 
   const { isLoading, error, data: courseList } = useQuery(
 		{
 			queryKey: "courseList", 
 			queryFn: () => fetchCourseList(),
-      onSuccess: (data) => {
-        setCourseStateList({
-          includeList: data?.courses?.map(
-            (course: any) => !IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))),
-          uploadStatus: data?.courses?.map((course: any) => "")
-        })
+      onSuccess: (data: any) => {
+        setCourseIncludeList(data?.courses?.map((course: any) => false
+            //!IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))
+            ))
+        setCourseUploadList(data?.courses?.map((course: any) => ""))
       },
 			refetchOnWindowFocus: false, 
 			staleTime: 1000 * 60 * 60 * 6, 
@@ -59,20 +55,29 @@ const Home: NextPage = () => {
 		}
 	);
   async function uploadCourses(courseList: any){
-    for (let i = 0; i < courseList.courses.length; i++) {
-      const course = courseList.courses[i];
-      if(!courseStateList.includeList[i]) continue
+    for (let courseIndex = 0; courseIndex < courseList.courses.length; courseIndex++) {
+      const course = courseList.courses[courseIndex];
+      if(!courseIncludeList[courseIndex]) {
+        console.log("SKIPPED")
+        continue
+      }
       const courseData = await fetchCourseData(course.id)
-      console.log("GAY")
-      console.log(({ ...courseStateList,
-        uploadStatus: courseStateList.uploadStatus.map((status, idx) => idx == i ? {data: courseData, color: "blue"} : status) 
-      }))
-      setCourseStateList((oldState: any) => 
-        ({ ...oldState,
-        uploadStatus: oldState.uploadStatus.map((status, idx) => idx == i ? {data: courseData, color: "blue"} : status) 
-      }))
-      
+      console.log("wtf" + courseIndex + " " + course.id) 
+      setCourseUploadList((oldState: any) => {
+        console.log("SETwtf " + courseIndex + " " + course.id)
+        return oldState
+      })
+      setCourseUploadList((oldState: any) => 
+         oldState.map((status, idx) => {
+          if (idx == courseIndex) {
+            return {data: courseData, color: "blue"}
+          }
+          return status
+        }) 
+      )
+      // await new Promise(resolve => setTimeout(resolve, 100));
     }
+    return
   }
   function parseCourseList(courseList: any) {
     //check if type of courseList.courses is string
@@ -83,23 +88,22 @@ const Home: NextPage = () => {
         if(IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))) return
         return (
           <div key={`COURSEUPLOAD${course.id}`} 
-          style={{background: courseStateList.uploadStatus[idx]?.color}}>
-            {JSON.stringify(courseStateList.uploadStatus[idx])}
+          style={{background: courseUploadList[idx]?.color}}>
+            {JSON.stringify(courseUploadList[idx])}
             <input type="checkbox" 
-            checked={courseStateList.includeList[idx]} 
+            checked={courseIncludeList[idx]} 
             
-            onChange={() => setCourseStateList((oldState: any) => ({
-              ...oldState, 
-              includeList: oldState.includeList.map(
+            onChange={() => setCourseIncludeList((oldState: any) => (
+              oldState.map(
                 (box: boolean, i: number) => idx === i ? !box : box)
-            }))}/> 
+            ))}/> 
             {course.name}</div>
             )
       }
     )
   }
   console.log("UPLOAD STATUS")
-  console.log(courseStateList)
+  console.log(courseUploadList)
   return (
     <>
       <Head>
