@@ -19,17 +19,17 @@ const router = <RouterObj> {
   }],
   getCourseData: [
     {
+      endpointName: "assignment_groups",
+      endpoint: "api/v1/courses/course_id/assignment_groups",
+      params: ["course_id"],
+      supabaseTable: "assignment_group_data",
+    },
+    {
       endpointName: "assignments",
       endpoint: "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics",
       params: ["course_id"],
       supabaseTable: "assignment_data"
     },
-    {
-      endpointName: "assignment_groups",
-      endpoint: "api/v1/courses/course_id/assignment_groups",
-      params: ["course_id"],
-      supabaseTable: "assignment_group_data",
-    }
   ],
 }
 
