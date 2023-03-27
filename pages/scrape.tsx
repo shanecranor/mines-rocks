@@ -21,10 +21,10 @@ function API_URL(route: string, key?: string,) {
 async function fetchCourseData(course_id: string, key?: string){
   console.log(`fetching course data for ${course_id}`)
   const response = await fetch(
-    `${API_URL('getCourseData',key)}&course_id=${course_id}&test=true`
+    `${API_URL('getCourseData',key)}&course_id=${course_id}`
   );
   const data = await response.json();
-  return (data);
+  return {data: data, status: response.status};
 }
 async function fetchCourseList(key?: string) {
   const response = await fetch(
@@ -61,16 +61,28 @@ const Home: NextPage = () => {
         console.log("SKIPPED")
         continue
       }
-      const courseData = await fetchCourseData(course.id)
-      console.log("wtf" + courseIndex + " " + course.id) 
-      setCourseUploadList((oldState: any) => {
-        console.log("SETwtf " + courseIndex + " " + course.id)
-        return oldState
-      })
       setCourseUploadList((oldState: any) => 
          oldState.map((status, idx) => {
           if (idx == courseIndex) {
-            return {data: courseData, color: "blue"}
+            return {data: "loading", color: "LightGoldenRodYellow"}
+          }
+          return status
+        }) 
+      )
+      const courseData = await fetchCourseData(course.id)
+      // console.log("wtf" + courseIndex + " " + course.id) 
+      // setCourseUploadList((oldState: any) => {
+      //   console.log("SETwtf " + courseIndex + " " + course.id)
+      //   return oldState
+      // })
+      const statusToColor = {
+        200: "green",
+        500: "orange",
+      }
+      setCourseUploadList((oldState: any) => 
+         oldState.map((status, idx) => {
+          if (idx == courseIndex) {
+            return {data: courseData.data, color: statusToColor[courseData.status] || "red"}
           }
           return status
         }) 
@@ -89,7 +101,6 @@ const Home: NextPage = () => {
         return (
           <div key={`COURSEUPLOAD${course.id}`} 
           style={{background: courseUploadList[idx]?.color}}>
-            {JSON.stringify(courseUploadList[idx])}
             <input type="checkbox" 
             checked={courseIncludeList[idx]} 
             

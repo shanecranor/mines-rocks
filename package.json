@@ -15,7 +15,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^2.29.3",
     "faker": "^5.5.3",
-    "next": "12.2.5",
+    "next": "^13.2.4",
     "react-apexcharts": "^1.4.0",
     "react-chartjs-2": "^5.1.0",
     "react-dom": "18.2.0",
