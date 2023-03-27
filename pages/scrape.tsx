@@ -1,4 +1,5 @@
 import type { NextPage } from 'next'
+import { IGNORE_CLASSES } from '../constants/ignoreClasses'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
@@ -18,12 +19,11 @@ function API_URL(route: string, key?: string,) {
 }
 
 async function fetchCourseData(course_id: string, key?: string){
+  console.log(`fetching course data for ${course_id}`)
   const response = await fetch(
-    `${API_URL('getCourseData',key)}?course_id=${course_id}`
+    `${API_URL('getCourseData',key)}&course_id=${course_id}&test=true`
   );
   const data = await response.json();
-  console.log( `${API_URL("getCourseData", key)}api/v1/courses/${course_id}/assignment_groups `)
-  console.log(data)
   return (data);
 }
 async function fetchCourseList(key?: string) {
@@ -33,50 +33,73 @@ async function fetchCourseList(key?: string) {
   return (await response.json());
 }
 
-// function parseAssignments(assignments: any, setAssignments: any, course_id: string, key?: string) {
-//   if (!assignments[course_id]) {
-//     return <button onClick={async () => {
-//       const data = await fetchAssignments(course_id, key)
-//       setAssignments((old) => ({ ...old, [course_id]: data }))
-//     }}>
-//       Load Assignments
-//     </button>
-//   }
-//   if(assignments[course_id]?.status=="unauthorized"){
-//     return <ul>Unauthorized for some reason</ul>
-//   }
-//   // return <ul>{JSON.stringify(assignments[course_id])}</ul>
-//   return <ul>{assignments[course_id]?.map(
-//     item => <li key={item.id}>{item.name} {JSON.stringify(item.score_statistics)}</li>
-//   )}</ul>
-// }
-function parseCourseList(courseList: any) {
-  return courseList.map(
-    (course: any) => {
-      return (
-        <>
-          <p>          
-            {course.name}
-          </p> 
-        </>)
-    }
-  )
-}
-
-
 const Home: NextPage = () => {
+  const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
+  const [courseStateList, setCourseStateList] = useState(
+    {
+      includeList: [], 
+      uploadStatus: [],
+    })
+
   const { isLoading, error, data: courseList } = useQuery(
 		{
 			queryKey: "courseList", 
 			queryFn: () => fetchCourseList(),
+      onSuccess: (data) => {
+        setCourseStateList({
+          includeList: data?.courses?.map(
+            (course: any) => !IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))),
+          uploadStatus: data?.courses?.map((course: any) => "")
+        })
+      },
 			refetchOnWindowFocus: false, 
 			staleTime: 1000 * 60 * 60 * 6, 
 			cacheTime: 1000 * 60 * 60 * 6  
 			//it will only refetch if the page is open for 6 hours
 		}
 	);
-  const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
-
+  async function uploadCourses(courseList: any){
+    for (let i = 0; i < courseList.courses.length; i++) {
+      const course = courseList.courses[i];
+      if(!courseStateList.includeList[i]) continue
+      const courseData = await fetchCourseData(course.id)
+      console.log("GAY")
+      console.log(({ ...courseStateList,
+        uploadStatus: courseStateList.uploadStatus.map((status, idx) => idx == i ? {data: courseData, color: "blue"} : status) 
+      }))
+      setCourseStateList((oldState: any) => 
+        ({ ...oldState,
+        uploadStatus: oldState.uploadStatus.map((status, idx) => idx == i ? {data: courseData, color: "blue"} : status) 
+      }))
+      
+    }
+  }
+  function parseCourseList(courseList: any) {
+    //check if type of courseList.courses is string
+    // if it is, then it is an error message (probably a better way to do this lol)
+    if(typeof courseList.courses === "string") return JSON.stringify(courseList)
+    return courseList.courses.map(
+      (course: any, idx: number) => {
+        if(IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))) return
+        return (
+          <div key={`COURSEUPLOAD${course.id}`} 
+          style={{background: courseStateList.uploadStatus[idx]?.color}}>
+            {JSON.stringify(courseStateList.uploadStatus[idx])}
+            <input type="checkbox" 
+            checked={courseStateList.includeList[idx]} 
+            
+            onChange={() => setCourseStateList((oldState: any) => ({
+              ...oldState, 
+              includeList: oldState.includeList.map(
+                (box: boolean, i: number) => idx === i ? !box : box)
+            }))}/> 
+            {course.name}</div>
+            )
+      }
+    )
+  }
+  console.log("UPLOAD STATUS")
+  console.log(courseStateList)
   return (
     <>
       <Head>
@@ -87,7 +110,13 @@ const Home: NextPage = () => {
 
       <main>
         <h1>Courses to be uploaded:</h1>
-        {courseList ? parseCourseList(courseList.courses) : "not loaded"}
+        {
+        isLoading ? <p>Loading...</p> :
+        <>
+          {parseCourseList(courseList)}
+          <button onClick={() => uploadCourses(courseList)}>Contribute</button>
+        </>
+        }
         <br></br>
         <p>Paste your canvas API key here:</p>
         <input type="text"
