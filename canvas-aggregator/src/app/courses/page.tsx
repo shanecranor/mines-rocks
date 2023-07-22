@@ -6,13 +6,15 @@ import {
   QueryClientProvider,
   useQuery,
 } from '@tanstack/react-query'
+import { Course, getGlobalCourseListFiltered } from '@/services/database'
+import CourseComponent from '@/app/courses/course-component'
 
 const queryClient = new QueryClient()
-import { getGlobalCourseList } from '@/services/database'
+
 export default function Home() {
 	const { isLoading, error, data: courseList } = useQuery({
 			queryKey: ["supaCourseList"],
-			queryFn: getGlobalCourseList,
+			queryFn: getGlobalCourseListFiltered,
 			refetchOnWindowFocus: false,
 			staleTime: 1000 * 60 * 60 * 6,
 			cacheTime: 1000 * 60 * 60 * 6
@@ -31,8 +33,8 @@ export default function Home() {
 					<h1>View Course Data</h1>
 					{
 						isLoading ? <div>Loading...</div> : 
-						courseList?.data?.map(
-							(course: any) => <div key={course.id}>{course.name}</div>)
+						courseList?.map(
+							(course: Course) => <CourseComponent courseData={course} key={course.id}/>)
 					}
 				</main>
 			</QueryClientProvider>
