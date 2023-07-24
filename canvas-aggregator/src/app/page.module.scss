@@ -1,0 +1,60 @@
+.main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  > h1 {
+    text-align: center;
+    margin: 16px;
+  }
+  > .search-container {
+    display: flex;
+    //center
+    justify-content: center;
+    width: 100%;
+    > input {
+      width: 100%;
+      max-width: 600px;
+      padding: 8px;
+      margin: 8px;
+    }
+  }
+  > .results-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    // border: 1px solid rgba(var(--foreground-rgb), 0.2);
+    margin: 16px;
+    gap: 16px;
+    > .filter-settings {
+      width: 100px;
+      display: flex;
+      flex-direction: column;
+      background: rgba(var(--foreground-rgb), 0.075);
+      border-radius: 4px;
+      padding: 8px;
+    }
+  }
+}
+
+.nav-container {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  border-bottom: 1px solid rgba(var(--foreground-rgb), 0.2);
+  .nav {
+    width: 100%;
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    max-width: var(--max-width);
+    margin: 0px 10px;
+    > .nav-links {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
+  }
+}

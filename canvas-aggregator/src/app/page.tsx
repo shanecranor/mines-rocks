@@ -1,51 +1,88 @@
-'use client'
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import Image from "next/image";
+import styles from "./page.module.scss";
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
-} from '@tanstack/react-query'
-import Head from 'next/head'
-import { Course, getGlobalCourseListFiltered } from '@/services/database'
-import CourseComponent from '@/app/courses/course-component'
+} from "@tanstack/react-query";
+import { useObservable } from "@legendapp/state/react";
 
-const queryClient = new QueryClient()
+import Head from "next/head";
+import { Course, getGlobalCourseListFiltered } from "@/services/database";
+import CourseComponent, {
+  getCourseAttributes,
+} from "@/components/course-component/course-component";
+import Checkbox from "@/components/form-components/checkbox";
+import SearchResults from "@/components/search-results/search-results";
+
+const queryClient = new QueryClient();
 
 export default function Home() {
-  const { isLoading, error, data: courseList } = useQuery({
+  const searchOptions$ = useObservable({
+    semester: {
+      spring: true,
+      fall: true,
+      summer: true,
+    },
+  });
+  const {
+    isLoading,
+    error,
+    data: courseList,
+  } = useQuery({
     queryKey: ["supaCourseList"],
     queryFn: getGlobalCourseListFiltered,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60 * 6,
-    cacheTime: 1000 * 60 * 60 * 6
+    cacheTime: 1000 * 60 * 60 * 6,
     //it will only refetch if the page is open for 6 hours
-});
-
+  });
   return (
-		<>
-    
-			<Head>
-				<title>Find your perfect course</title>
-				<meta name="description" content="crowd sourced course data" />
-				<link rel="icon" href="/favicon.ico" />
-			</Head>
-			<QueryClientProvider client={queryClient}>
-				<main>
-					<h1>See more than the course description</h1>
-          <input type="text" placeholder="Search for a course"></input>
-          <div>Filter:
-            <div>
-              Semester
+    <>
+      <Head>
+        <title>Find your perfect course</title>
+        <meta name="description" content="crowd sourced course data" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <QueryClientProvider client={queryClient}>
+        <div className={styles["nav-container"]}>
+          <nav className={styles.nav}>
+            <div className={styles.logo}></div>
+            <div className={styles["nav-links"]}>
+              <div>Home</div>
+              <div>About</div>
+              <div>Contribute</div>
             </div>
+          </nav>
+        </div>
+        <main className={styles.main}>
+          <h1>Data driven course selection</h1>
+          <div className={styles["search-container"]}>
+            <input type="text" placeholder="Search for a course"></input>
           </div>
-					{
-						isLoading ? <div>Loading...</div> : 
-						courseList?.map(
-							(course: Course) => <CourseComponent courseData={course} key={course.id}/>)
-					}
-				</main>
-			</QueryClientProvider>
-		</>
-  )
+          <div className={styles["results-container"]}>
+            <div className={styles["filter-settings"]}>
+              <div>Semester</div>
+              <Checkbox
+                label="Spring"
+                state$={searchOptions$.semester.spring}
+              />
+              <Checkbox label="Fall" state$={searchOptions$.semester.fall} />
+              <Checkbox
+                label="Summer"
+                state$={searchOptions$.semester.summer}
+              />
+              {/* Sort:
+              <div>Course Code</div>
+              <div>Average</div>
+              <div>Theoretical Min</div>
+              <div>Theoretical Max</div> */}
+            </div>
+            <SearchResults {...{ isLoading, courseList, searchOptions$ }} />
+          </div>
+        </main>
+      </QueryClientProvider>
+    </>
+  );
 }

@@ -95,6 +95,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@legendapp/state@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "@legendapp/state@npm:1.6.2"
+  dependencies:
+    use-sync-external-store: "npm:^1.2.0"
+  checksum: 9ceefd1609bd3ca1b8966ee0d4400e0e2ce3c73dddd41f162c69586f956f6ecae3b41b873b7f4cd8766c96f60cf5fc5ef4f7cea7aca4fba6714b762c16a6da0d
+  languageName: node
+  linkType: hard
+
 "@next/env@npm:13.4.7":
   version: 13.4.7
   resolution: "@next/env@npm:13.4.7"
@@ -899,6 +908,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "canvas-aggregator@workspace:."
   dependencies:
+    "@legendapp/state": "npm:^1.6.2"
     "@supabase/supabase-js": "npm:^2.26.0"
     "@tanstack/react-query": "npm:^4.29.17"
     "@tanstack/react-query-devtools": "npm:^4.29.17"
