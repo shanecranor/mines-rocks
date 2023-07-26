@@ -60,6 +60,7 @@ export const averageStatistic: (
   assignmentList: Assignment[] | undefined,
   scoreStatistic: string
 ) => number | undefined = (assignmentList, scoreStatistic) => {
+  //TODO: if a class has no weights, then generate weights
   if (!assignmentList) return 0;
   const pointsList = assignmentList.map((assignment) => {
     if (!assignment) return;
