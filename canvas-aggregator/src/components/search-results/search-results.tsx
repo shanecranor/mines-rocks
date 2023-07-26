@@ -9,12 +9,12 @@ import { getAssignmentsByCourse } from "@/services/data-aggregation";
 const SearchResults = observer(
   ({
     courseList,
-    assignmentList,
+    assignments,
     searchOptions$,
     assignmentGroups,
   }: {
     courseList: Course[] | undefined;
-    assignmentList: Assignment[] | undefined;
+    assignments: Assignment[] | undefined;
     assignmentGroups: AssignmentGroup[];
     searchOptions$: any; //TODO add types for options
   }) => {
@@ -47,7 +47,7 @@ const SearchResults = observer(
             <CourseComponent
               courseData={course}
               key={course.id}
-              assignments={getAssignmentsByCourse(assignmentList, course)}
+              assignments={getAssignmentsByCourse(assignments, course)}
               assignmentGroups={assignmentGroups}
             />
           ))

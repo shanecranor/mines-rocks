@@ -18,6 +18,10 @@ export const getStatsByGroup: (
   const filteredAssignmentGroups = assignmentGroups.filter((group) =>
     assignments.some((a) => a.assignment_group_id === group.id)
   );
+  //check if any assignment groups have weights
+  const isWeighted = filteredAssignmentGroups.some(
+    (group) => group.group_weight !== null
+  );
   const statsList = filteredAssignmentGroups.map((group: AssignmentGroup) => {
     //get all assignments associated with the group
     const groupAssignments = assignments.filter(
@@ -28,11 +32,15 @@ export const getStatsByGroup: (
       (prev, curr) => {
         return {
           ...prev,
-          [curr]: averageStatistic(groupAssignments, curr),
+          [curr]: averageStatistic(groupAssignments, curr)?.grade,
         };
       },
       {} //initial value is empty object
-    ) as GradeStatistics | any;
+    ) as GradeStatistics;
+    if (!isWeighted) {
+      group.group_weight =
+        averageStatistic(groupAssignments, "mean")?.totalPossible ?? null;
+    }
     return { stats: out, group };
   });
   return statsList;
@@ -59,9 +67,11 @@ export const getAssignmentsByCourse = (
 export const averageStatistic: (
   assignmentList: Assignment[] | undefined,
   scoreStatistic: string
-) => number | undefined = (assignmentList, scoreStatistic) => {
-  //TODO: if a class has no weights, then generate weights
-  if (!assignmentList) return 0;
+) => { grade: number; totalPossible: number } | undefined = (
+  assignmentList,
+  scoreStatistic
+) => {
+  if (!assignmentList) return;
   const pointsList = assignmentList.map((assignment) => {
     if (!assignment) return;
     if (!assignment["points_possible"]) return;
@@ -93,5 +103,5 @@ export const averageStatistic: (
     (prev, curr) => prev + curr.actual,
     0
   );
-  return (totalActual / totalPossible) * 100;
+  return { grade: (totalActual / totalPossible) * 100, totalPossible };
 };

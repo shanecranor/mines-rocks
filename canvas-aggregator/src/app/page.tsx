@@ -31,7 +31,7 @@ export default function Home() {
       summer: true,
     },
   });
-  const { data: courseList } = useQuery({
+  const { data: courses } = useQuery({
     queryKey: ["supaCourseList"],
     queryFn: getCourseListFiltered,
     refetchOnWindowFocus: false,
@@ -48,7 +48,7 @@ export default function Home() {
     //it will only refetch if the page is open for 6 hours
   });
 
-  const { data: assignmentList } = useQuery({
+  const { data: assignments } = useQuery({
     queryKey: ["supaAssignmentList"],
     queryFn: getAssignments,
     refetchOnWindowFocus: false,
@@ -99,8 +99,8 @@ export default function Home() {
             </div>
             <SearchResults
               {...{
-                courseList,
-                assignmentList,
+                courseList: courses,
+                assignments,
                 assignmentGroups,
                 searchOptions$,
               }}

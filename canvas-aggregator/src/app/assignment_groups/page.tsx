@@ -94,7 +94,9 @@ export default function Home() {
                   />
                   <ul>
                     {courseAssignments.map((group) => (
-                      <div key={group.id + "asdf"}>{group.name}</div>
+                      <div key={group.id + "asdf"}>
+                        {group.name} {group.score_statistics?.mean}
+                      </div>
                     ))}
                     {groupData.map((stat) => (
                       <div key={stat.group.id}>
