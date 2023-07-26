@@ -6,41 +6,61 @@ import { IGNORE_CLASSES } from "./constants/constants";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
 export type Course = Database["public"]["Tables"]["course_summary_data"]["Row"];
-export type Assignment = Database["public"]["Tables"]["assignment_data"]["Row"];
+export type Assignment =
+  Database["public"]["Tables"]["assignment_data"]["Row"] & {
+    score_statistics: { [key: string]: number };
+  };
+export type AssignmentGroup =
+  Database["public"]["Tables"]["assignment_group_data"]["Row"];
+export type GradeStatistics = {
+  max: number;
+  min: number;
+  mean: number;
+  median: number;
+  upper_q: number;
+  lower_q: number;
+};
+export const STAT_KEYS: (
+  | "max"
+  | "min"
+  | "mean"
+  | "median"
+  | "upper_q"
+  | "lower_q"
+)[] = ["max", "min", "mean", "median", "upper_q", "lower_q"];
 
-export const getAssignments: () => Promise<Assignment[] | []> = async () => {
-  const response = await supabase.from("assignment_data").select("*");
+const getResponseData = (response: any) => {
   if (response.error) {
-    console.error("Error fetching course list from supabase");
+    console.error("Error fetching from supabase");
     console.error(response.error);
+    throw response.error;
   }
   if (!response.data) return [];
   return response.data;
 };
-export const getAssignmentsByCourse = (
-  assignments: Assignment[] | undefined,
-  course: Course
-) => {
-  if (!assignments) return [];
-  return assignments.filter((assignment) => assignment.course_id === course.id);
-};
 
-const getGlobalCourseList = async () => {
-  return await supabase.from("course_summary_data").select("*");
-};
-
-export const getGlobalCourseListFiltered: () => Promise<
-  Course[] | []
+export const getAssignmentGroups: () => Promise<
+  AssignmentGroup[] | []
 > = async () => {
-  const courseList = await getGlobalCourseList();
-  if (courseList.error) {
-    console.error("Error fetching course list from supabase");
-    console.error(courseList.error);
-  }
-  if (!courseList.data) return [];
+  const response = await supabase.from("assignment_group_data").select("*");
+  return getResponseData(response);
+};
+
+export const getAssignments: () => Promise<Assignment[] | []> = async () => {
+  const response = await supabase.from("assignment_data").select("*");
+  return getResponseData(response);
+};
+
+const getCourseList: () => Promise<Course[] | []> = async () => {
+  const response = await supabase.from("course_summary_data").select("*");
+  return getResponseData(response);
+};
+
+export const getCourseListFiltered: () => Promise<Course[] | []> = async () => {
+  const courseList = await getCourseList();
   //filter out courses that are in the ignore list
   //shouldn't need this because we aren't uploading ignored courses but why not
-  return courseList.data.filter(
+  return courseList.filter(
     (course: Course) => course.name && !isIgnoredCourse(course.name)
   );
 };

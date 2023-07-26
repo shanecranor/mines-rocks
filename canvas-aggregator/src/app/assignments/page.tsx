@@ -11,7 +11,7 @@ import {
   Course,
   getAssignments,
   getAssignmentsByCourse,
-  getGlobalCourseListFiltered,
+  getCourseListFiltered,
 } from "@/services/database";
 
 const queryClient = new QueryClient();
@@ -19,7 +19,7 @@ const queryClient = new QueryClient();
 export default function Home() {
   const { isLoading: isLoadingCourses, data: courseList } = useQuery({
     queryKey: ["supaCourseList"],
-    queryFn: getGlobalCourseListFiltered,
+    queryFn: getCourseListFiltered,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60 * 6,
     cacheTime: 1000 * 60 * 60 * 6,

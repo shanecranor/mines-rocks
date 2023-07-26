@@ -9,7 +9,11 @@ import {
 import { useObservable } from "@legendapp/state/react";
 
 import Head from "next/head";
-import { Course, getGlobalCourseListFiltered } from "@/services/database";
+import {
+  Course,
+  getAssignments,
+  getCourseListFiltered,
+} from "@/services/database";
 import CourseComponent, {
   getCourseAttributes,
 } from "@/components/course-component/course-component";
@@ -26,13 +30,17 @@ export default function Home() {
       summer: true,
     },
   });
-  const {
-    isLoading,
-    error,
-    data: courseList,
-  } = useQuery({
+  const { data: courseList } = useQuery({
     queryKey: ["supaCourseList"],
-    queryFn: getGlobalCourseListFiltered,
+    queryFn: getCourseListFiltered,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 60 * 6,
+    cacheTime: 1000 * 60 * 60 * 6,
+    //it will only refetch if the page is open for 6 hours
+  });
+  const { data: assignmentList } = useQuery({
+    queryKey: ["supaAssignmentList"],
+    queryFn: getAssignments,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60 * 6,
     cacheTime: 1000 * 60 * 60 * 6,
@@ -79,7 +87,9 @@ export default function Home() {
               <div>Theoretical Min</div>
               <div>Theoretical Max</div> */}
             </div>
-            <SearchResults {...{ isLoading, courseList, searchOptions$ }} />
+            <SearchResults
+              {...{ courseList, assignmentList, searchOptions$ }}
+            />
           </div>
         </main>
       </QueryClientProvider>
