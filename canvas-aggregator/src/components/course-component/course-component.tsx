@@ -42,7 +42,7 @@ export default function CourseComponent({
       const weightedStats = STAT_KEYS.reduce((statsObj, statKey) => {
         return {
           ...statsObj,
-          [statKey]: ((curr.stats[statKey] || 0) * weight) / 100,
+          [statKey]: ((curr.stats[statKey] || 0) * weight) / totalWeight,
         };
       }, {} as GradeStatistics);
       return {
@@ -63,12 +63,6 @@ export default function CourseComponent({
       lower_q: 0,
     }
   );
-  // const averageGrade = averageStatistic(assignmentList, "mean");
-  // const minGrade = averageStatistic(assignmentList, "min") || 0;
-  // const maxGrade = averageStatistic(assignmentList, "max") || 0;
-  // const medianGrade = averageStatistic(assignmentList, "median");
-  // const upperQuartile = averageStatistic(assignmentList, "upper_q") || 0;
-  // const lowerQuartile = averageStatistic(assignmentList, "lower_q") || 0;
   return (
     <div className={styles["course-component"]}>
       <div className={styles["course-attributes"]}>

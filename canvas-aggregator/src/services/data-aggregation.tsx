@@ -39,15 +39,13 @@ export const getStatsByGroup: (
 };
 
 export const getAssignmentGroupsFromAssignments: (
-  assignmentGroupList: AssignmentGroup[],
+  assignmentGroupList: AssignmentGroup[] | undefined,
   courseAssignments: Assignment[]
 ) => AssignmentGroup[] | [] = (assignmentGroupList, courseAssignments) => {
   if (!assignmentGroupList || !courseAssignments) return [];
-  return assignmentGroupList?.filter((assignmentGroup: AssignmentGroup) => {
-    return courseAssignments.some((assignment) => {
-      return assignment.assignment_group_id === assignmentGroup.id;
-    });
-  });
+  return assignmentGroupList?.filter((assignmentGroup: AssignmentGroup) =>
+    courseAssignments.some((a) => a.assignment_group_id === assignmentGroup.id)
+  );
 };
 
 export const getAssignmentsByCourse = (
