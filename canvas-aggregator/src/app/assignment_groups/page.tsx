@@ -18,10 +18,11 @@ import CourseComponent from "@/components/course-component/course-component";
 import { Stats } from "fs";
 import {
   getAssignmentsByCourse,
-  getAssignmentGroupsFromAssignments,
-  getStatsByGroup,
+  getAllRelevantGroups,
+  getStatsPerGroup,
 } from "@/services/data-aggregation";
 import { groupCollapsed } from "console";
+import { getRelevantGroups } from "@/services/data-aggregation-utils";
 
 const queryClient = new QueryClient();
 
@@ -76,11 +77,11 @@ export default function Home() {
                 assignmentList,
                 course
               );
-              const courseAssignmentGroups = getAssignmentGroupsFromAssignments(
-                assignmentGroupList,
-                courseAssignments
+              const courseAssignmentGroups = getRelevantGroups(
+                courseAssignments,
+                assignmentGroupList || []
               );
-              const groupData = getStatsByGroup(
+              const groupData = getStatsPerGroup(
                 courseAssignments,
                 courseAssignmentGroups
               );
@@ -93,11 +94,11 @@ export default function Home() {
                     assignmentGroups={courseAssignmentGroups}
                   />
                   <ul>
-                    {courseAssignments.map((group) => (
+                    {/* {courseAssignments.map((group) => (
                       <div key={group.id + "asdf"}>
                         {group.name} {group.score_statistics?.mean}
                       </div>
-                    ))}
+                    ))} */}
                     {groupData.map((stat) => (
                       <div key={stat.group.id}>
                         {stat.group.name}, Weight: {stat.group.group_weight}{" "}

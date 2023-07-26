@@ -1,3 +1,4 @@
+import { toNamespacedPath } from "path";
 import {
   Assignment,
   AssignmentGroup,
@@ -5,55 +6,54 @@ import {
   STAT_KEYS,
   Course,
 } from "./database";
+import { get } from "http";
+import {
+  getAssignmentsByGroup,
+  getRelevantGroups,
+} from "./data-aggregation-utils";
 
 //gets the average statistics for each assignment group
-export const getStatsByGroup: (
+type GetStatsPerGroup = (
   assignments: Assignment[],
   assignmentGroups: AssignmentGroup[]
-) => { stats: GradeStatistics; group: AssignmentGroup }[] = (
+) => GroupStat[];
+
+type GroupStat = {
+  group: AssignmentGroup;
+  stats: GradeStatistics;
+  isWeighted: boolean;
+};
+
+export const getStatsPerGroup: GetStatsPerGroup = (
   assignments,
   assignmentGroups
 ) => {
   // remove assignment groups that aren't relevant to the assignments
-  const filteredAssignmentGroups = assignmentGroups.filter((group) =>
-    assignments.some((a) => a.assignment_group_id === group.id)
+  const courseAssignmentGroups = getRelevantGroups(
+    assignments,
+    assignmentGroups
   );
-  //check if any assignment groups have weights
-  const isWeighted = filteredAssignmentGroups.some(
+  const isWeighted = courseAssignmentGroups.some(
     (group) => group.group_weight !== null
   );
-  const statsList = filteredAssignmentGroups.map((group: AssignmentGroup) => {
+
+  const statsList = courseAssignmentGroups.map((group: AssignmentGroup) => {
     //get all assignments associated with the group
-    const groupAssignments = assignments.filter(
-      (a) => a.assignment_group_id === group.id
-    );
+    const groupAssignments = getAssignmentsByGroup(assignments, group);
     //calculate averageStatistic for each stat type
-    const out = STAT_KEYS.reduce(
-      (prev, curr) => {
-        return {
-          ...prev,
-          [curr]: averageStatistic(groupAssignments, curr)?.grade,
-        };
-      },
-      {} //initial value is empty object
-    ) as GradeStatistics;
+    const out = {} as GradeStatistics;
+    for (const statKey of STAT_KEYS) {
+      const statValue = averageStatistic(groupAssignments, statKey)?.grade;
+      out[statKey] = statValue || "N/A"; //if there is no value for the stat, set it to N/A
+    }
+    // if the weights are not set, set the group weight to the total possible points
     if (!isWeighted) {
       group.group_weight =
         averageStatistic(groupAssignments, "mean")?.totalPossible ?? null;
     }
-    return { stats: out, group };
+    return { stats: out, group, isWeighted };
   });
   return statsList;
-};
-
-export const getAssignmentGroupsFromAssignments: (
-  assignmentGroupList: AssignmentGroup[] | undefined,
-  courseAssignments: Assignment[]
-) => AssignmentGroup[] | [] = (assignmentGroupList, courseAssignments) => {
-  if (!assignmentGroupList || !courseAssignments) return [];
-  return assignmentGroupList?.filter((assignmentGroup: AssignmentGroup) =>
-    courseAssignments.some((a) => a.assignment_group_id === assignmentGroup.id)
-  );
 };
 
 export const getAssignmentsByCourse = (
@@ -64,10 +64,12 @@ export const getAssignmentsByCourse = (
   return assignments.filter((assignment) => assignment.course_id === course.id);
 };
 
-export const averageStatistic: (
+type AverageStatistic = (
   assignmentList: Assignment[] | undefined,
   scoreStatistic: string
-) => { grade: number; totalPossible: number } | undefined = (
+) => { grade: number; totalPossible: number } | undefined;
+
+export const averageStatistic: AverageStatistic = (
   assignmentList,
   scoreStatistic
 ) => {
@@ -104,4 +106,29 @@ export const averageStatistic: (
     0
   );
   return { grade: (totalActual / totalPossible) * 100, totalPossible };
+};
+
+export const averageCourseStats = (stats: GroupStat[]) => {
+  let totalWeight = 0;
+  for (const stat of stats) {
+    totalWeight += stat.group.group_weight || 0;
+  }
+  if (stats[0] && stats[0].isWeighted && totalWeight > 100) {
+    console.log(stats);
+    console.log("total weight is greater than 100, setting to 100");
+    console.log(stats[0].group.name);
+    totalWeight = 100;
+  }
+  const out = {} as GradeStatistics;
+  for (const stat of stats) {
+    const weight = stat.group.group_weight || 0;
+    for (const statKey of STAT_KEYS) {
+      const grade = stat.stats[statKey];
+      if (typeof grade === "number") {
+        const prev = (out[statKey] || 0) as number;
+        out[statKey] = prev + (grade * weight) / totalWeight;
+      }
+    }
+  }
+  return out;
 };

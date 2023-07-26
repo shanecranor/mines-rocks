@@ -13,12 +13,12 @@ export type Assignment =
 export type AssignmentGroup =
   Database["public"]["Tables"]["assignment_group_data"]["Row"];
 export type GradeStatistics = {
-  max: number;
-  min: number;
-  mean: number;
-  median: number;
-  upper_q: number;
-  lower_q: number;
+  max: number | "N/A";
+  min: number | "N/A";
+  mean: number | "N/A";
+  median: number | "N/A";
+  upper_q: number | "N/A";
+  lower_q: number | "N/A";
 };
 export const STAT_KEYS: (
   | "max"

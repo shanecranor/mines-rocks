@@ -6,7 +6,10 @@ import {
   STAT_KEYS,
 } from "@/services/database";
 import styles from "./course-component.module.scss";
-import { getStatsByGroup } from "@/services/data-aggregation";
+import {
+  averageCourseStats,
+  getStatsPerGroup,
+} from "@/services/data-aggregation";
 type CourseAttributes = {
   semester: string;
   courseCode: string;
@@ -27,42 +30,14 @@ export default function CourseComponent({
   const { semester, courseCode, courseYear, courseName } =
     getCourseAttributes(courseData);
 
-  const stats = getStatsByGroup(assignments, assignmentGroups);
+  const stats = getStatsPerGroup(assignments, assignmentGroups);
+  const { max, min, mean, median, upper_q, lower_q } =
+    averageCourseStats(stats);
+
   let totalWeight = 0;
   for (const stat of stats) {
     totalWeight += stat.group.group_weight || 0;
   }
-  // stats is an array of objects, each object has a stats and group property
-  // stats.stats is a GradeStatistics object
-  // stats.group is an AssignmentGroup object
-  // average each property of stats.stats using a weighted average with stats.group.group_weight
-  const { max, min, mean, median, upper_q, lower_q } = stats.reduce(
-    (prev, curr) => {
-      const weight = curr.group.group_weight || 0;
-      const weightedStats = STAT_KEYS.reduce((statsObj, statKey) => {
-        return {
-          ...statsObj,
-          [statKey]: ((curr.stats[statKey] || 0) * weight) / totalWeight,
-        };
-      }, {} as GradeStatistics);
-      return {
-        max: prev.max + weightedStats.max,
-        min: prev.min + weightedStats.min,
-        mean: prev.mean + weightedStats.mean,
-        median: prev.median + weightedStats.median,
-        upper_q: prev.upper_q + weightedStats.upper_q,
-        lower_q: prev.lower_q + weightedStats.lower_q,
-      };
-    },
-    {
-      max: 0,
-      min: 0,
-      mean: 0,
-      median: 0,
-      upper_q: 0,
-      lower_q: 0,
-    }
-  );
   return (
     <div className={styles["course-component"]}>
       <div className={styles["course-attributes"]}>
