@@ -1,22 +1,21 @@
 import styles from "./search-results.module.scss";
-import {
-  Assignment,
-  Course,
-  getAssignmentsByCourse,
-} from "@/services/database";
+import { Assignment, AssignmentGroup, Course } from "@/services/database";
 import CourseComponent, {
   getCourseAttributes,
 } from "@/components/course-component/course-component";
 import { observer } from "@legendapp/state/react";
 import { Observable } from "@legendapp/state";
+import { getAssignmentsByCourse } from "@/services/data-aggregation";
 const SearchResults = observer(
   ({
     courseList,
     assignmentList,
     searchOptions$,
+    assignmentGroups,
   }: {
     courseList: Course[] | undefined;
     assignmentList: Assignment[] | undefined;
+    assignmentGroups: AssignmentGroup[];
     searchOptions$: any; //TODO add types for options
   }) => {
     function filterCourseList(courseList: any, searchOptions$: any) {
@@ -48,7 +47,8 @@ const SearchResults = observer(
             <CourseComponent
               courseData={course}
               key={course.id}
-              assignmentList={getAssignmentsByCourse(assignmentList, course)}
+              assignments={getAssignmentsByCourse(assignmentList, course)}
+              assignmentGroups={assignmentGroups}
             />
           ))
         )}

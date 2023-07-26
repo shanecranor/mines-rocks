@@ -11,6 +11,7 @@ import { useObservable } from "@legendapp/state/react";
 import Head from "next/head";
 import {
   Course,
+  getAssignmentGroups,
   getAssignments,
   getCourseListFiltered,
 } from "@/services/database";
@@ -38,6 +39,15 @@ export default function Home() {
     cacheTime: 1000 * 60 * 60 * 6,
     //it will only refetch if the page is open for 6 hours
   });
+  const { data: assignmentGroups } = useQuery({
+    queryKey: ["supaGroupList"],
+    queryFn: getAssignmentGroups,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 60 * 6,
+    cacheTime: 1000 * 60 * 60 * 6,
+    //it will only refetch if the page is open for 6 hours
+  });
+
   const { data: assignmentList } = useQuery({
     queryKey: ["supaAssignmentList"],
     queryFn: getAssignments,
@@ -88,7 +98,12 @@ export default function Home() {
               <div>Theoretical Max</div> */}
             </div>
             <SearchResults
-              {...{ courseList, assignmentList, searchOptions$ }}
+              {...{
+                courseList,
+                assignmentList,
+                assignmentGroups,
+                searchOptions$,
+              }}
             />
           </div>
         </main>
