@@ -13,12 +13,12 @@ export type Assignment =
 export type AssignmentGroup =
   Database["public"]["Tables"]["assignment_group_data"]["Row"];
 export type GradeStatistics = {
-  max: number | "N/A";
-  min: number | "N/A";
-  mean: number | "N/A";
-  median: number | "N/A";
-  upper_q: number | "N/A";
-  lower_q: number | "N/A";
+  max: number;
+  min: number;
+  mean: number;
+  median: number;
+  upper_q: number;
+  lower_q: number;
 };
 export const STAT_KEYS: (
   | "max"
@@ -40,23 +40,23 @@ const getResponseData = (response: any) => {
 };
 
 export const getAssignmentGroups: () => Promise<
-  AssignmentGroup[] | []
+  AssignmentGroup[]
 > = async () => {
   const response = await supabase.from("assignment_group_data").select("*");
   return getResponseData(response);
 };
 
-export const getAssignments: () => Promise<Assignment[] | []> = async () => {
+export const getAssignments: () => Promise<Assignment[]> = async () => {
   const response = await supabase.from("assignment_data").select("*");
   return getResponseData(response);
 };
 
-const getCourseList: () => Promise<Course[] | []> = async () => {
+const getCourseList: () => Promise<Course[]> = async () => {
   const response = await supabase.from("course_summary_data").select("*");
   return getResponseData(response);
 };
 
-export const getCourseListFiltered: () => Promise<Course[] | []> = async () => {
+export const getCourseListFiltered: () => Promise<Course[]> = async () => {
   const courseList = await getCourseList();
   //filter out courses that are in the ignore list
   //shouldn't need this because we aren't uploading ignored courses but why not

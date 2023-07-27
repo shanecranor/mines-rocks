@@ -10,6 +10,8 @@ import { useObservable } from "@legendapp/state/react";
 
 import Head from "next/head";
 import {
+  Assignment,
+  AssignmentGroup,
   Course,
   getAssignmentGroups,
   getAssignments,
@@ -20,9 +22,13 @@ import CourseComponent, {
 } from "@/components/course-component/course-component";
 import Checkbox from "@/components/form-components/checkbox";
 import SearchResults from "@/components/search-results/search-results";
+import { observable } from "@legendapp/state";
+import { set } from "@legendapp/state/src/ObservableObject";
 
 const queryClient = new QueryClient();
-
+const courses$ = observable<Course[]>([]);
+const assignments$ = observable<Assignment[]>([]);
+const assignmentGroups$ = observable<AssignmentGroup[]>([]);
 export default function Home() {
   const searchOptions$ = useObservable({
     semester: {
@@ -56,6 +62,10 @@ export default function Home() {
     cacheTime: 1000 * 60 * 60 * 6,
     //it will only refetch if the page is open for 6 hours
   });
+  if (!courses || !assignments || !assignmentGroups) return <div>loading</div>;
+  courses$.set(courses);
+  assignments$.set(assignments);
+  assignmentGroups$.set(assignmentGroups);
   return (
     <>
       <Head>
@@ -99,9 +109,9 @@ export default function Home() {
             </div>
             <SearchResults
               {...{
-                courseList: courses,
-                assignments,
-                assignmentGroups,
+                courses$,
+                assignments$,
+                assignmentGroups$,
                 searchOptions$,
               }}
             />

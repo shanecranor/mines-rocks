@@ -8,36 +8,19 @@ import { Observable } from "@legendapp/state";
 import { getAssignmentsByCourse } from "@/services/data-aggregation";
 const SearchResults = observer(
   ({
-    courseList,
-    assignments,
+    courses$,
+    assignments$,
+    assignmentGroups$,
     searchOptions$,
-    assignmentGroups,
   }: {
-    courseList: Course[] | undefined;
-    assignments: Assignment[] | undefined;
-    assignmentGroups: AssignmentGroup[];
+    courses$: Observable<Course[]>;
+    assignments$: Observable<Assignment[]>;
+    assignmentGroups$: Observable<AssignmentGroup[]>;
     searchOptions$: any; //TODO add types for options
   }) => {
-    function filterCourseList(courseList: any, searchOptions$: any) {
-      return courseList.filter((c: Course) => {
-        const attributes = getCourseAttributes(c);
-        const semesterPrefs = searchOptions$.semester.get();
-        const semesterKeys = Object.keys(searchOptions$.semester.get());
-        const semesterValues = Object.values(searchOptions$.semester.get());
-        const isSemsesterMatch = semesterKeys.some((key, index) => {
-          if (semesterValues[index]) {
-            if (attributes.semester.toLowerCase().includes(key)) {
-              return true;
-            }
-          }
-        });
-        if (isSemsesterMatch) {
-          return true;
-        }
-        return false;
-      });
-    }
-
+    const courseList = filterCourseList(courses$.get(), searchOptions$);
+    const assignments = assignments$.get();
+    const assignmentGroups = assignmentGroups$.get();
     return (
       <div className={styles["results"]}>
         {!courseList ? (
@@ -56,5 +39,23 @@ const SearchResults = observer(
     );
   }
 );
-
+function filterCourseList(courseList: any, searchOptions$: any) {
+  return courseList.filter((c: Course) => {
+    const attributes = getCourseAttributes(c);
+    const semesterPrefs = searchOptions$.semester.get();
+    const semesterKeys = Object.keys(searchOptions$.semester.get());
+    const semesterValues = Object.values(searchOptions$.semester.get());
+    const isSemsesterMatch = semesterKeys.some((key, index) => {
+      if (semesterValues[index]) {
+        if (attributes.semester.toLowerCase().includes(key)) {
+          return true;
+        }
+      }
+    });
+    if (isSemsesterMatch) {
+      return true;
+    }
+    return false;
+  });
+}
 export default SearchResults;

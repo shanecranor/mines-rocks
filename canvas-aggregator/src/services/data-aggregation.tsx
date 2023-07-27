@@ -12,17 +12,17 @@ import {
   getRelevantGroups,
 } from "./data-aggregation-utils";
 
-//gets the average statistics for each assignment group
-type GetStatsPerGroup = (
-  assignments: Assignment[],
-  assignmentGroups: AssignmentGroup[]
-) => GroupStat[];
-
 type GroupStat = {
   group: AssignmentGroup;
   stats: GradeStatistics;
   isWeighted: boolean;
 };
+
+//gets the average statistics for each assignment group
+type GetStatsPerGroup = (
+  assignments: Assignment[],
+  assignmentGroups: AssignmentGroup[]
+) => GroupStat[];
 
 export const getStatsPerGroup: GetStatsPerGroup = (
   assignments,
@@ -36,25 +36,33 @@ export const getStatsPerGroup: GetStatsPerGroup = (
   const isWeighted = courseAssignmentGroups.some(
     (group) => group.group_weight !== null
   );
-
   const statsList = courseAssignmentGroups.map((group: AssignmentGroup) => {
-    //get all assignments associated with the group
-    const groupAssignments = getAssignmentsByGroup(assignments, group);
-    //calculate averageStatistic for each stat type
-    const out = {} as GradeStatistics;
-    for (const statKey of STAT_KEYS) {
-      const statValue = averageStatistic(groupAssignments, statKey)?.grade;
-      out[statKey] = statValue || "N/A"; //if there is no value for the stat, set it to N/A
-    }
-    // if the weights are not set, set the group weight to the total possible points
-    if (!isWeighted) {
-      group.group_weight =
-        averageStatistic(groupAssignments, "mean")?.totalPossible ?? null;
-    }
-    return { stats: out, group, isWeighted };
+    return getGroupStat(group, assignments, isWeighted);
   });
   return statsList;
 };
+
+//from a list of assignments and an assignment group, get the average statistics for that group
+function getGroupStat(
+  group: AssignmentGroup,
+  assignments: Assignment[],
+  isWeighted: boolean
+): GroupStat {
+  //get all assignments associated with the group
+  const groupAssignments = getAssignmentsByGroup(assignments, group);
+  //calculate averageStatistic for each stat type
+  const out = {} as GradeStatistics;
+  for (const statKey of STAT_KEYS) {
+    const statValue = averageStatistic(groupAssignments, statKey)?.grade;
+    if (statValue) out[statKey] = statValue;
+  }
+  // if the weights are not set, set the group weight to the total possible points
+  const meanStat = averageStatistic(groupAssignments, "mean");
+  if (!isWeighted && meanStat) {
+    group.group_weight = meanStat.totalPossible;
+  }
+  return { stats: out, group: structuredClone(group), isWeighted };
+}
 
 export const getAssignmentsByCourse = (
   assignments: Assignment[] | undefined,
@@ -113,10 +121,10 @@ export const averageCourseStats = (stats: GroupStat[]) => {
   for (const stat of stats) {
     totalWeight += stat.group.group_weight || 0;
   }
+  //if the weights are set and the total weight is greater than 100, set the total weight to 100
+  //this is kinda jank because it doesn't account for classes that are missing weights and have extra credit...
+  //but idk how to fix that
   if (stats[0] && stats[0].isWeighted && totalWeight > 100) {
-    console.log(stats);
-    console.log("total weight is greater than 100, setting to 100");
-    console.log(stats[0].group.name);
     totalWeight = 100;
   }
   const out = {} as GradeStatistics;

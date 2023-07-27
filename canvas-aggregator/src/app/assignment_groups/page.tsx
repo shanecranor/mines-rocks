@@ -18,7 +18,6 @@ import CourseComponent from "@/components/course-component/course-component";
 import { Stats } from "fs";
 import {
   getAssignmentsByCourse,
-  getAllRelevantGroups,
   getStatsPerGroup,
 } from "@/services/data-aggregation";
 import { groupCollapsed } from "console";
@@ -52,13 +51,6 @@ export default function Home() {
     cacheTime: 1000 * 60 * 60 * 6,
     //it will only refetch if the page is open for 6 hours
   });
-  if (assignmentList) {
-    console.log("GAYYYYY");
-    console.log(
-      assignmentList.filter((a: Assignment) => a.id === 60669) //40213)
-    );
-    console.log(assignmentList.length);
-  }
   return (
     <>
       <Head>
@@ -85,6 +77,8 @@ export default function Home() {
                 courseAssignments,
                 courseAssignmentGroups
               );
+              // console.log("GROUP DATA");
+              // console.log(groupData);
               return (
                 <li key={course.id}>
                   <CourseComponent
@@ -94,11 +88,7 @@ export default function Home() {
                     assignmentGroups={courseAssignmentGroups}
                   />
                   <ul>
-                    {/* {courseAssignments.map((group) => (
-                      <div key={group.id + "asdf"}>
-                        {group.name} {group.score_statistics?.mean}
-                      </div>
-                    ))} */}
+                    {courseAssignments.length}
                     {groupData.map((stat) => (
                       <div key={stat.group.id}>
                         {stat.group.name}, Weight: {stat.group.group_weight}{" "}

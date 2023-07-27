@@ -52,7 +52,7 @@ export default function CourseComponent({
   );
   randomGrades.sort((a, b) => a - b);
   //check if the array is sorted
-  console.log(randomGrades.every((val, i, arr) => !i || val >= arr[i - 1]));
+  // console.log(randomGrades.every((val, i, arr) => !i || val >= arr[i - 1]));
   //calculate the average of those numbers
   const averageGrade =
     randomGrades.reduce((a, b) => a + b, 0) / randomGrades.length;
