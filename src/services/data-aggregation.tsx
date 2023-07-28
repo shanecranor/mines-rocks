@@ -16,7 +16,6 @@ export type GroupStat = {
   group: AssignmentGroup;
   stats: GradeStatistics;
   isWeighted: boolean;
-  totalWeight: number;
 };
 
 //gets the average statistics for each assignment group
