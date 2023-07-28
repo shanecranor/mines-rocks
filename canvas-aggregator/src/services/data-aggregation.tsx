@@ -12,10 +12,11 @@ import {
   getRelevantGroups,
 } from "./data-aggregation-utils";
 
-type GroupStat = {
+export type GroupStat = {
   group: AssignmentGroup;
   stats: GradeStatistics;
   isWeighted: boolean;
+  totalWeight: number;
 };
 
 //gets the average statistics for each assignment group
@@ -54,14 +55,16 @@ function getGroupStat(
   const out = {} as GradeStatistics;
   for (const statKey of STAT_KEYS) {
     const statValue = averageStatistic(groupAssignments, statKey)?.grade;
-    if (statValue) out[statKey] = statValue;
+    if (statValue != undefined) out[statKey] = statValue;
   }
   // if the weights are not set, set the group weight to the total possible points
   const meanStat = averageStatistic(groupAssignments, "mean");
   if (!isWeighted && meanStat) {
-    group.group_weight = meanStat.totalPossible;
+    const newGroup = structuredClone(group);
+    newGroup.group_weight = meanStat.totalPossible;
+    group = newGroup;
   }
-  return { stats: out, group: structuredClone(group), isWeighted };
+  return { stats: out, group, isWeighted };
 }
 
 export const getAssignmentsByCourse = (
@@ -119,7 +122,8 @@ export const averageStatistic: AverageStatistic = (
 export const averageCourseStats = (stats: GroupStat[]) => {
   let totalWeight = 0;
   for (const stat of stats) {
-    totalWeight += stat.group.group_weight || 0;
+    if (stat.group.group_weight && !Number.isNaN(stat.stats.mean))
+      totalWeight += stat.group.group_weight;
   }
   //if the weights are set and the total weight is greater than 100, set the total weight to 100
   //this is kinda jank because it doesn't account for classes that are missing weights and have extra credit...
@@ -132,11 +136,11 @@ export const averageCourseStats = (stats: GroupStat[]) => {
     const weight = stat.group.group_weight || 0;
     for (const statKey of STAT_KEYS) {
       const grade = stat.stats[statKey];
-      if (typeof grade === "number") {
-        const prev = (out[statKey] || 0) as number;
+      let prev = out[statKey] || 0;
+      if (typeof grade === "number" && !Number.isNaN(grade)) {
         out[statKey] = prev + (grade * weight) / totalWeight;
       }
     }
   }
-  return out;
+  return { stats: out, totalWeight };
 };

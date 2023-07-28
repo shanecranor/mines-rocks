@@ -1,87 +1,55 @@
 .course-component {
+  display: flex;
+  flex-direction: column;
   transition: background 0.25s ease-in-out;
   font-family: Arial, Helvetica, sans-serif;
-  display: flex;
   padding: 8px;
   // border: 1px solid #777;
   // background: #191919;
   background: rgba(var(--foreground-rgb), 0.075);
   border-radius: 4px;
-  // max-width: 400px;
-  align-items: center;
+  transition: height 0.25s ease-in-out;
   &:hover {
     background: rgba(var(--foreground-rgb), 0.125);
     transition: background 0.1s ease-in-out;
   }
-  > .course-attributes {
-    flex-grow: 0;
-    width: 150px;
-    margin-bottom: 4px;
-    margin-left: 4px;
-    > .code {
-      font-weight: bold;
-      // font-family: monospace;
-      font-size: 24px;
+  // max-width: 400px;
+  > .small-view {
+    display: flex;
+    align-items: center;
+    > .course-attributes {
+      flex-grow: 0;
+      width: 150px;
+      margin-bottom: 4px;
+      margin-left: 4px;
+      > .code {
+        font-weight: bold;
+        // font-family: monospace;
+        font-size: 24px;
+      }
+    }
+    > .course-data {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      > .course-data-text {
+        display: flex;
+        // flex start right
+        justify-content: flex-end;
+        gap: 8px;
+      }
     }
   }
-  > .course-data {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
-    height: 100%;
-    > .course-data-text {
-      display: flex;
-      // flex start right
-      justify-content: flex-end;
-      gap: 8px;
-    }
-    > .course-data-graph {
-      position: relative;
-      width: 100%;
-      display: inline-block;
-      flex-grow: 1;
-      margin-right: 2px;
-      height: 20px;
-      // height: 10px;
-      // background: #444;
-      > .range {
-        position: absolute;
-        background: #777;
-        background: rgba(var(--foreground-rgb), 0.4);
-        height: 1px;
-        top: 50%;
-      }
-      > .avg-grade {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        // background: rgb(255, 255, 255); //rgb(114, 180, 255);
-        background: rgba(var(--foreground-rgb), 1);
-        border-radius: 50%;
-      }
-      > .median-grade,
-      > .max-grade,
-      > .min-grade {
-        position: absolute;
-        width: 1px;
-        height: 20px;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        // background: #777;
-        background: rgba(var(--foreground-rgb), 0.4);
-      }
-      > .iqr {
-        position: absolute;
-        height: 20px;
-        top: 50%;
-        transform: translate(0%, -50%);
-        background: #333;
-        // background: rgba(var(--foreground-rgb), 1);
-        border: rgba(var(--foreground-rgb), 0.4) 1px solid;
-      }
+  > .big-view {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    transition: grid-template-rows 0.25s ease-in-out;
+    > .big-content {
+      min-height: 0px;
+      transition: visibility 0.25s ease-in-out;
     }
   }
 }

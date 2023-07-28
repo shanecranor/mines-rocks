@@ -12,9 +12,12 @@
     width: 100%;
     > input {
       width: 100%;
-      max-width: 600px;
+      max-width: 614px;
       padding: 8px;
-      margin: 8px;
+      margin: 4px;
+      background: black;
+      border: 2px solid rgba(var(--foreground-rgb), 0.7);
+      border-radius: 4px;
     }
   }
   > .results-container {

@@ -7,10 +7,13 @@ import {
 } from "@/services/database";
 import styles from "./course-component.module.scss";
 import {
+  GroupStat,
   averageCourseStats,
   getStatsPerGroup,
 } from "@/services/data-aggregation";
-import { observer } from "@legendapp/state/react";
+import { observer, useObservable } from "@legendapp/state/react";
+import BoxPlot from "./box-plot";
+import { get } from "http";
 type CourseAttributes = {
   semester: string;
   courseCode: string;
@@ -29,84 +32,84 @@ const CourseComponent = observer(
     assignments: Assignment[];
     assignmentGroups: AssignmentGroup[];
   }) => {
+    const isOpen$ = useObservable<boolean>(false);
     const { semester, courseCode, courseYear, courseName } =
       getCourseAttributes(courseData);
     if (assignments.length === 0) {
       return;
     }
-    if (
-      courseCode != "CSCI406" &&
-      courseCode != "PHGN200" &&
-      courseCode != "CSCI101"
-    ) {
-      return;
-    }
     const stats = getStatsPerGroup(assignments, assignmentGroups);
-    const avgStats = averageCourseStats(stats);
-    console.log(courseCode);
-    console.log(stats);
-    const { max, min, mean, median, upper_q, lower_q } = avgStats;
-
-    let totalWeight = 0;
-    for (const stat of stats) {
-      totalWeight += stat.group.group_weight || 0;
-    }
+    const { stats: avgStats, totalWeight } = averageCourseStats(stats);
     return (
-      <div className={styles["course-component"]}>
-        <div className={styles["course-attributes"]}>
-          <div className={styles.code}>{courseCode}</div>
-          <span className={styles.when}>
-            {semester} {courseYear}
-          </span>
-        </div>
-        <div className={styles["course-data"]}>
-          <div className={styles["course-data-text"]}>
-            <div className={styles["data"]}>avg: {mean?.toFixed(2)}%</div>
+      <>
+        <div
+          className={`${styles["course-component"]}`}
+          onClick={() => isOpen$.set(!isOpen$.peek())}
+        >
+          <div className={styles["small-view"]}>
+            <div className={styles["course-attributes"]}>
+              <div className={styles.code}>{courseCode}</div>
+              <span className={styles.when}>
+                {semester} {courseYear}
+              </span>
+            </div>
+            <div className={styles["course-data"]}>
+              <div className={styles["course-data-text"]}>
+                <div className={styles["data"]}>
+                  avg: {avgStats.mean?.toFixed(2)}%
+                </div>
+              </div>
+
+              {avgStats.mean ? (
+                <BoxPlot stats={avgStats} />
+              ) : (
+                <div>no stats found</div>
+              )}
+            </div>
           </div>
-          <div className={styles["course-data-graph"]}>
-            {assignments ? (
-              <>
-                <div
-                  className={styles["range"]}
-                  style={{
-                    width: `${Math.round(max - min)}%`,
-                    left: `${Math.round(min)}%`,
-                  }}
-                />
-                <div
-                  className={styles["iqr"]}
-                  style={{
-                    width: `${Math.round(upper_q - lower_q)}%`,
-                    left: `${Math.round(lower_q)}%`,
-                  }}
-                />
-                <div
-                  className={styles["median-grade"]}
-                  style={{ left: `${Math.round(median)}%` }}
-                />
-                <div
-                  className={styles["avg-grade"]}
-                  style={{ left: `${Math.round(mean)}%` }}
-                />
-                <div
-                  className={styles["min-grade"]}
-                  style={{ left: `${Math.round(min)}%` }}
-                />
-                <div
-                  className={styles["max-grade"]}
-                  style={{ left: `${Math.round(max)}%` }}
-                />
-              </>
-            ) : (
-              <div>Loading...</div>
-            )}
+          {/* TY to the goat https://css-tricks.com/author/chriscoyier/ for CSS Grid animations :) */}
+          <div
+            className={styles["big-view"]}
+            style={{ gridTemplateRows: isOpen$.get() ? "1fr" : "0fr" }}
+          >
+            <div
+              className={styles["big-content"]}
+              style={{
+                visibility: isOpen$.get() ? "visible" : "hidden",
+              }}
+            >
+              <table>
+                <tr>
+                  <td>Weight</td>
+                  <td>Category</td>
+                  <td>Average</td>
+                </tr>
+                {stats.map((stat) => (
+                  <tr key={stat.group.id}>
+                    <td>{getGroupWeight(stat, totalWeight)}%</td>
+                    <td>{stat.group.name}</td>
+                    <td>{Math.round(stat.stats.mean)}%</td>
+                  </tr>
+                ))}
+              </table>
+            </div>
           </div>
         </div>
-      </div>
+        {/* {stats.map((stat) => (
+          <div>
+            {stat.group.name} {stat.group.group_weight} {stat.stats.mean}
+          </div>
+        ))} */}
+      </>
     );
   }
 );
-
+const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
+  if (stat.isWeighted || !stat.group.group_weight) {
+    return stat.group.group_weight || "N/A";
+  }
+  return Math.round((stat.group.group_weight / totalWeight) * 100);
+};
 export const getCourseAttributes = (course: Course): CourseAttributes => {
   const dataString = course.course_code || "";
   // split on both . and space
