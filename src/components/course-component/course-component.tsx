@@ -33,11 +33,11 @@ const CourseComponent = observer(
     assignments: Assignment[];
     assignmentGroups: AssignmentGroup[];
   }) => {
-    const isOpen$ = useObservable<boolean>(true);
+    const isOpen$ = useObservable<boolean>(false);
     const { semester, courseCode, courseYear, courseName } =
       getCourseAttributes(courseData);
     if (assignments.length === 0) {
-      return;
+      return <></>;
     }
     const stats = getStatsPerGroup(assignments, assignmentGroups);
     const { stats: avgStats, totalWeight } = averageCourseStats(stats);
