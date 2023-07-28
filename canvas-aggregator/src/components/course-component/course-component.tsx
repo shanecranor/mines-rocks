@@ -14,6 +14,7 @@ import {
 import { observer, useObservable } from "@legendapp/state/react";
 import BoxPlot from "./box-plot";
 import { get } from "http";
+import { group } from "console";
 type CourseAttributes = {
   semester: string;
   courseCode: string;
@@ -99,30 +100,29 @@ const CourseComponent = observer(
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.map((stat, idx) => (
-                    <tr key={stat.group.id}>
-                      <td>
-                        {getGroupWeight(stat, totalWeight)}%
-                        <div
-                          className={styles["weight-bar"]}
-                          style={{
-                            width: `${
-                              isOpen$.get()
-                                ? getGroupWeight(stat, totalWeight)
-                                : 0
-                            }%`,
-                            background: getGroupColor(stat.group.name),
-                            transitionDelay: `${idx / 20}s`,
-                            transition: `width ${
-                              getGroupWeight(stat, totalWeight) / 75
-                            }s`,
-                          }}
-                        />
-                      </td>
-                      <td>{stat.group.name}</td>
-                      <td>{Math.round(stat.stats.mean)}%</td>
-                    </tr>
-                  ))}
+                  {stats.map((stat, idx) => {
+                    const groupWeight = getGroupWeight(stat, totalWeight);
+                    const transitionTime =
+                      typeof groupWeight === "number" ? groupWeight / 75 : 0;
+                    return (
+                      <tr key={stat.group.id}>
+                        <td>
+                          {getGroupWeight(stat, totalWeight)}%
+                          <div
+                            className={styles["weight-bar"]}
+                            style={{
+                              width: `${isOpen$.get() ? groupWeight : 0}%`,
+                              background: getGroupColor(stat.group.name),
+                              transitionDelay: `${idx / 20}s`,
+                              transition: `width ${transitionTime}s`,
+                            }}
+                          />
+                        </td>
+                        <td>{stat.group.name}</td>
+                        <td>{Math.round(stat.stats.mean)}%</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
