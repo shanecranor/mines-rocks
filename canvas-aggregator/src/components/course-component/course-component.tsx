@@ -101,9 +101,13 @@ const CourseComponent = observer(
                 </thead>
                 <tbody>
                   {stats.map((stat, idx) => {
+                    const isOpen = isOpen$.get();
                     const groupWeight = getGroupWeight(stat, totalWeight);
                     const transitionTime =
                       typeof groupWeight === "number" ? groupWeight / 75 : 0;
+                    const transitionDelay = `${
+                      isOpen ? idx / 30 : (stats.length - idx) / 100
+                    }s`;
                     return (
                       <tr key={stat.group.id}>
                         <td>
@@ -111,10 +115,10 @@ const CourseComponent = observer(
                           <div
                             className={styles["weight-bar"]}
                             style={{
-                              width: `${isOpen$.get() ? groupWeight : 0}%`,
+                              width: `${isOpen ? groupWeight : 0}%`,
                               background: getGroupColor(stat.group.name),
-                              transitionDelay: `${idx / 20}s`,
-                              transition: `width ${transitionTime}s`,
+                              transitionDelay,
+                              transition: `width ${transitionTime}s ease-in-out`,
                             }}
                           />
                         </td>

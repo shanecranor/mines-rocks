@@ -63,11 +63,9 @@
           > td .weight-bar {
             transform: translate(0, 1px);
             height: 2px;
-            // background: HSL(150, 0.5, 0.5);
             position: absolute;
             width: 40px;
             z-index: 1;
-            transition: width 0.5s linear;
           }
           > .category {
             width: 100%;
