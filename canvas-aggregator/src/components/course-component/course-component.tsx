@@ -32,7 +32,7 @@ const CourseComponent = observer(
     assignments: Assignment[];
     assignmentGroups: AssignmentGroup[];
   }) => {
-    const isOpen$ = useObservable<boolean>(false);
+    const isOpen$ = useObservable<boolean>(true);
     const { semester, courseCode, courseYear, courseName } =
       getCourseAttributes(courseData);
     if (assignments.length === 0) {
@@ -40,6 +40,18 @@ const CourseComponent = observer(
     }
     const stats = getStatsPerGroup(assignments, assignmentGroups);
     const { stats: avgStats, totalWeight } = averageCourseStats(stats);
+    function getGroupColor(
+      name: string | null
+    ): import("csstype").Property.Background<string | number> | undefined {
+      //convert name to an int
+      if (!name) return "white";
+      const hash = name.split("").reduce((acc, char) => {
+        return char.charCodeAt(0) + acc * 2;
+      }, 0);
+      const hue = hash % 360;
+      return `HSL(${hue}, 50%, 60%)`;
+    }
+
     return (
       <>
         <div
@@ -79,18 +91,39 @@ const CourseComponent = observer(
               }}
             >
               <table>
-                <tr>
-                  <td>Weight</td>
-                  <td>Category</td>
-                  <td>Average</td>
-                </tr>
-                {stats.map((stat) => (
-                  <tr key={stat.group.id}>
-                    <td>{getGroupWeight(stat, totalWeight)}%</td>
-                    <td>{stat.group.name}</td>
-                    <td>{Math.round(stat.stats.mean)}%</td>
+                <thead>
+                  <tr>
+                    <td className={styles["weight"]}>Weight</td>
+                    <td className={styles["category"]}>Category</td>
+                    <td>Average</td>
                   </tr>
-                ))}
+                </thead>
+                <tbody>
+                  {stats.map((stat, idx) => (
+                    <tr key={stat.group.id}>
+                      <td>
+                        {getGroupWeight(stat, totalWeight)}%
+                        <div
+                          className={styles["weight-bar"]}
+                          style={{
+                            width: `${
+                              isOpen$.get()
+                                ? getGroupWeight(stat, totalWeight)
+                                : 0
+                            }%`,
+                            background: getGroupColor(stat.group.name),
+                            transitionDelay: `${idx / 20}s`,
+                            transition: `width ${
+                              getGroupWeight(stat, totalWeight) / 75
+                            }s`,
+                          }}
+                        />
+                      </td>
+                      <td>{stat.group.name}</td>
+                      <td>{Math.round(stat.stats.mean)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
               </table>
             </div>
           </div>
