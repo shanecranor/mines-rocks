@@ -10,7 +10,7 @@
   border-radius: 4px;
   transition: height 0.25s ease-in-out;
   &:hover {
-    background: rgba(var(--foreground-rgb), 0.125);
+    background: rgba(var(--foreground-rgb), 0.1);
     transition: background 0.1s ease-in-out;
   }
   // max-width: 400px;
@@ -50,15 +50,30 @@
     > .big-content {
       min-height: 0px;
       transition: visibility 0.25s ease-in-out;
+      >.divider{
+        height: 0px;
+        // background:rgba(var(--foreground-rgb), 0.2);
+        margin: 5px;
+      }
       > table {
+        background:rgba(var(--foreground-rgb), 0.05);
+        padding: 8px;
+        border-radius: 4px;
         position: relative;
         tr {
           > td {
             padding-bottom: 4px;
             z-index: 4;
           }
+          &.column-labels{
+            font-weight: bold;
+            > td{
+              padding-bottom: 2px;
+            }
+          }
           > .weight {
             padding-right: 4px;
+            min-width: min(100px, 10vw);
           }
           > td .weight-bar {
             transform: translate(0, 1px);

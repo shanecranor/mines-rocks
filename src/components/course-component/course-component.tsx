@@ -28,11 +28,11 @@ const CourseComponent = observer(
     assignments,
     assignmentGroups,
   }: // assignmentData,
-  {
-    courseData: Course;
-    assignments: Assignment[];
-    assignmentGroups: AssignmentGroup[];
-  }) => {
+    {
+      courseData: Course;
+      assignments: Assignment[];
+      assignmentGroups: AssignmentGroup[];
+    }) => {
     const isOpen$ = useObservable<boolean>(false);
     const { semester, courseCode, courseYear, courseName } =
       getCourseAttributes(courseData);
@@ -41,17 +41,6 @@ const CourseComponent = observer(
     }
     const stats = getStatsPerGroup(assignments, assignmentGroups);
     const { stats: avgStats, totalWeight } = averageCourseStats(stats);
-    function getGroupColor(
-      name: string | null
-    ): import("csstype").Property.Background<string | number> | undefined {
-      //convert name to an int
-      if (!name) return "white";
-      const hash = name.split("").reduce((acc, char) => {
-        return char.charCodeAt(0) + acc * 2;
-      }, 0);
-      const hue = hash % 360;
-      return `HSL(${hue}, 50%, 60%)`;
-    }
 
     return (
       <>
@@ -91,44 +80,25 @@ const CourseComponent = observer(
                 visibility: isOpen$.get() ? "visible" : "hidden",
               }}
             >
-              <table>
-                <thead>
-                  <tr>
-                    <td className={styles["weight"]}>Weight</td>
-                    <td className={styles["category"]}>Category</td>
-                    <td>Average</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.map((stat, idx) => {
-                    const isOpen = isOpen$.get();
-                    const groupWeight = getGroupWeight(stat, totalWeight);
-                    const transitionTime =
-                      typeof groupWeight === "number" ? groupWeight / 75 : 0;
-                    const transitionDelay = `${
-                      isOpen ? idx / 30 : (stats.length - idx) / 100
-                    }s`;
-                    return (
-                      <tr key={stat.group.id}>
-                        <td>
-                          {getGroupWeight(stat, totalWeight)}%
-                          <div
-                            className={styles["weight-bar"]}
-                            style={{
-                              width: `${isOpen ? groupWeight : 0}%`,
-                              background: getGroupColor(stat.group.name),
-                              transitionDelay,
-                              transition: `width ${transitionTime}s ease-in-out`,
-                            }}
-                          />
-                        </td>
-                        <td>{stat.group.name}</td>
-                        <td>{Math.round(stat.stats.mean)}%</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+              <div className={styles["divider"]} />
+              <GroupTable {...{stats,totalWeight,isOpen$}}/>
+              <div className={styles["assignment-graph"]}>
+                {/* <div className={styles["assignment-graph-title"]}>
+                  Assignments
+                </div> */}
+                {/* <div className={styles["assignment-graph-content"]}>
+                  {assignments.map((assignment) => (
+                    <div key={assignment.id}className={styles["assignment"]}>
+                      <div className={styles["assignment-name"]}>
+                        {assignment.name}
+                      </div>
+                      <div className={styles["assignment-grade"]}>
+                        {assignment.grade}
+                      </div>
+                    </div>
+                  ))}
+                </div> */}
+              </div>
             </div>
           </div>
         </div>
@@ -141,6 +111,46 @@ const CourseComponent = observer(
     );
   }
 );
+function GroupTable({stats, totalWeight, isOpen$}: {stats: GroupStat[], totalWeight: number, isOpen$: any}) {
+  return(<table>
+    <thead>
+      <tr className={styles["column-labels"]}>
+        <td className={styles["weight"]}>Weight</td>
+        <td className={styles["category"]}>Category</td>
+        <td>Average</td>
+      </tr>
+    </thead>
+    <tbody>
+      {stats.map((stat, idx) => {
+        if (!stat.group.group_weight && !stat.stats.mean) return <></>;
+        const isOpen = isOpen$.get();
+        const groupWeight = getGroupWeight(stat, totalWeight);
+        const transitionTime =
+          typeof groupWeight === "number" ? groupWeight / 75 : 0;
+        const transitionDelay = `${isOpen ? idx / 30 : (stats.length - idx) / 100
+          }s`;
+        return (
+          <tr key={stat.group.id}>
+            <td>
+              {getGroupWeight(stat, totalWeight)}%
+              <div
+                className={styles["weight-bar"]}
+                style={{
+                  width: `${isOpen ? groupWeight : 0}%`,
+                  background: getGroupColor(stat.group.name),
+                  transitionDelay,
+                  transition: `width ${transitionTime}s ease-in-out`,
+                }}
+              />
+            </td>
+            <td>{stat.group.name}</td>
+            <td>{Math.round(stat.stats.mean)}%</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>)
+}
 const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
   if (stat.isWeighted || !stat.group.group_weight) {
     return stat.group.group_weight || "N/A";
@@ -164,5 +174,15 @@ export const getCourseAttributes = (course: Course): CourseAttributes => {
     courseName: course.name || "",
   };
 };
-
+function getGroupColor(
+  name: string | null
+): import("csstype").Property.Background<string | number> | undefined {
+  //convert name to an int
+  if (!name) return "white";
+  const hash = name.split("").reduce((acc, char) => {
+    return char.charCodeAt(0) + acc * 2;
+  }, 0);
+  const hue = hash % 360;
+  return `HSL(${hue}, 50%, 60%)`;
+}
 export default CourseComponent;

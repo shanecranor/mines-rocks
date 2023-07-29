@@ -31,6 +31,7 @@ const assignments$ = observable<Assignment[]>([]);
 const assignmentGroups$ = observable<AssignmentGroup[]>([]);
 export default function Home() {
   const searchOptions$ = useObservable({
+    searchText: "",
     semester: {
       spring: true,
       fall: true,
@@ -87,7 +88,7 @@ export default function Home() {
         <main className={styles.main}>
           <h1>Data driven course selection</h1>
           <div className={styles["search-container"]}>
-            <input type="text" placeholder="Search for a course"></input>
+            <input type="text" placeholder="Search for a course" onChange={(e)=> searchOptions$.searchText.set(e.target.value) }></input>
           </div>
           <div className={styles["results-container"]}>
             <div className={styles["filter-settings"]}>

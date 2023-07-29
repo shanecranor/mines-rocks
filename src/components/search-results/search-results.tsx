@@ -45,6 +45,7 @@ function filterCourseList(courseList: any, searchOptions$: any) {
     const semesterPrefs = searchOptions$.semester.get();
     const semesterKeys = Object.keys(searchOptions$.semester.get());
     const semesterValues = Object.values(searchOptions$.semester.get());
+    const isCourseCodeMatch = attributes.courseCode.toLowerCase().includes(searchOptions$.get().searchText.toLowerCase())
     const isSemsesterMatch = semesterKeys.some((key, index) => {
       if (semesterValues[index]) {
         if (attributes.semester.toLowerCase().includes(key)) {
@@ -52,7 +53,7 @@ function filterCourseList(courseList: any, searchOptions$: any) {
         }
       }
     });
-    if (isSemsesterMatch) {
+    if (isSemsesterMatch && isCourseCodeMatch) {
       return true;
     }
     return false;
