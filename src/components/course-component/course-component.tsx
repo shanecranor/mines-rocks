@@ -16,6 +16,7 @@ import BoxPlot from "./box-plot";
 import { get } from "http";
 import { group } from "console";
 import { start } from "repl";
+import { Observable } from "@legendapp/state";
 type CourseAttributes = {
   semester: string;
   courseCode: string;
@@ -102,7 +103,7 @@ function AssignmentGraph({
   courseData: Course;
   assignments: Assignment[];
   assignmentGroups: AssignmentGroup[];
-  isOpen$: boolean;
+  isOpen$: Observable<boolean>;
 }) {
   // get start and end dates
   let startDateISO = courseData.start_at;
