@@ -77,21 +77,27 @@ export default function Home() {
       <QueryClientProvider client={queryClient}>
         <div className={styles["nav-container"]}>
           <nav className={styles.nav}>
-            <div className={styles.logo}></div>
+            <div className={styles["site-logo"]}>mines.rocks</div>
             <div className={styles["nav-links"]}>
-              <div>Home</div>
+              <div>Syllabuddies</div>
               <div>About</div>
               <div>Contribute</div>
             </div>
           </nav>
         </div>
         <main className={styles.main}>
-          <h1>Data driven course selection</h1>
+          <h1>
+            Data driven course selection <i>rocks</i>
+          </h1>
           <div className={styles["search-container"]}>
-            <input type="text" placeholder="Search for a course" onChange={(e)=> searchOptions$.searchText.set(e.target.value) }></input>
+            <input
+              type="text"
+              placeholder="Search for a course"
+              onChange={(e) => searchOptions$.searchText.set(e.target.value)}
+            ></input>
           </div>
           <div className={styles["results-container"]}>
-            <div className={styles["filter-settings"]}>
+            <aside className={styles["filter-settings"]}>
               <div>Semester</div>
               <Checkbox
                 label="Spring"
@@ -107,15 +113,17 @@ export default function Home() {
               <div>Average</div>
               <div>Theoretical Min</div>
               <div>Theoretical Max</div> */}
+            </aside>
+            <div className={styles["search-results"]}>
+              <SearchResults
+                {...{
+                  courses$,
+                  assignments$,
+                  assignmentGroups$,
+                  searchOptions$,
+                }}
+              />
             </div>
-            <SearchResults
-              {...{
-                courses$,
-                assignments$,
-                assignmentGroups$,
-                searchOptions$,
-              }}
-            />
           </div>
         </main>
       </QueryClientProvider>
