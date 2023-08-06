@@ -25,6 +25,8 @@
       width: 150px;
       margin-bottom: 4px;
       margin-left: 4px;
+      border-right: 2px double rgba(var(--foreground-rgb), 0.2);
+      margin-right: 2px;
 
       >.code {
         font-weight: bold;
@@ -148,12 +150,17 @@
           }
         }
 
-        >.assignment-graph-content-misc {
+        >.assignment-graph-content-no-stats {
           height: 10px;
           width: 100%;
           position: relative;
           border: rgba(var(--foreground-rgb), 0.4) 1px solid;
           border-radius: 4px;
+
+          >.data-point {
+            position: absolute;
+            border-radius: 50%;
+          }
         }
       }
 

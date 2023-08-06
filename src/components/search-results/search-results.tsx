@@ -5,7 +5,10 @@ import CourseComponent, {
 } from "@/components/course-component/course-component";
 import { observer } from "@legendapp/state/react";
 import { Observable } from "@legendapp/state";
-import { getAssignmentsByCourse } from "@/services/data-aggregation";
+import {
+  getAssignmentsByCourse,
+  getStatsPerGroup,
+} from "@/services/data-aggregation";
 const SearchResults = observer(
   ({
     courses$,
@@ -26,14 +29,22 @@ const SearchResults = observer(
         {!courseList ? (
           <div>Loading...</div>
         ) : (
-          filterCourseList(courseList, searchOptions$).map((course: Course) => (
-            <CourseComponent
-              courseData={course}
-              key={course.id}
-              assignments={getAssignmentsByCourse(assignments, course)}
-              assignmentGroups={assignmentGroups}
-            />
-          ))
+          filterCourseList(courseList, searchOptions$).map((course: Course) => {
+            const courseAssignments = getAssignmentsByCourse(
+              assignments,
+              course
+            );
+            const stats = getStatsPerGroup(courseAssignments, assignmentGroups);
+
+            return (
+              <CourseComponent
+                courseData={course}
+                key={course.id}
+                assignments={courseAssignments}
+                groupStats={stats}
+              />
+            );
+          })
         )}
       </div>
     );
@@ -45,7 +56,9 @@ function filterCourseList(courseList: any, searchOptions$: any) {
     const semesterPrefs = searchOptions$.semester.get();
     const semesterKeys = Object.keys(searchOptions$.semester.get());
     const semesterValues = Object.values(searchOptions$.semester.get());
-    const isCourseCodeMatch = attributes.courseCode.toLowerCase().includes(searchOptions$.get().searchText.toLowerCase())
+    const isCourseCodeMatch = attributes.courseCode
+      .toLowerCase()
+      .includes(searchOptions$.get().searchText.toLowerCase());
     const isSemsesterMatch = semesterKeys.some((key, index) => {
       if (semesterValues[index]) {
         if (attributes.semester.toLowerCase().includes(key)) {

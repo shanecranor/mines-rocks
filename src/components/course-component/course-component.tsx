@@ -17,6 +17,7 @@ import { get } from "http";
 import { group } from "console";
 import { start } from "repl";
 import { Observable } from "@legendapp/state";
+import { Group } from "next/dist/shared/lib/router/utils/route-regex";
 type CourseAttributes = {
   semester: string;
   courseCode: string;
@@ -28,22 +29,21 @@ const CourseComponent = observer(
   ({
     courseData,
     assignments,
-    assignmentGroups,
+    groupStats,
   }: // assignmentData,
   {
     courseData: Course;
     assignments: Assignment[];
-    assignmentGroups: AssignmentGroup[];
+    groupStats: GroupStat[];
   }) => {
-    const isOpen$ = useObservable<boolean>(true);
+    const isOpen$ = useObservable<boolean>(false);
     const { semester, courseCode, courseYear, courseName } =
       getCourseAttributes(courseData);
     if (assignments.length === 0) {
       return <></>;
     }
-    const stats = getStatsPerGroup(assignments, assignmentGroups);
-    const { stats: avgStats, totalWeight } = averageCourseStats(stats);
-
+    const { stats: avgStats, totalWeight } = averageCourseStats(groupStats);
+    //add edge to right side of label box
     return (
       <>
         <div
@@ -60,7 +60,7 @@ const CourseComponent = observer(
             <div className={styles["course-data"]}>
               <div className={styles["course-data-text"]}>
                 <div className={styles["data"]}>
-                  avg: {avgStats.mean?.toFixed(2)}%
+                  avg grade: {avgStats.mean?.toFixed(2)}%
                 </div>
               </div>
 
@@ -83,9 +83,15 @@ const CourseComponent = observer(
               }}
             >
               <div className={styles["divider"]} />
-              <GroupTable {...{ stats, totalWeight, isOpen$ }} />
+              <GroupTable {...{ stats: groupStats, totalWeight, isOpen$ }} />
               <AssignmentGraph
-                {...{ courseData, assignments, assignmentGroups, isOpen$ }}
+                {...{
+                  courseData,
+                  assignments,
+                  groupStats,
+                  totalWeight,
+                  isOpen$,
+                }}
               />
             </div>
           </div>
@@ -97,12 +103,14 @@ const CourseComponent = observer(
 function AssignmentGraph({
   courseData,
   assignments,
-  assignmentGroups,
+  groupStats,
+  totalWeight,
   isOpen$,
 }: {
   courseData: Course;
   assignments: Assignment[];
-  assignmentGroups: AssignmentGroup[];
+  groupStats: GroupStat[];
+  totalWeight: number;
   isOpen$: Observable<boolean>;
 }) {
   // get start and end dates
@@ -110,11 +118,11 @@ function AssignmentGraph({
   let endDateISO = courseData.end_at;
   if (!startDateISO) {
     // get earliest assignment
-    return;
+    return <></>;
   }
   if (!endDateISO) {
     // get latest assignment
-    return;
+    return <></>;
   }
   const startDate = new Date(startDateISO).getTime();
   const endDate = new Date(endDateISO).getTime();
@@ -124,44 +132,122 @@ function AssignmentGraph({
     endDate: number
   ) {
     const diff = endDate - startDate;
-    const assignmentDateISO = assignment.due_at;
+    const assignmentDateISO = assignment.due_at || assignment.created_at;
     if (!assignmentDateISO) return 0;
     const assignmentDate = new Date(assignmentDateISO).getTime();
     return ((assignmentDate - startDate) / diff) * 100;
   }
   //TODO: filter assignments if they don't have a due date or mean score
+  const assignmentsFiltered = assignments.filter(
+    (assignment) =>
+      (assignment.due_at || assignment.created_at) &&
+      assignment.score_statistics &&
+      typeof assignment.score_statistics?.mean === "number"
+  );
+
+  const assignmentsNoScore = assignments.filter(
+    (assignment) =>
+      !assignment.score_statistics ||
+      typeof assignment.score_statistics.mean !== "number"
+  );
+  const assignmentsNoDate = assignments.filter(
+    (assignment) => !assignment.due_at && !assignment.created_at
+  );
+  //todo: think about separating assignments that use due date from assignments that use created_at lol
+  //TODO calculate overall assignment weight and sort by weight so that the larger assignments are sent to the back
+  // maybe add transparency too?
+  let possibleErrorRange = 0;
+  let totalPointsWeighted = 0;
+  function getGroupWeightByID(groupStats: GroupStat[], id: number | null) {
+    if (typeof id !== "number") return 0;
+    for (const group of groupStats) {
+      if (group?.group?.id === id) {
+        const weight = getGroupWeight(group, totalWeight);
+        if (weight !== "N/A") {
+          return weight;
+        } else {
+          return 0;
+        }
+      }
+    }
+    return 0;
+  }
+  for (const assignment of assignments) {
+    totalPointsWeighted +=
+      ((assignment.points_possible || 0) *
+        getGroupWeightByID(groupStats, assignment.assignment_group_id)) /
+      100;
+  }
+  for (const assignment of assignmentsNoScore) {
+    possibleErrorRange +=
+      ((assignment.points_possible || 0) *
+        getGroupWeightByID(groupStats, assignment.assignment_group_id)) /
+      100;
+  }
   return (
-    <div className={styles["assignment-graph"]}>
-      <div className={styles["assignment-graph-content"]}>
-        <div className="min-label">0%</div>
-        <div className="max-label">100%</div>
-        {assignments.map((assignment) => (
-          <div
-            key={assignment.id}
-            className={styles["data-point"]}
-            style={{
-              background: getGroupColor(assignment.assignment_group_id || 0),
-              top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
-              left: `${getAssignmentDatePercentage(
-                assignment,
-                startDate,
-                endDate
-              )}%`,
-              width: `5px`,
-              height: `5px`,
-            }}
-          >
-            {/* <div className={styles["assignment-name"]}>
+    <>
+      <div className={styles["assignment-graph"]}>
+        <div
+          className={styles["assignment-graph-content"]}
+          // TODO: hide if no graded assignments
+          // style={{
+          //   display: assignmentsFiltered.length ? "auto" : "none",
+          // }}
+        >
+          <div className="min-label">0%</div>
+          <div className="max-label">100%</div>
+          {assignmentsFiltered.map((assignment) => (
+            <div
+              key={assignment.id}
+              className={styles["data-point"]}
+              style={{
+                background: getGroupColor(assignment.assignment_group_id || 0),
+                top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
+                left: `${getAssignmentDatePercentage(
+                  assignment,
+                  startDate,
+                  endDate
+                )}%`,
+                width: `5px`,
+                height: `5px`,
+              }}
+            >
+              {/* <div className={styles["assignment-name"]}>
         {assignment.name}
       </div> */}
-            {/* <div className={styles["assignment-grade"]}>
+              {/* <div className={styles["assignment-grade"]}>
         {assignment?.score_statistics?.mean}
       </div> */}
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
+        <div className={styles["assignment-graph-content-no-stats"]}>
+          {assignmentsNoScore.map((assignment) => (
+            <div
+              key={assignment.id}
+              className={styles["data-point"]}
+              style={{
+                background: getGroupColor(assignment.assignment_group_id || 0),
+                top: `0%`,
+                left: `${getAssignmentDatePercentage(
+                  assignment,
+                  startDate,
+                  endDate
+                )}%`,
+                width: `5px`,
+                height: `5px`,
+              }}
+            />
+          ))}
+        </div>
       </div>
-      <div className={styles["assignment-graph-content-misc"]}></div>
-    </div>
+      {/* {possibleErrorRange / totalPointsWeighted}
+      {assignmentsNoScore.map((assignment) => (
+        <div>
+          {assignment.name} {assignment.points_possible}
+        </div>
+      ))} */}
+    </>
   );
 }
 function GroupTable({
@@ -188,14 +274,16 @@ function GroupTable({
           const isOpen = isOpen$.get();
           const groupWeight = getGroupWeight(stat, totalWeight);
           const transitionTime =
-            typeof groupWeight === "number" ? groupWeight / 75 : 0;
+            typeof groupWeight === "number" ? groupWeight / 90 : 0;
+          const roundedGroupWeight =
+            groupWeight === "N/A" ? "N/A" : Math.round(groupWeight);
           const transitionDelay = `${
             isOpen ? idx / 30 : (stats.length - idx) / 100
           }s`;
           return (
             <tr key={stat.group.id}>
               <td>
-                {getGroupWeight(stat, totalWeight)}%
+                {roundedGroupWeight}%
                 <div
                   className={styles["weight-bar"]}
                   style={{
@@ -219,7 +307,8 @@ const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
   if (stat.isWeighted || !stat.group.group_weight) {
     return stat.group.group_weight || "N/A";
   }
-  return Math.round((stat.group.group_weight / totalWeight) * 100);
+  //group weights from canvas are by default multiplied by 100 so do that here as well
+  return (stat.group.group_weight / totalWeight) * 100;
 };
 export const getCourseAttributes = (course: Course): CourseAttributes => {
   const dataString = course.course_code || "";
