@@ -85,7 +85,7 @@ export default function Home() {
                     courseData={course}
                     key={course.id}
                     assignments={getAssignmentsByCourse(assignmentList, course)}
-                    assignmentGroups={courseAssignmentGroups}
+                    groupStats={groupData}
                   />
                   <ul>
                     {courseAssignments.length}
