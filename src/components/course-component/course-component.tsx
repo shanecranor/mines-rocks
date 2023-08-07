@@ -43,7 +43,6 @@ const CourseComponent = observer(
       return <></>;
     }
     const { stats: avgStats, totalWeight } = averageCourseStats(groupStats);
-    //add edge to right side of label box
     return (
       <>
         <div
@@ -137,14 +136,12 @@ function AssignmentGraph({
     const assignmentDate = new Date(assignmentDateISO).getTime();
     return ((assignmentDate - startDate) / diff) * 100;
   }
-  //TODO: filter assignments if they don't have a due date or mean score
   const assignmentsFiltered = assignments.filter(
     (assignment) =>
       (assignment.due_at || assignment.created_at) &&
       assignment.score_statistics &&
       typeof assignment.score_statistics?.mean === "number"
   );
-
   const assignmentsNoScore = assignments.filter(
     (assignment) =>
       !assignment.score_statistics ||
@@ -196,30 +193,45 @@ function AssignmentGraph({
         >
           <div className="min-label">0%</div>
           <div className="max-label">100%</div>
-          {assignmentsFiltered.map((assignment) => (
-            <div
-              key={assignment.id}
-              className={styles["data-point"]}
-              style={{
-                background: getGroupColor(assignment.assignment_group_id || 0),
-                top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
-                left: `${getAssignmentDatePercentage(
-                  assignment,
-                  startDate,
-                  endDate
-                )}%`,
-                width: `5px`,
-                height: `5px`,
-              }}
-            >
-              {/* <div className={styles["assignment-name"]}>
+          {assignmentsFiltered.map((assignment) => {
+            const bubbleSize = 5;
+            // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
+            // thinking about some kind of histogram display for assignments by grade percentage
+            // might be better in table or text form
+            // ie there are 5 assignments that are worth 2% of your grade 2 assignments worth 10% and 1 assignment worth 70% of your grade
+            // this is probably better for individual course pages?
+            // this could potentially replace the assignment mean vs time graph
+            // feels a bit more useful for people who aren't in the class
+            // vs the old graph where it is super specific with individual assignments and doesn't do super well with assignments that haven't been graded?
+            // TODO: check out the grading policies for HASS200 or HASS498 and see if they show how many get dropped.
+            // could put that data, along with number of assignments next to the average for each group
+            return (
+              <div
+                key={assignment.id}
+                className={styles["data-point"]}
+                style={{
+                  background: getGroupColor(
+                    assignment.assignment_group_id || 0
+                  ),
+                  top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
+                  left: `${getAssignmentDatePercentage(
+                    assignment,
+                    startDate,
+                    endDate
+                  )}%`,
+                  width: `${bubbleSize}px`,
+                  height: `${bubbleSize}px`,
+                }}
+              >
+                {/* <div className={styles["assignment-name"]}>
         {assignment.name}
       </div> */}
-              {/* <div className={styles["assignment-grade"]}>
+                {/* <div className={styles["assignment-grade"]}>
         {assignment?.score_statistics?.mean}
       </div> */}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </div>
         <div className={styles["assignment-graph-content-no-stats"]}>
           {assignmentsNoScore.map((assignment) => (
@@ -281,7 +293,7 @@ function GroupTable({
             isOpen ? idx / 30 : (stats.length - idx) / 100
           }s`;
           return (
-            <tr key={stat.group.id}>
+            <tr key={stat.group.id + "table"}>
               <td>
                 {roundedGroupWeight}%
                 <div
