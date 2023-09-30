@@ -5,22 +5,21 @@ import { observer } from "@legendapp/state/react";
 import { getCourseAttributes } from "@/services/data-aggregation";
 import { searchOptions$ } from "./search-options";
 type CourseAndComponent = { course: Course; courseComponent: React.ReactNode };
-const SearchResultsClient = ({
-  courseComponentList,
-}: {
-  courseComponentList: CourseAndComponent[];
-}) => {
-  const courseList = filterCourseList(courseComponentList, searchOptions$);
-  return (
-    <div className={styles["results"]}>
-      {filterCourseList(courseList, searchOptions$).map(
-        (c: CourseAndComponent) => {
-          return c.courseComponent;
-        }
-      )}
-    </div>
-  );
-};
+const SearchResultsClient = observer(
+  ({ courseComponentList }: { courseComponentList: CourseAndComponent[] }) => {
+    const courseList = filterCourseList(courseComponentList, searchOptions$);
+    console.log(searchOptions$.get());
+    return (
+      <div className={styles["results"]}>
+        {filterCourseList(courseList, searchOptions$).map(
+          (c: CourseAndComponent) => {
+            return c.courseComponent;
+          }
+        )}
+      </div>
+    );
+  }
+);
 
 export const SearchBar = observer(() => {
   return (
