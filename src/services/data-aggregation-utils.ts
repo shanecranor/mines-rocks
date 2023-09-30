@@ -1,3 +1,4 @@
+
 import { Assignment, AssignmentGroup } from "./database";
 
 export const getRelevantGroups = (
@@ -17,3 +18,4 @@ export const getAssignmentsByGroup = (
 ) => {
   return assignments.filter((a) => a.assignment_group_id === group.id);
 };
+

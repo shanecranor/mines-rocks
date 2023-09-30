@@ -1,12 +1,12 @@
+"use client";
 import styles from "./search-results.module.scss";
 import { Assignment, AssignmentGroup, Course } from "@/services/database";
-import CourseComponent, {
-  getCourseAttributes,
-} from "@/components/course-component/course-component";
+import CourseComponent from "@/components/course-component/course-component";
 import { observer } from "@legendapp/state/react";
 import { Observable } from "@legendapp/state";
 import {
   getAssignmentsByCourse,
+  getCourseAttributes,
   getStatsPerGroup,
 } from "@/services/data-aggregation";
 const SearchResults = observer(
