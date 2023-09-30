@@ -1,3 +1,4 @@
+"use client";
 import { Observable } from "@legendapp/state";
 import { observer } from "@legendapp/state/react";
 

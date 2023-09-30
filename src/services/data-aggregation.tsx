@@ -6,7 +6,7 @@ import {
   STAT_KEYS,
   Course,
 } from "./database";
-import { get } from "http";
+
 import {
   getAssignmentsByGroup,
   getRelevantGroups,
@@ -142,4 +142,49 @@ export const averageCourseStats = (stats: GroupStat[]) => {
     }
   }
   return { stats: out, totalWeight };
+};
+
+export const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
+  if (stat.isWeighted || !stat.group.group_weight) {
+    return stat.group.group_weight || "N/A";
+  }
+  //group weights from canvas are by default multiplied by 100 so do that here as well
+  return (stat.group.group_weight / totalWeight) * 100;
+};
+
+export function getGroupColor(
+  id: number
+): import("csstype").Property.Background<string | number> | undefined {
+  const hue = (id * 165) % 360;
+  return `HSL(${hue}, 50%, 60%)`;
+}
+export function getAssignmentMean(assignment: Assignment) {
+  if (assignment.score_statistics?.mean && assignment.points_possible) {
+    return assignment.score_statistics?.mean / assignment?.points_possible;
+  }
+}
+
+export type CourseAttributes = {
+  semester: string;
+  courseCode: string;
+  courseYear: string;
+  courseName: string;
+};
+
+export const getCourseAttributes = (course: Course): CourseAttributes => {
+  const dataString = course.course_code || "";
+  // split on both . and space
+  const dataList = dataString.split(/\.|\s/);
+  const semester = dataList[0]
+    .replace("Sprg", "Spring")
+    .replace("Smr", "Summer");
+  const courseYear = dataList[1];
+  // find the first 3 digit number, then remove everything after it
+  const courseCode = dataList[2].replace(/(\d{3}).*/, "$1");
+  return {
+    semester,
+    courseCode,
+    courseYear,
+    courseName: course.name || "",
+  };
 };
