@@ -16,9 +16,7 @@ import {
   getAssignments,
   getCourseListFiltered,
 } from "@/services/database";
-import CourseComponent, {
-  getCourseAttributes,
-} from "@/components/course-component/course-component";
+import CourseComponent from "@/components/course-component/course-component";
 import Checkbox from "@/components/form-components/checkbox";
 import SearchResults from "@/components/search-results/search-results";
 // import { observable } from "@legendapp/state";
