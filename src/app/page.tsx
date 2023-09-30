@@ -18,7 +18,8 @@ import {
 } from "@/services/database";
 import CourseComponent from "@/components/course-component/course-component";
 import Checkbox from "@/components/form-components/checkbox";
-import SearchResults from "@/components/search-results/search-results";
+import SearchResults from "@/components/search/search-results";
+import { SearchBar } from "@/components/search/search-client";
 // import { observable } from "@legendapp/state";
 import { set } from "@legendapp/state/src/ObservableObject";
 import {
@@ -34,14 +35,6 @@ export default async function Home() {
   const courses = await getCourseListFiltered();
   const assignmentGroups = await getAssignmentGroups();
   const assignments = await getAssignments();
-  // const searchOptions$ = useObservable({
-  //   searchText: "",
-  //   semester: {
-  //     spring: true,
-  //     fall: true,
-  //     summer: true,
-  //   },
-  // });
 
   // if (!courses || !assignments || !assignmentGroups) return <div>loading</div>;
   // courses$.set(courses);
@@ -68,13 +61,6 @@ export default async function Home() {
         <h1>
           Data driven course selection <i>rocks</i>
         </h1>
-        {/* <div className={styles["search-container"]}>
-          <input
-            type="text"
-            placeholder="Search for a course"
-            onChange={(e) => searchOptions$.searchText.set(e.target.value)}
-          ></input>
-        </div> */}
         <div className={styles["results-container"]}>
           <aside className={styles["filter-settings"]}>
             <div>Semester</div>
@@ -87,8 +73,9 @@ export default async function Home() {
               <div>Theoretical Min</div>
               <div>Theoretical Max</div> */}
           </aside>
+          <SearchBar />
           <div className={styles["search-results"]}>
-            {courses.map((course) => {
+            {/* {courses.map((course) => {
               const courseAssignments = getAssignmentsByCourse(
                 assignments,
                 course
@@ -105,15 +92,14 @@ export default async function Home() {
                   groupStats={stats}
                 />
               );
-            })}
-            {/* <SearchResults
+            })} */}
+            <SearchResults
               {...{
-                courses$,
-                assignments$,
-                assignmentGroups$,
-                searchOptions$,
+                courses,
+                assignments,
+                assignmentGroups,
               }}
-            /> */}
+            />
           </div>
         </div>
       </main>
