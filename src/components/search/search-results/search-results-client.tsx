@@ -3,12 +3,12 @@ import styles from "./search-results.module.scss";
 import { Course } from "@/services/database";
 import { observer } from "@legendapp/state/react";
 import { getCourseAttributes } from "@/services/data-aggregation";
-import { searchOptions$ } from "./search-options";
+import { searchOptions$ } from "../search-options";
 type CourseAndComponent = { course: Course; courseComponent: React.ReactNode };
+
 const SearchResultsClient = observer(
   ({ courseComponentList }: { courseComponentList: CourseAndComponent[] }) => {
     const courseList = filterCourseList(courseComponentList, searchOptions$);
-    console.log(searchOptions$.get());
     return (
       <div className={styles["results"]}>
         {filterCourseList(courseList, searchOptions$).map(
@@ -20,18 +20,6 @@ const SearchResultsClient = observer(
     );
   }
 );
-
-export const SearchBar = observer(() => {
-  return (
-    <div className={styles["search-container"]}>
-      <input
-        type="text"
-        placeholder="Search for a course"
-        onChange={(e) => searchOptions$.searchText.set(e.target.value)}
-      ></input>
-    </div>
-  );
-});
 
 function filterCourseList(courseList: any, searchOptions$: any) {
   return courseList.filter((courseAndComponent: CourseAndComponent) => {
