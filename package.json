@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@cloudflare/next-on-pages": "^1.4.0",
+    "@cloudflare/next-on-pages": "^1.6.3",
     "@legendapp/state": "^1.6.2",
     "@supabase/supabase-js": "^2.26.0",
     "@tanstack/react-query": "^4.29.17",
