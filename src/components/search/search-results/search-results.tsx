@@ -1,7 +1,7 @@
 import styles from "./search-results.module.scss";
 import { Assignment, AssignmentGroup, Course } from "@/services/database";
 import CourseComponent from "@/components/course-component/course-component";
-import SearchResultsClient from "@/components/search/search-client";
+import SearchResultsClient from "./search-results-client";
 import {
   getAssignmentsByCourse,
   getCourseAttributes,
@@ -33,10 +33,6 @@ const SearchResults = ({
       ),
     };
   });
-  return (
-    <div className={styles["results"]}>
-      <SearchResultsClient {...{ courseComponentList }} />
-    </div>
-  );
+  return <SearchResultsClient {...{ courseComponentList }} />;
 };
 export default SearchResults;

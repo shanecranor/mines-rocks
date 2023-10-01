@@ -1,45 +1,22 @@
 import Image from "next/image";
 import styles from "./page.module.scss";
-// import {
-//   QueryClient,
-//   QueryClientProvider,
-//   useQuery,
-// } from "@tanstack/react-query";
-// import { useObservable } from "@legendapp/state/react";
 
 import Head from "next/head";
 import {
-  Assignment,
-  AssignmentGroup,
-  Course,
   getAssignmentGroups,
   getAssignments,
   getCourseListFiltered,
 } from "@/services/database";
 import CourseComponent from "@/components/course-component/course-component";
 import Checkbox from "@/components/form-components/checkbox";
-import SearchResults from "@/components/search/search-results";
-import { SearchBar } from "@/components/search/search-client";
-// import { observable } from "@legendapp/state";
-import { set } from "@legendapp/state/src/ObservableObject";
-import {
-  getAssignmentsByCourse,
-  getStatsPerGroup,
-} from "@/services/data-aggregation";
-
-// const queryClient = new QueryClient();
-// const courses$ = observable<Course[]>([]);
-// const assignments$ = observable<Assignment[]>([]);
-// const assignmentGroups$ = observable<AssignmentGroup[]>([]);
+import SearchResults from "@/components/search/search-results/search-results";
+import SearchBar from "@/components/search/search-bar/search-bar";
+import FilterSettings from "@/components/search/filter-settings/filter-settings";
 export default async function Home() {
   const courses = await getCourseListFiltered();
   const assignmentGroups = await getAssignmentGroups();
   const assignments = await getAssignments();
 
-  // if (!courses || !assignments || !assignmentGroups) return <div>loading</div>;
-  // courses$.set(courses);
-  // assignments$.set(assignments);
-  // assignmentGroups$.set(assignmentGroups);
   return (
     <>
       <Head>
@@ -61,19 +38,9 @@ export default async function Home() {
         <h1>
           Data driven course selection <i>rocks</i>
         </h1>
+        <SearchBar />
         <div className={styles["results-container"]}>
-          <aside className={styles["filter-settings"]}>
-            <div>Semester</div>
-            {/* <Checkbox label="Spring" state$={searchOptions$.semester.spring} />
-            <Checkbox label="Fall" state$={searchOptions$.semester.fall} />
-            <Checkbox label="Summer" state$={searchOptions$.semester.summer} /> */}
-            {/* Sort:
-              <div>Course Code</div>
-              <div>Average</div>
-              <div>Theoretical Min</div>
-              <div>Theoretical Max</div> */}
-          </aside>
-          <SearchBar />
+          <FilterSettings />
           <div className={styles["search-results"]}>
             {/* {courses.map((course) => {
               const courseAssignments = getAssignmentsByCourse(
