@@ -1,0 +1,45 @@
+.consent-form {
+	max-width: 800px;
+	margin: 0 auto;
+	margin-top: 80px;
+
+	h1 {
+		margin-top: 24px;
+		margin-bottom: 12px;
+	}
+
+	h2 {
+		margin-top: 20px;
+		margin-bottom: 8px;
+	}
+
+	ul {
+		margin-left: 10px;
+
+		>li {
+			margin-left: 10px;
+
+		}
+
+		>ul {
+			margin-left: 20px;
+		}
+	}
+
+	.consent-checkbox {
+		display: block;
+		width: 100%;
+		padding: 20px;
+		margin: 20px 0px;
+		outline: 1px white solid;
+	}
+
+	a {
+		text-decoration: underline;
+		color: rgb(0, 255, 255);
+	}
+
+	button {
+		padding: 10px;
+	}
+}

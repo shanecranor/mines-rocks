@@ -7,11 +7,10 @@ import {
   getAssignments,
   getCourseListFiltered,
 } from "@/services/database";
-import CourseComponent from "@/components/course-component/course-component";
-import Checkbox from "@/components/form-components/checkbox";
 import SearchResults from "@/components/search/search-results/search-results";
 import SearchBar from "@/components/search/search-bar/search-bar";
 import FilterSettings from "@/components/search/filter-settings/filter-settings";
+import Navbar from "@/components/navbar/navbar";
 export default async function Home() {
   const courses = await getCourseListFiltered();
   const assignmentGroups = await getAssignmentGroups();
@@ -24,16 +23,7 @@ export default async function Home() {
         <meta name="description" content="crowd sourced course data" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className={styles["nav-container"]}>
-        <nav className={styles.nav}>
-          <div className={styles["site-logo"]}>mines.rocks</div>
-          <div className={styles["nav-links"]}>
-            <a href="https://syllabuddies.pages.dev/">Syllabuddies</a>
-            {/* <a>About</a> */}
-            <a>Contribute</a>
-          </div>
-        </nav>
-      </div>
+      <Navbar />
       <main className={styles.main}>
         <h1>
           Data driven course selection <i>rocks</i>

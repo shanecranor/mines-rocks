@@ -1,12 +1,15 @@
+"use client";
 import type { NextPage } from "next";
-import { IGNORE_CLASSES } from "../../src/app/contribute/ignoreClasses";
+import { IGNORE_CLASSES } from "./ignoreClasses";
 import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { redirect } from "next/dist/server/api-utils";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 // Create a single supabase client for interacting with your database
 import { createClient } from "@supabase/supabase-js";
+import ConsentForm from "./consent";
+import { observer, useObservable } from "@legendapp/state/react";
 let API_KEY: any = process.env.NEXT_PUBLIC_API_KEY;
 function API_URL(route: string, key?: string) {
   const url = "https://cuploader.shanecranor.workers.dev";
@@ -31,11 +34,13 @@ async function fetchCourseList(key?: string) {
   return await response.json();
 }
 
-const Home: NextPage = () => {
+const Home: NextPage = observer(() => {
+  const hasConsented = useObservable(false);
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
   const [courseIncludeList, setCourseIncludeList] = useState([]);
   const [courseUploadList, setCourseUploadList] = useState([]);
-
+  if (!hasConsented.get())
+    return <ConsentForm onSubmit={() => hasConsented.set(true)} />;
   const {
     isLoading,
     error,
@@ -176,6 +181,6 @@ const Home: NextPage = () => {
       </main>
     </>
   );
-};
+});
 
 export default Home;
