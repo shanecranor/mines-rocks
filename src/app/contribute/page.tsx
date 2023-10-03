@@ -36,11 +36,12 @@ async function fetchCourseList(key?: string) {
 
 const Home: NextPage = observer(() => {
   const hasConsented = useObservable(false);
+  if (!hasConsented.get())
+    return <ConsentForm onSubmit={() => hasConsented.set(true)} />;
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
   const [courseIncludeList, setCourseIncludeList] = useState([]);
   const [courseUploadList, setCourseUploadList] = useState([]);
-  if (!hasConsented.get())
-    return <ConsentForm onSubmit={() => hasConsented.set(true)} />;
+
   const {
     isLoading,
     error,

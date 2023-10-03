@@ -22,16 +22,15 @@ const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
         </p>
 
         <h2>What Data Does Mines.Rocks Access?</h2>
-        <p>
-          This project will access the following data
-          <ul>
-            <li>
-              Courses: the list of courses that you have taken and agree to
-              upload. Mines.rocks does not store who uploads which courses. You
-              can opt out of uploading any courses that you do not want to
-              share.
-            </li>
-            <li>Assignments & assignment Categories</li>
+        <p>This project will access the following data</p>
+        <ul>
+          <li>
+            Courses: the list of courses that you have taken and agree to
+            upload. Mines.rocks does not store who uploads which courses. You
+            can opt out of uploading any courses that you do not want to share.
+          </li>
+          <li>
+            Assignments & assignment Categories
             <ul>
               <li>
                 Assignment Name, description, creation / due dates, and score
@@ -42,7 +41,9 @@ const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
                 grade data
               </li>
             </ul>
-          </ul>
+          </li>
+        </ul>
+        <p>
           <br />
           This site does <strong>NOT</strong> store or display any individual
           grade data. The site also does not store or access any assignment
