@@ -5,7 +5,7 @@ import {
   getGroupWeight,
 } from "@/services/data-aggregation";
 import { Course, Assignment } from "@/services/database";
-import styles from "./course-component.module.scss";
+import styles from "./assignment-graph.module.scss";
 export default function AssignmentGraph({
   courseData,
   assignments,
@@ -96,8 +96,8 @@ export default function AssignmentGraph({
           //   display: assignmentsFiltered.length ? "auto" : "none",
           // }}
         >
-          <div className="min-label">0%</div>
           <div className="max-label">100%</div>
+          <div className="min-label">0%</div>
           {assignmentsFiltered.map((assignment) => {
             const bubbleSize = 5;
             // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
@@ -127,14 +127,7 @@ export default function AssignmentGraph({
                   width: `${bubbleSize}px`,
                   height: `${bubbleSize}px`,
                 }}
-              >
-                {/* <div className={styles["assignment-name"]}>
-        {assignment.name}
-      </div> */}
-                {/* <div className={styles["assignment-grade"]}>
-        {assignment?.score_statistics?.mean}
-      </div> */}
-              </div>
+              ></div>
             );
           })}
         </div>
