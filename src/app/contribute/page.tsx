@@ -36,8 +36,6 @@ async function fetchCourseList(key?: string) {
 
 const Home: NextPage = observer(() => {
   const hasConsented = useObservable(false);
-  if (!hasConsented.get())
-    return <ConsentForm onSubmit={() => hasConsented.set(true)} />;
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
   const [courseIncludeList, setCourseIncludeList] = useState([]);
   const [courseUploadList, setCourseUploadList] = useState([]);
@@ -140,8 +138,7 @@ const Home: NextPage = observer(() => {
       );
     });
   }
-  console.log("UPLOAD STATUS");
-  console.log(courseUploadList);
+
   return (
     <>
       <Head>
@@ -152,34 +149,38 @@ const Home: NextPage = observer(() => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main>
-        <h1>Courses to be uploaded:</h1>
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <>
-            {parseCourseList(courseList)}
-            <button onClick={() => uploadCourses(courseList)}>
-              Contribute
-            </button>
-          </>
-        )}
-        <br></br>
-        <p>Paste your canvas API key here:</p>
-        <input
-          type="text"
-          value={
-            canvasApiKey ||
-            (typeof window !== "undefined" && localStorage.getItem("API_KEY"))
-          }
-          style={{ width: "30%", marginBottom: "20px" }}
-          onChange={(e) => {
-            setCanvasApiKey(e.target.value);
-            localStorage.setItem("API_KEY", e.target.value);
-          }}
-        ></input>
-      </main>
+      {hasConsented.get() !== true && (
+        <ConsentForm onSubmit={() => hasConsented.set(true)} />
+      )}
+      {hasConsented.get() && (
+        <main>
+          <h1>Courses to be uploaded:</h1>
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <>
+              {parseCourseList(courseList)}
+              <button onClick={() => uploadCourses(courseList)}>
+                Contribute
+              </button>
+            </>
+          )}
+          <br></br>
+          <p>Paste your canvas API key here:</p>
+          <input
+            type="text"
+            value={
+              canvasApiKey ||
+              (typeof window !== "undefined" && localStorage.getItem("API_KEY"))
+            }
+            style={{ width: "30%", marginBottom: "20px" }}
+            onChange={(e) => {
+              setCanvasApiKey(e.target.value);
+              localStorage.setItem("API_KEY", e.target.value);
+            }}
+          ></input>
+        </main>
+      )}
     </>
   );
 });

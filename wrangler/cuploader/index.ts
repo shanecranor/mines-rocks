@@ -5,7 +5,7 @@ interface RouterObj {
 interface RouteInfo {
   endpointName: string;
   endpoint: string;
-  params?: string[]; // parameters to replace in the endpoint
+  params?: string[]; // string list of parameters to find/replace in the endpoint
   supabaseTable: string; // table to upsert data to
   requiredKeys?: string[];
 }
@@ -23,18 +23,21 @@ const router = <RouterObj> {
       endpoint: "api/v1/courses/course_id/assignment_groups",
       params: ["course_id"],
       supabaseTable: "assignment_group_data",
+      //TODO: add required keys
     },
     {
       endpointName: "assignments",
       endpoint: "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics",
       params: ["course_id"],
       supabaseTable: "assignment_data"
+      //TODO: add required keys
     },
   ],
 }
 
 const API_URL = "https://elearning.mines.edu/"
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   async fetch(request: Request, {SUPABASE_URL, SUPABASE_SERVICE_ROLE} : {SUPABASE_URL: string, SUPABASE_SERVICE_ROLE: string}) {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE)
@@ -43,14 +46,19 @@ export default {
     let route = <string | null> searchParams.get("route")
     if(!route) return new Response("ERROR: No route", {status: 400})
     // get the canvas auth token from the url params
+
+    //TODO: move this to the header
     const AUTH_TOKEN = searchParams.get('bearer')
     if(!AUTH_TOKEN) return new Response("ERROR: No auth token", {status: 401})
+
     // the router object will tell us what to do based on the route string
     let routeInfoList = router[route]
     if(!routeInfoList) return new Response("ERROR: Invalid route", {status: 418})
+
     // loop through each endpoint in the route
     let status = 200
     let responses = {}
+
     for( let i = 0; i < routeInfoList.length; i++){
       let routeInfo = routeInfoList[i]
       const responseData = await doRoute(routeInfo, AUTH_TOKEN, searchParams, supabase)
@@ -77,14 +85,16 @@ export default {
 };
 
 async function doRoute(routeInfo: RouteInfo, AUTH_TOKEN: string, searchParams: URLSearchParams, supabase: any) {
+  // get the correct endpoint url
   let endpoint = routeInfo.endpoint
-  // replace the params in the endpoint
-  // with the values from the url params in the worker request
-  for(let i = 0; routeInfo.params && i < routeInfo.params.length; i++){
-    const param = routeInfo.params[i]
-    const value = searchParams.get(param)
-    if(!value) return `Empty value for ${param}`
-    endpoint = endpoint.replace(param, value)
+  if(routeInfo.params){
+    // replace the params in the endpoint with the values from the url params in the worker request
+    for(let i = 0; i < routeInfo.params.length; i++){
+      const param = routeInfo.params[i]
+      const value = searchParams.get(param)
+      if(!value) return `Empty value for ${param}`
+      endpoint = endpoint.replace(param, value)
+    }
   }
   const queryURL = `${API_URL}${endpoint}`
   // return the query url if the test param is set for testing and debugging
@@ -115,6 +125,7 @@ async function doRoute(routeInfo: RouteInfo, AUTH_TOKEN: string, searchParams: U
       }
     }
     // remove keys that don't exist in the table
+    // TODO: specify the keys in the table in this file or import
     for(let key in row){
       if(!table_keys.includes(key)) delete row[key]
     }

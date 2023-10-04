@@ -69,6 +69,7 @@ const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
           access, and the risks involved with sharing your API key.
         </p>
         <form
+          action=""
           onSubmit={(e) => {
             e.preventDefault();
             onSubmit();
