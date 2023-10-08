@@ -45,7 +45,6 @@ const Home: NextPage = observer(() => {
     error,
     data: courseList,
   } = useQuery({
-    queryKey: "courseList",
     queryFn: () => fetchCourseList(),
     onSuccess: (data: any) => {
       setCourseIncludeList(
@@ -73,7 +72,7 @@ const Home: NextPage = observer(() => {
         continue;
       }
       setCourseUploadList((oldState: any) =>
-        oldState.map((status, idx) => {
+        oldState.map((status: any, idx: number) => {
           if (idx == courseIndex) {
             return { data: "loading", color: "LightGoldenRodYellow" };
           }
@@ -91,11 +90,11 @@ const Home: NextPage = observer(() => {
         500: "orange",
       };
       setCourseUploadList((oldState: any) =>
-        oldState.map((status, idx) => {
+        oldState.map((status: 200 | 500, idx: number) => {
           if (idx == courseIndex) {
             return {
               data: courseData.data,
-              color: statusToColor[courseData.status] || "red",
+              color: statusToColor[courseData.status as 200 | 500] || "red",
             };
           }
           return status;
@@ -120,7 +119,10 @@ const Home: NextPage = observer(() => {
       return (
         <div
           key={`COURSEUPLOAD${course.id}`}
-          style={{ background: courseUploadList[idx]?.color }}
+          style={{
+            background:
+              (courseUploadList[idx] as { color?: string })?.color || "red",
+          }}
         >
           <input
             type="checkbox"

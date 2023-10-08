@@ -2,59 +2,72 @@
   max-width: var(--max-width);
   margin: 0 auto;
 
-  >h1 {
-    text-align: center;
-    margin: 34px 16px;
-    margin-top: 48px;
-    position: relative;
+  .heading-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 
-    >i {
-      color: rgb(0, 255, 0);
-      mix-blend-mode: screen;
-      transition: all 0.2s ease-in-out;
-      filter: blur(0px);
+    >.logo {
+      width: 100px;
+      height: 100px;
+      mix-blend-mode: lighten;
+    }
 
+    >h1 {
+      text-align: center;
+      margin: 34px 16px;
+      margin-top: 48px;
+      position: relative;
 
-      &::after {
-        content: "rocks";
-        position: absolute;
-        //don't wrap
-        white-space: nowrap;
-        user-select: none;
-        transition: all 0.2s ease-in-out;
-
-        transform: translate(-100%, 0px);
-        color: blue;
+      >i {
+        color: rgb(0, 255, 0);
         mix-blend-mode: screen;
-        filter: blur(0px);
-      }
-
-      &::before {
-        content: "rocks";
-        position: absolute;
-        white-space: nowrap;
-
-        user-select: none;
         transition: all 0.2s ease-in-out;
-        transform: translate(0%, -0px);
-        color: red;
-        mix-blend-mode: screen;
         filter: blur(0px);
-      }
 
-      &:hover {
-        // transform: translate(0px, 0px);
-        // filter: blur(1px);
-        text-shadow: rgba(var(--foreground-rgb), 0.05) 0px 0px 20px;
 
         &::after {
-          transform: translate(-100%, -2px);
-          // filter: blur(1px);
+          content: "rocks";
+          position: absolute;
+          //don't wrap
+          white-space: nowrap;
+          user-select: none;
+          transition: all 0.2s ease-in-out;
+
+          transform: translate(-100%, 0px);
+          color: blue;
+          mix-blend-mode: screen;
+          filter: blur(0px);
         }
 
         &::before {
-          transform: translate(0%, 2px);
+          content: "rocks";
+          position: absolute;
+          white-space: nowrap;
+
+          user-select: none;
+          transition: all 0.2s ease-in-out;
+          transform: translate(0%, -0px);
+          color: red;
+          mix-blend-mode: screen;
+          filter: blur(0px);
+        }
+
+        &:hover {
+          // transform: translate(0px, 0px);
           // filter: blur(1px);
+          text-shadow: rgba(var(--foreground-rgb), 0.05) 0px 0px 20px;
+
+          &::after {
+            transform: translate(-100%, -2px);
+            // filter: blur(1px);
+          }
+
+          &::before {
+            transform: translate(0%, 2px);
+            // filter: blur(1px);
+          }
         }
       }
     }

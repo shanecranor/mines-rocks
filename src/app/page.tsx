@@ -1,6 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import Image from "next/image";
 import styles from "./page.module.scss";
-
 import Head from "next/head";
 import {
   getAssignmentGroups,
@@ -25,9 +25,13 @@ export default async function Home() {
       </Head>
       <Navbar />
       <main className={styles.main}>
-        <h1>
-          Data driven course selection <i>rocks</i>
-        </h1>
+        <div className={styles["heading-container"]}>
+          <img src="logo4.png" className={styles["logo"]} alt="Logo" />
+          <h1>
+            Data driven course selection <i>rocks</i>
+          </h1>
+        </div>
+
         <SearchBar />
         <div className={styles["results-container"]}>
           <FilterSettings />
