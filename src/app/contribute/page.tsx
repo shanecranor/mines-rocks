@@ -37,10 +37,30 @@ async function fetchCourseList(key?: string) {
 
 const Home: NextPage = observer(() => {
   const hasConsented = useObservable(false);
-  const courseList = useObservable();
   const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
   const [courseIncludeList, setCourseIncludeList] = useState([]);
   const [courseUploadList, setCourseUploadList] = useState([]);
+
+  const {
+    isLoading,
+    error,
+    data: courseList,
+  } = useQuery({
+    queryFn: () => fetchCourseList(),
+    onSuccess: (data: any) => {
+      setCourseIncludeList(
+        data?.courses?.map(
+          (course: any) => false
+          //!IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))
+        )
+      );
+      setCourseUploadList(data?.courses?.map((course: any) => ""));
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 60 * 6,
+    cacheTime: 1000 * 60 * 60 * 6,
+    //it will only refetch if the page is open for 6 hours
+  });
   async function uploadCourses(courseList: any) {
     for (
       let courseIndex = 0;
@@ -61,6 +81,11 @@ const Home: NextPage = observer(() => {
         })
       );
       const courseData = await fetchCourseData(course.id);
+      // console.log("wtf" + courseIndex + " " + course.id)
+      // setCourseUploadList((oldState: any) => {
+      //   console.log("SETwtf " + courseIndex + " " + course.id)
+      //   return oldState
+      // })
       const statusToColor = {
         200: "green",
         500: "orange",
@@ -127,27 +152,20 @@ const Home: NextPage = observer(() => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {!hasConsented.get() !== true && (
+      {hasConsented.get() !== true && (
         <ConsentForm onSubmit={() => hasConsented.set(true)} />
       )}
-      {!hasConsented.get() && (
+      {hasConsented.get() && (
         <main>
           <h1>Courses to be uploaded:</h1>
-          {!courseList.get() ? (
+          {isLoading ? (
             <p>Loading...</p>
           ) : (
             <>
-              {parseCourseList(courseList.get())}
-              <button onClick={() => uploadCourses(courseList.get())}>
+              {parseCourseList(courseList)}
+              <button onClick={() => uploadCourses(courseList)}>
                 Contribute
               </button>
-              {/* setCourseIncludeList(
-        data?.courses?.map(
-          (course: any) => false
-          //!IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))
-        )
-      );
-      setCourseUploadList(data?.courses?.map((course: any) => "")); */}
             </>
           )}
           <br></br>
