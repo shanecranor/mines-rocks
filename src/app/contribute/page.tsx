@@ -10,12 +10,11 @@ import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@supabase/supabase-js";
 import ConsentForm from "./consent";
 import { observer, useObservable } from "@legendapp/state/react";
-let API_KEY: any =
-  process.env.NEXT_PUBLIC_API_KEY || prompt("paste your api key");
+let API_KEY: any = process.env.NEXT_PUBLIC_API_KEY;
 function API_URL(route: string, key?: string) {
   const url = "https://cuploader.shanecranor.workers.dev";
   if (!API_KEY) {
-    API_KEY = localStorage.getItem("API_KEY");
+    API_KEY = localStorage.getItem("API_KEY") || prompt("paste your api key");
   }
   if (key) return `${url}/?bearer=${key}&route=${route}`;
   if (API_KEY) return `${url}/?bearer=${API_KEY}&route=${route}`;
