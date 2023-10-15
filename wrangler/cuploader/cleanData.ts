@@ -19,19 +19,20 @@ export function filterData(row: any[], routeInfo: RouteInfo,) {
 }
 
 /**
- * 
- * @param row database row object with keys for each column
- * @param table_keys list of table column names
- * @returns items in the row that match the table columns and have a value
+ * Cleans a row object. The resulting row contains every single key in the table keys and no other keys.
+ *
+ * @param {Object} row - Database row object with keys for each column.
+ * @param {string[]} tableKeys - List of table column names.
+ * @returns {Object} The modified row object containing only the keys present in tableKeys, setting missing keys to null.
  */
-export function cleanRow(row: any, table_keys: any[]) {
-    const table_keys_set = new Set(table_keys);
-    for (const key of table_keys) {
-        row[key] = row[key] ?? null;
+export function cleanRow(row: any, tableKeys: any[]) {
+    const cleanedRow: any = {};
+    const tableKeysSet = new Set(tableKeys);
+    // for each key in the table keys, set the cleaned row's key to the row's key if it exists
+    // otherwise set the cleaned row's key to null
+    for (const key of tableKeys) {
+        cleanedRow[key] = row[key] ?? null;
     }
 
-    for (const key in row) {
-        if (!table_keys_set.has(key)) delete row[key];
-    }
-    return row;
+    return cleanedRow;
 }

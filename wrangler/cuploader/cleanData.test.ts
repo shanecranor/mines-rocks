@@ -60,6 +60,18 @@ const testCourseRow = {
 
 describe("cleanRow", () => {
     it("clean row contrived", () => {
-        console.log(cleanRow(testCourseRow, courseTableKeys));
+        const cleanedRow = cleanRow(testCourseRow, courseTableKeys)
+        console.log(cleanedRow);
+        console.log(typeof cleanedRow);
+        //write asserts to check that the clean row contains every single key in the table keys and no other keys
+        expect(cleanedRow).toBeDefined();
+        //loop through the table keys and check for each key
+        for (const key of courseTableKeys) {
+            expect(cleanedRow[key]).toBeDefined();
+        }
+        //now check that there are no extra keys
+        for (const key in cleanedRow) {
+            expect(courseTableKeys).toContain(key);
+        }
     });
 });
