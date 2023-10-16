@@ -2,15 +2,7 @@ import { c } from "vitest/dist/reporters-5f784f42";
 import { RouteInfo } from "./types";
 
 export function cleanAndFilterData(data: any, table_keys: any, routeInfo: RouteInfo) {
-    return data.map((row: any) => {
-        console.log("ROW")
-        console.log(JSON.stringify(row))
-        console.log("TABLE KEYS")
-        console.log(JSON.stringify(table_keys))
-        console.log("CLEAN ROW")
-        console.log(cleanRow(row, table_keys))
-        return cleanRow(row, table_keys)
-    })
+    return data.map((row: any) => cleanRow(row, table_keys))
         .filter((row: any) => filterData(row, routeInfo));
 }
 export function filterData(row: any[], routeInfo: RouteInfo,) {
@@ -25,7 +17,7 @@ export function filterData(row: any[], routeInfo: RouteInfo,) {
  * @param {string[]} tableKeys - List of table column names.
  * @returns {Object} The modified row object containing only the keys present in tableKeys, setting missing keys to null.
  */
-export function cleanRow(row: any, tableKeys: any[]) {
+export function cleanRow(row: any, tableKeys: string[]) {
     const cleanedRow: any = {};
     const tableKeysSet = new Set(tableKeys);
     // for each key in the table keys, set the cleaned row's key to the row's key if it exists
@@ -33,6 +25,5 @@ export function cleanRow(row: any, tableKeys: any[]) {
     for (const key of tableKeys) {
         cleanedRow[key] = row[key] ?? null;
     }
-
     return cleanedRow;
 }
