@@ -120,11 +120,11 @@ async function doRoute(routeInfo: RouteInfo, AUTH_TOKEN: string, searchParams: U
   console.log("DATA")
   console.log(data)
   // get the column names from the supabase psql function
-  const { data: table_keys } = await supabase.rpc(
+  const { data: tableKeys } = await supabase.rpc(
     'list_columns', { table_id: routeInfo.supabaseTable }
   )
 
-  const cleanData = cleanAndFilterData(data, table_keys, routeInfo.requiredKeys);
+  const cleanData = cleanAndFilterData(data, tableKeys, routeInfo.requiredKeys);
   console.log("CLEAN DATA")
   console.log(cleanData)
   return cleanData

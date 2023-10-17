@@ -10,8 +10,8 @@ interface Row {
  * @returns {Row[]} Cleaned and filtered data
  */
 export function cleanAndFilterData(data: Row[], tableKeys: string[], requiredKeys?: string[]): Row[] {
-    return data.map((row: Row) => cleanRow(row, tableKeys))
-        .filter((row: Row) => hasRequiredKeys(row, requiredKeys));
+    return data.map(row => cleanRow(row, tableKeys))
+        .filter(row => hasRequiredKeys(row, requiredKeys));
 }
 
 /**
@@ -21,7 +21,7 @@ export function cleanAndFilterData(data: Row[], tableKeys: string[], requiredKey
  * @returns {boolean} 
  */
 export function hasRequiredKeys(row: Row, requiredKeys?: string[]): boolean {
-    return requiredKeys?.every((key: string) => row[key] != null) ?? true;
+    return requiredKeys?.every(key => row[key] != null) ?? true;
 }
 
 /**
