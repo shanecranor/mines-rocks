@@ -1,27 +1,40 @@
-import { c } from "vitest/dist/reporters-5f784f42";
-import { RouteInfo } from "./types";
-
-export function cleanAndFilterData(data: any, table_keys: any, routeInfo: RouteInfo) {
-    return data.map((row: any) => cleanRow(row, table_keys))
-        .filter((row: any) => filterData(row, routeInfo));
+interface Row {
+    [key: string]: unknown;
 }
-export function filterData(row: any[], routeInfo: RouteInfo,) {
-    // Filter out rows that don't have the required keys
-    return routeInfo.requiredKeys?.every((key: any) => row[key] != null) ?? true;
+
+/**
+ * Cleans and filters data from a table based on the route info and table keys
+ * @param {Row[]} data - Table data
+ * @param {string[]} tableKeys - List of keys that exist in the table
+ * @param {string[]} requiredKeys - Information about the route that defines filtering conditions
+ * @returns {Row[]} Cleaned and filtered data
+ */
+export function cleanAndFilterData(data: Row[], tableKeys: string[], requiredKeys?: string[]): Row[] {
+    return data.map((row: Row) => cleanRow(row, tableKeys))
+        .filter((row: Row) => hasRequiredKeys(row, requiredKeys));
+}
+
+/**
+ * Checks if a row object has all the required keys.
+ * @param {Row} row - Database row object with keys for each column.
+ * @param {string[]} requiredKeys
+ * @returns {boolean} 
+ */
+export function hasRequiredKeys(row: Row, requiredKeys?: string[]): boolean {
+    return requiredKeys?.every((key: string) => row[key] != null) ?? true;
 }
 
 /**
  * Cleans a row object. The resulting row contains every single key in the table keys and no other keys.
  *
- * @param {Object} row - Database row object with keys for each column.
+ * @param {Row} row - Database row object with keys for each column.
  * @param {string[]} tableKeys - List of table column names.
- * @returns {Object} The modified row object containing only the keys present in tableKeys, setting missing keys to null.
+ * @returns {Row} The modified row object containing only the keys present in tableKeys, setting missing keys to null.
  */
-export function cleanRow(row: any, tableKeys: string[]) {
-    const cleanedRow: any = {};
-    const tableKeysSet = new Set(tableKeys);
-    // for each key in the table keys, set the cleaned row's key to the row's key if it exists
-    // otherwise set the cleaned row's key to null
+export function cleanRow(row: Row, tableKeys: string[]): Row {
+    const cleanedRow: Row = {};
+    // for each key in the table keys, set the cleaned row's key to the row's key 
+    // if the tableKey doesn't exist set the cleaned row's key to null
     for (const key of tableKeys) {
         cleanedRow[key] = row[key] ?? null;
     }

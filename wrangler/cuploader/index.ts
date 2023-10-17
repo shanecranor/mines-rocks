@@ -124,7 +124,7 @@ async function doRoute(routeInfo: RouteInfo, AUTH_TOKEN: string, searchParams: U
     'list_columns', { table_id: routeInfo.supabaseTable }
   )
 
-  const cleanData = cleanAndFilterData(data, table_keys, routeInfo);
+  const cleanData = cleanAndFilterData(data, table_keys, routeInfo.requiredKeys);
   console.log("CLEAN DATA")
   console.log(cleanData)
   return cleanData
