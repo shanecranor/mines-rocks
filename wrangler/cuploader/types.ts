@@ -9,3 +9,6 @@ export interface RouteInfo {
   requiredKeys?: string[];
 }
 
+export interface Row {
+  [key: string]: unknown;
+}

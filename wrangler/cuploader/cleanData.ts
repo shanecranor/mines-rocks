@@ -1,6 +1,4 @@
-interface Row {
-    [key: string]: unknown;
-}
+import { Row } from './types'
 
 /**
  * Cleans and filters data from a table based on the route info and table keys
