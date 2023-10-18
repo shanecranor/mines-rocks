@@ -2,145 +2,57 @@
 import type { NextPage } from "next";
 import { IGNORE_CLASSES } from "./ignoreClasses";
 import Head from "next/head";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { redirect } from "next/dist/server/api-utils";
-import { useQuery } from "@tanstack/react-query";
 // Create a single supabase client for interacting with your database
 import { createClient } from "@supabase/supabase-js";
 import ConsentForm from "./consent";
 import { observer, useObservable } from "@legendapp/state/react";
-let API_KEY: any = process.env.NEXT_PUBLIC_API_KEY;
+import { Course } from "@/services/database";
+
 function API_URL(route: string, key?: string) {
   const url = "https://cuploader.shanecranor.workers.dev";
-  if (!API_KEY) {
-    API_KEY = localStorage.getItem("API_KEY") || prompt("paste your api key");
-  }
-  if (key) return `${url}/?bearer=${key}&route=${route}`;
-  if (API_KEY) return `${url}/?bearer=${API_KEY}&route=${route}`;
-  console.error(".env.local API key not found and no key passed");
+  return `${url}/?bearer=${key}&route=${route}`;
 }
 
-async function fetchCourseData(course_id: string, key?: string) {
-  console.log(`fetching course data for ${course_id}`);
+async function fetchCourseData(id: number, key?: string) {
+  console.log(`fetching course data for ${id}`);
   const response = await fetch(
-    `${API_URL("getCourseData", key)}&course_id=${course_id}`
+    `${API_URL("getCourseData", key)}&course_id=${id}`
   );
   const data = await response.json();
   return { data: data, status: response.status };
 }
+
 async function fetchCourseList(key?: string) {
   const response = await fetch(`${API_URL("getCourses", key)}`);
-  return await response.json();
+  const data = await response.json();
+  return data.courses || data;
 }
 
+
 const Home: NextPage = observer(() => {
-  const hasConsented = useObservable(false);
-  const [canvasApiKey, setCanvasApiKey] = useState(API_KEY);
-  const [courseIncludeList, setCourseIncludeList] = useState([]);
-  const [courseUploadList, setCourseUploadList] = useState([]);
+  const hasConsented$ = useObservable(true);
+  const courseList$ = useObservable<Course[] | string>("no courses loaded");
+  const selectedCourses$ = useObservable<number[]>([]);
+  const courseData$ = useObservable<any>([]);
+  const courseList = courseList$.get();
 
-  const {
-    isLoading,
-    error,
-    data: courseList,
-  } = useQuery({
-    queryFn: () => fetchCourseList(),
-    onSuccess: (data: any) => {
-      setCourseIncludeList(
-        data?.courses?.map(
-          (course: any) => false
-          //!IGNORE_CLASSES.some((ignoreClass: string) => course.name.includes(ignoreClass))
-        )
-      );
-      setCourseUploadList(data?.courses?.map((course: any) => ""));
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 60 * 6,
-    cacheTime: 1000 * 60 * 60 * 6,
-    //it will only refetch if the page is open for 6 hours
-  });
-  async function uploadCourses(courseList: any) {
-    for (
-      let courseIndex = 0;
-      courseIndex < courseList.courses.length;
-      courseIndex++
-    ) {
-      const course = courseList.courses[courseIndex];
-      if (!courseIncludeList[courseIndex]) {
-        console.log("SKIPPED");
-        continue;
-      }
-      setCourseUploadList((oldState: any) =>
-        oldState.map((status: any, idx: number) => {
-          if (idx == courseIndex) {
-            return { data: "loading", color: "LightGoldenRodYellow" };
-          }
-          return status;
-        })
-      );
-      const courseData = await fetchCourseData(course.id);
-      // console.log("wtf" + courseIndex + " " + course.id)
-      // setCourseUploadList((oldState: any) => {
-      //   console.log("SETwtf " + courseIndex + " " + course.id)
-      //   return oldState
-      // })
-      const statusToColor = {
-        200: "green",
-        500: "orange",
-      };
-      setCourseUploadList((oldState: any) =>
-        oldState.map((status: 200 | 500, idx: number) => {
-          if (idx == courseIndex) {
-            return {
-              data: courseData.data,
-              color: statusToColor[courseData.status as 200 | 500] || "red",
-            };
-          }
-          return status;
-        })
-      );
-      // await new Promise(resolve => setTimeout(resolve, 100));
+  const apiKey$ = useObservable<string>(localStorage.getItem("API_KEY") || "");
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, courseId: number) => {
+    const isChecked = e.target.checked;
+    const currentUploadList = selectedCourses$.get();
+    let newUploadList: number[];
+
+    if (isChecked) {
+      // Add the courseId if the checkbox is checked
+      newUploadList = [...currentUploadList, courseId];
+    } else {
+      // Remove the courseId if the checkbox is unchecked
+      newUploadList = currentUploadList.filter(id => id !== courseId);
     }
-    return;
-  }
-  function parseCourseList(courseList: any) {
-    //check if type of courseList.courses is string
-    // if it is, then it is an error message (probably a better way to do this lol)
-    if (typeof courseList.courses === "string")
-      return JSON.stringify(courseList);
-    return courseList.courses.map((course: any, idx: number) => {
-      if (
-        IGNORE_CLASSES.some((ignoreClass: string) =>
-          course.name.includes(ignoreClass)
-        )
-      )
-        return;
-      return (
-        <div
-          key={`COURSEUPLOAD${course.id}`}
-          style={{
-            background:
-              (courseUploadList[idx] as { color?: string })?.color || "red",
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={courseIncludeList[idx]}
-            onChange={() =>
-              setCourseIncludeList((oldState: any) =>
-                oldState.map((box: boolean, i: number) =>
-                  idx === i ? !box : box
-                )
-              )
-            }
-          />
-          {course.name}
-        </div>
-      );
-    });
-  }
 
+    // Update the observable array
+    selectedCourses$.set(newUploadList);
+  };
   return (
     <>
       <Head>
@@ -151,40 +63,90 @@ const Home: NextPage = observer(() => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {hasConsented.get() !== true && (
-        <ConsentForm onSubmit={() => hasConsented.set(true)} />
-      )}
-      {hasConsented.get() && (
+
+      {hasConsented$.get() && (
         <main>
           <h1>Courses to be uploaded:</h1>
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : (
-            <>
-              {parseCourseList(courseList)}
-              <button onClick={() => uploadCourses(courseList)}>
-                Contribute
-              </button>
-            </>
-          )}
-          <br></br>
-          <p>Paste your canvas API key here:</p>
-          <input
-            type="text"
-            value={
-              canvasApiKey ||
-              (typeof window !== "undefined" && localStorage.getItem("API_KEY"))
+          <p>{JSON.stringify(courseData$.get())}</p>
+          <ul>
+            {
+              Array.isArray(courseList) ? courseList.map((course: Course) => {
+
+                return (
+                  <li key={course.id} style={{ background: getCourseColor(selectedCourses$.get().includes(course.id), courseData$.get()[course.id]) }}>
+                    {courseData$.get()[course.id]}
+                    <input type="checkbox"
+                      onChange={(e) => handleCheckboxChange(e, course.id)}
+                      checked={selectedCourses$.get().includes(course.id)} />{course.name}
+                  </li>
+                )
+              }) : courseList
             }
-            style={{ width: "30%", marginBottom: "20px" }}
-            onChange={(e) => {
-              setCanvasApiKey(e.target.value);
-              localStorage.setItem("API_KEY", e.target.value);
-            }}
-          ></input>
+          </ul>
+          <br></br>
+          <label> Paste your canvas API key here: <br></br>
+            <input
+              type="text"
+              style={{ width: "30%", marginBottom: "20px" }}
+              value={apiKey$.get()}
+              onChange={(e) => {
+                apiKey$.set(e.target.value);
+                //only store the key if we are in development mode, this isn't super secure so not ideal for prod 
+                if (process && process.env.NODE_ENV === 'development')
+                  localStorage.setItem("API_KEY", e.target.value);
+              }}
+            ></input>
+          </label>
+          <button onClick={async () => {
+            const data = await fetchCourseList(apiKey$.get())
+            courseList$.set(data);
+            if (Array.isArray(data)) {
+              const filteredData = data.filter((course: Course) => {
+                return course.name && !IGNORE_CLASSES.includes(course.name);
+              });
+              courseList$.set(filteredData);
+              // selectedCourses$.set(filteredData.map((course: Course) => course.id));
+            }
+          }}>
+            Load Courses
+          </button>
+          <button onClick={() => uploadCourses(courseList$, selectedCourses$, apiKey$, courseData$)}>
+            Contribute selected courses!
+          </button>
         </main>
       )}
     </>
   );
 });
+function getCourseColor(isSelected: boolean, statusCode: number | undefined) {
+  if (statusCode === 200) return "green"
+  if (statusCode === -1) return "steelblue"
+  if (statusCode && statusCode !== 200) return "red"
+  if (isSelected) return "#FFFFFF3A"
+  return "none"
 
+}
+async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: any, courseData$: any) {
+  const courseList = courseList$.get();
+  const selectedCourses = selectedCourses$.get();
+  const apiKey = apiKey$.get();
+  if (!apiKey) {
+    alert("No API key entered!");
+    return;
+  }
+  if (!Array.isArray(courseList)) {
+    alert("No courses loaded!");
+    return;
+  }
+  if (selectedCourses.length === 0) {
+    alert("No courses selected!");
+    return;
+  }
+
+  for (const id of selectedCourses) {
+    courseData$.set({ ...courseData$.get(), [id]: -1 })
+    const response = await fetchCourseData(id, apiKey)
+    courseData$.set({ ...courseData$.get(), [id]: response.status })
+  }
+}
 export default Home;
