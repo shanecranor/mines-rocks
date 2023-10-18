@@ -9,14 +9,14 @@
   --iqr-bg: #999;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) { */
   :root {
     --foreground-rgb: 255, 255, 255;
     --background-start-rgb: 10, 10, 10;
     --background-end-rgb: 20, 20, 20;
     --iqr-bg: #222;
   }
-}
+/* } */
 
 * {
   box-sizing: border-box;
@@ -45,8 +45,8 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) { */
   html {
     color-scheme: dark;
   }
-}
+/* } */
