@@ -1,0 +1,104 @@
+.main {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  
+    .heading-container {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+  
+      >.logo {
+        width: 100px;
+        height: 100px;
+        mix-blend-mode: lighten;
+      }
+  
+      >h1 {
+        text-align: center;
+        margin: 34px 16px;
+        margin-top: 48px;
+        position: relative;
+  
+        >i {
+          color: rgb(0, 255, 0);
+          mix-blend-mode: screen;
+          transition: all 0.2s ease-in-out;
+          filter: blur(0px);
+  
+  
+          &::after {
+            content: "rocks";
+            position: absolute;
+            //don't wrap
+            white-space: nowrap;
+            user-select: none;
+            transition: all 0.2s ease-in-out;
+  
+            transform: translate(-100%, 0px);
+            color: blue;
+            mix-blend-mode: screen;
+            filter: blur(0px);
+          }
+  
+          &::before {
+            content: "rocks";
+            position: absolute;
+            white-space: nowrap;
+  
+            user-select: none;
+            transition: all 0.2s ease-in-out;
+            transform: translate(0%, -0px);
+            color: red;
+            mix-blend-mode: screen;
+            filter: blur(0px);
+          }
+  
+          &:hover {
+            // transform: translate(0px, 0px);
+            // filter: blur(1px);
+            text-shadow: rgba(var(--foreground-rgb), 0.05) 0px 0px 20px;
+  
+            &::after {
+              transform: translate(-100%, -2px);
+              // filter: blur(1px);
+            }
+  
+            &::before {
+              transform: translate(0%, 2px);
+              // filter: blur(1px);
+            }
+          }
+        }
+      }
+    }
+  
+    // div {
+    //   box-shadow: rgba(var(--foreground-rgb), 0.075) 0px 0px 3px 1px inset;
+    // }
+  
+  
+  
+    >.results-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      // border: 1px solid rgba(var(--foreground-rgb), 0.2);
+      margin: 16px;
+      gap: 16px;
+  
+      .search-results {
+        width: 100%;
+        max-width: 500px;
+      }
+  
+      //change flex direction to column when screen is small using media query
+      @media screen and (max-width: 500px) {
+        flex-direction: column;
+  
+        >.filter-settings {
+          width: 100%;
+        }
+      }
+    }
+  }

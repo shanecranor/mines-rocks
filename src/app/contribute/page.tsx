@@ -7,6 +7,8 @@ import { createClient } from "@supabase/supabase-js";
 import ConsentForm from "./consent";
 import { observer, useObservable } from "@legendapp/state/react";
 import { Course } from "@/services/database";
+import styles from "./page.module.scss";
+import Navbar from "@/components/navbar/navbar";
 
 function API_URL(route: string, key?: string) {
   const url = "https://cuploader.shanecranor.workers.dev";
@@ -63,9 +65,9 @@ const Home: NextPage = observer(() => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
+      <Navbar />
       {hasConsented$.get() && (
-        <main>
+        <main className={styles.main}>
           <h1>Courses to be uploaded:</h1>
           <p>{JSON.stringify(courseData$.get())}</p>
           <ul>
