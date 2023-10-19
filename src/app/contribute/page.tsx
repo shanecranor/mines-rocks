@@ -38,7 +38,10 @@ const Home: NextPage = observer(() => {
   const courseData$ = useObservable<any>([]);
   const courseList = courseList$.get();
 
-  const apiKey$ = useObservable<string>(localStorage.getItem("API_KEY") || "");
+  const apiKey$ = useObservable<string>("");
+  if (typeof window !== 'undefined') {
+    apiKey$.set(localStorage.getItem("API_KEY") || apiKey$.get())
+  }
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>, courseId: number) => {
     const isChecked = e.target.checked;
     const currentUploadList = selectedCourses$.get();
