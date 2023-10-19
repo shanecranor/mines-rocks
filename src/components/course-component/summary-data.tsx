@@ -13,7 +13,8 @@ export const SummaryData = ({
   return (
     <div className={styles["small-view"]}>
       <div className={styles["course-attributes"]}>
-        <div className={styles.code}>{courseCode}</div>
+        <div className={styles.code}>{Math.random() > 0.5 ? "Principles of Programming Languages" : "Data Structures"}
+        </div>
         <span className={styles.when}>
           {semester} {courseYear}
         </span>
@@ -25,11 +26,11 @@ export const SummaryData = ({
           </div>
         </div>
 
-        {avgStats.mean ? (
+        {/* {avgStats.mean ? (
           <BoxPlot stats={avgStats} />
         ) : (
           <div>no stats found</div>
-        )}
+        )} */}
       </div>
     </div>
   );
