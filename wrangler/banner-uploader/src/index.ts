@@ -41,7 +41,7 @@ export default {
 			const season = url.searchParams.get("season")?.toLowerCase();
 			const subject = url.searchParams.get("subject");
 			const courseNumber = url.searchParams.get("courseNumber");
-
+			const canvasCourseID = url.searchParams.get("canvasCourseID");
 			if (!year || !season) {
 				throw new Error("Missing year or season");
 			}
@@ -55,6 +55,8 @@ export default {
 			const termCode = await getTermCode(season, year)
 			const { data: _, cookies } = await setTerm(termCode);
 			const courseData = await getCourseSearchResults({ termCode, subject, courseNumber }, cookies)
+			if (canvasCourseID && canvasCourseID !== null) {
+			}
 			return new Response(JSON.stringify(courseData));
 		} catch (e: any) {
 			return new Response(e.message, { status: 500 });

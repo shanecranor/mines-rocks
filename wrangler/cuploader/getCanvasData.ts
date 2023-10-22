@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes"
 import { router } from "./router"
-import { RouteInfo, Row } from "./types"
-import { cleanAndFilterData } from "./cleanData"
+import { RouteInfo } from "./types"
+import { Row, cleanAndFilterData } from "../shared-util/cleanData"
 const API_URL = "https://elearning.mines.edu/"
 export async function getResponses(routeInfoList: RouteInfo[], AUTH_TOKEN: string, urlParams: URLSearchParams) {
     // loop through each endpoint in the route
