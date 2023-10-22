@@ -1,5 +1,6 @@
-import { Row } from './types'
-
+export interface Row {
+    [key: string]: unknown;
+}
 /**
  * Cleans and filters data from a table based on the route info and table keys
  * @param {Row[]} data - Table data

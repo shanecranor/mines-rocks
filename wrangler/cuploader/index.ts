@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { cleanAndFilterData } from './cleanData'
-import { Row } from './types'
+import { Row, cleanAndFilterData } from '../shared-util/cleanData'
 import { StatusCodes } from 'http-status-codes'
 import { getResponses, getRouteInfo } from './getCanvasData'
 import { buildResponse } from './util'
@@ -56,8 +55,8 @@ export default {
  */
 export async function upsertData(data: Row[], table: string, supabase: any): Promise<Row[] | string> {
   // upsert the data to the supabase table
-  // const { data: return_data, error } = await
-  //   supabase.from(table).upsert(data)
-  // if (error) return `Upsert ERROR: ${JSON.stringify(error)}`
+  const { data: return_data, error } = await
+    supabase.from(table).upsert(data)
+  if (error) return `Upsert ERROR: ${JSON.stringify(error)}`
   return data;
 }

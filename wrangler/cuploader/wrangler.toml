@@ -6,3 +6,6 @@ env = { }
 
 [triggers]
 crons = [ ]
+
+[vars]
+SUPABASE_URL = "https://zgpuwdgtgbfsdkfgarvm.supabase.co"

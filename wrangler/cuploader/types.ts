@@ -8,7 +8,3 @@ export interface RouteInfo {
   supabaseTable: string; // table to upsert data to
   requiredKeys?: string[];
 }
-
-export interface Row {
-  [key: string]: unknown;
-}
