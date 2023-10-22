@@ -13,5 +13,7 @@
     "deploy": "wrangler deploy",
     "test": "vitest"
   },
-  "dependencies": {}
+  "dependencies": {
+    "supabase": "^1.106.1"
+  }
 }
