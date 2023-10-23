@@ -6,6 +6,7 @@ import {
   getAssignmentGroups,
   getAssignments,
   getCourseListFiltered,
+  getBannerData,
 } from "@/services/database";
 import SearchResults from "@/components/search/search-results/search-results";
 import SearchBar from "@/components/search/search-bar/search-bar";
@@ -15,7 +16,7 @@ export default async function Home() {
   const courses = await getCourseListFiltered();
   const assignmentGroups = await getAssignmentGroups();
   const assignments = await getAssignments();
-
+  const bannerData = await getBannerData();
   return (
     <>
       <Head>
@@ -59,6 +60,7 @@ export default async function Home() {
                 courses,
                 assignments,
                 assignmentGroups,
+                bannerData,
               }}
             />
           </div>
