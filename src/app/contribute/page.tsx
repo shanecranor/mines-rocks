@@ -6,19 +6,37 @@ import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
 import ConsentForm from "./consent";
 import { observer, useObservable } from "@legendapp/state/react";
-import { Course } from "@/services/database";
+import { Course, filterCourses } from "@/services/database";
 import styles from "./page.module.scss";
 import Navbar from "@/components/navbar/navbar";
+import { getCourseAttributes, splitCourseCode } from "@/services/data-aggregation";
 
 function API_URL(route: string, key?: string) {
   const url = "https://cuploader.shanecranor.workers.dev";
   return `${url}/?bearer=${key}&route=${route}`;
 }
+async function getBannerData(year: string, season: string, subject: string, courseNumber: string) {
+  const url = new URL("https://banner-uploader.shanecranor.workers.dev/")
+  url.searchParams.append("year", year)
+  url.searchParams.append("season", season)
+  url.searchParams.append("subject", subject)
+  url.searchParams.append("courseNumber", courseNumber)
+
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
 
 async function fetchCourseData(id: number, key?: string) {
   console.log(`fetching course data for ${id}`);
   const response = await fetch(
-    `${API_URL("getCourseData", key)}&course_id=${id}`
+    `${API_URL("getCourseData", key)}&course_id=${id}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    }
   );
   const data = await response.json();
   return { data: data, status: response.status };
@@ -72,22 +90,30 @@ const Home: NextPage = observer(() => {
       {hasConsented$.get() && (
         <main className={styles.main}>
           <h1>Courses to be uploaded:</h1>
-          <p>{JSON.stringify(courseData$.get())}</p>
-          <ul>
-            {
-              Array.isArray(courseList) ? courseList.map((course: Course) => {
+          {Array.isArray(courseList) && (
+            <table className={styles["upload-table"]}>
+              <thead><tr><th>status</th><th>upload?</th><th>code</th><th>year</th><th>full name</th></tr></thead>
+              <tbody>
+                {
 
-                return (
-                  <li key={course.id} style={{ background: getCourseColor(selectedCourses$.get().includes(course.id), courseData$.get()[course.id]) }}>
-                    {courseData$.get()[course.id]}
-                    <input type="checkbox"
-                      onChange={(e) => handleCheckboxChange(e, course.id)}
-                      checked={selectedCourses$.get().includes(course.id)} />{course.name}
-                  </li>
-                )
-              }) : courseList
-            }
-          </ul>
+                  Array.isArray(courseList) && courseList.map((course: Course) => {
+                    const courseAttributes = getCourseAttributes(course)
+                    return (
+                      <tr key={course.id} style={{ background: getCourseColor(selectedCourses$.get().includes(course.id), courseData$.get()[course.id]) }}>
+                        <td>{courseData$.get()[course.id] || 0}</td>
+                        <td><input type="checkbox"
+                          onChange={(e) => handleCheckboxChange(e, course.id)}
+                          checked={selectedCourses$.get().includes(course.id)} /></td>
+                        <td>{courseAttributes.courseCode}</td>
+                        <td>{courseAttributes.semester} {courseAttributes.courseYear}</td>
+                        <td>{courseAttributes.courseName}</td>
+                      </tr>
+                    )
+                  })
+                }
+              </tbody>
+            </table>
+          )}
           <br></br>
           <label> Paste your canvas API key here: <br></br>
             <input
@@ -106,9 +132,7 @@ const Home: NextPage = observer(() => {
             const data = await fetchCourseList(apiKey$.get())
             courseList$.set(data);
             if (Array.isArray(data)) {
-              const filteredData = data.filter((course: Course) => {
-                return course.name && !IGNORE_CLASSES.includes(course.name);
-              });
+              const filteredData = filterCourses(data)
               courseList$.set(filteredData);
               // selectedCourses$.set(filteredData.map((course: Course) => course.id));
             }
@@ -125,7 +149,9 @@ const Home: NextPage = observer(() => {
 });
 function getCourseColor(isSelected: boolean, statusCode: number | undefined) {
   if (statusCode === 200) return "green"
-  if (statusCode === -1) return "steelblue"
+  if (statusCode === -1) return "lightsteelblue"
+  if (statusCode === -2) return "steelblue"
+
   if (statusCode && statusCode !== 200) return "red"
   if (isSelected) return "#FFFFFF3A"
   return "none"
@@ -150,7 +176,13 @@ async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: a
 
   for (const id of selectedCourses) {
     courseData$.set({ ...courseData$.get(), [id]: -1 })
+    const currentCourse: Course = courseList.find((course: Course) => course.id === id);
+    const courseData = getCourseAttributes(currentCourse);
+    const { courseNumber, deptCode } = splitCourseCode(courseData.courseCode);
     const response = await fetchCourseData(id, apiKey)
+    courseData$.set({ ...courseData$.get(), [id]: -2 })
+    const bannerData = await getBannerData(courseData.courseYear, courseData.semester, deptCode, courseNumber);
+
     courseData$.set({ ...courseData$.get(), [id]: response.status })
   }
 }
