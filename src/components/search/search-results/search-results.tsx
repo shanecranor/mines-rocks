@@ -30,7 +30,6 @@ const SearchResults = ({
     const courseAssignments = getAssignmentsByCourse(assignments, course);
     const stats = getStatsPerGroup(courseAssignments, assignmentGroups);
     const bannerCourses = getMatchingBannerCourses(course, bannerData);
-    console.log(bannerCourses);
     return {
       course: course,
       courseComponent: (
