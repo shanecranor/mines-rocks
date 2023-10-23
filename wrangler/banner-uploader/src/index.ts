@@ -80,7 +80,7 @@ export default {
         supabase
       );
       // console.log(upsertResponse);
-      return new Response(JSON.stringify(cleanedData));
+      return buildResponse(cleanedData);
     } catch (e: any) {
       return new Response(e.message, { status: 500 });
     }
@@ -93,4 +93,16 @@ export async function upsertData(data: Row[], table: string, supabase: any) {
   const { error } = upsertResponse;
   if (error) return `Upsert ERROR: ${JSON.stringify(error)}`;
   return upsertResponse;
+}
+export function buildResponse(data: any) {
+  const encodedData = JSON.stringify(data);
+  return new Response(encodedData, {
+    headers: {
+      //todo: restrict to mines.rocks?
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, HEAD, OPTIONS",
+      "content-type": "application/json;charset=UTF-8",
+    },
+  });
 }

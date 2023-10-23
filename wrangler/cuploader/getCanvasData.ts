@@ -1,21 +1,25 @@
-import { StatusCodes } from "http-status-codes"
-import { router } from "./router"
-import { RouteInfo } from "./types"
-import { Row, cleanAndFilterData } from "../shared-util/cleanData"
-const API_URL = "https://elearning.mines.edu/"
-export async function getResponses(routeInfoList: RouteInfo[], AUTH_TOKEN: string, urlParams: URLSearchParams) {
-    // loop through each endpoint in the route
-    let status = StatusCodes.OK
-    let responses: { [key: string]: string | Row[] } = {}
+import { StatusCodes } from "http-status-codes";
+import { router } from "./router";
+import { RouteInfo } from "./types";
+import { Row, cleanAndFilterData } from "../shared-util/cleanData";
+const API_URL = "https://elearning.mines.edu/";
+export async function getResponses(
+  routeInfoList: RouteInfo[],
+  AUTH_TOKEN: string,
+  urlParams: URLSearchParams
+) {
+  // loop through each endpoint in the route
+  let status = StatusCodes.OK;
+  let responses: { [key: string]: string | Row[] } = {};
 
-    for (const routeInfo of routeInfoList) {
-        const responseData = await getCanvasData(routeInfo, AUTH_TOKEN, urlParams)
-        responses[routeInfo.endpointName] = responseData
-        if (typeof responseData === 'string') {
-            status = StatusCodes.INTERNAL_SERVER_ERROR
-        }
+  for (const routeInfo of routeInfoList) {
+    const responseData = await getCanvasData(routeInfo, AUTH_TOKEN, urlParams);
+    responses[routeInfo.endpointName] = responseData;
+    if (typeof responseData === "string") {
+      status = StatusCodes.INTERNAL_SERVER_ERROR;
     }
-    return { responses, status }
+  }
+  return { responses, status };
 }
 
 /**
@@ -24,19 +28,26 @@ export async function getResponses(routeInfoList: RouteInfo[], AUTH_TOKEN: strin
  * @returns An object containing the routeInfoList and the Canvas API authentication token.
  */
 export function getRouteInfo(url: string) {
-    const { searchParams: urlParams } = new URL(url);
-    // get the route from the url params
-    let route = <string | null>urlParams.get("route")
-    if (!route) return new Response("ERROR: No route", { status: StatusCodes.BAD_REQUEST })
+  const { searchParams: urlParams } = new URL(url);
+  // get the route from the url params
+  let route = <string | null>urlParams.get("route");
+  if (!route)
+    return new Response("ERROR: No route", { status: StatusCodes.BAD_REQUEST });
 
-    //TODO: move this to the header
-    const AUTH_TOKEN = urlParams.get('bearer')
-    if (!AUTH_TOKEN) return new Response("ERROR: No auth token", { status: StatusCodes.UNAUTHORIZED })
+  //TODO: move this to the header
+  const AUTH_TOKEN = urlParams.get("bearer");
+  if (!AUTH_TOKEN)
+    return new Response("ERROR: No auth token", {
+      status: StatusCodes.UNAUTHORIZED,
+    });
 
-    // the router object will tell us what to do based on the route string
-    let routeInfoList = router[route]
-    if (!routeInfoList) return new Response("ERROR: Invalid route", { status: StatusCodes.BAD_REQUEST })
-    return { routeInfoList, AUTH_TOKEN }
+  // the router object will tell us what to do based on the route string
+  let routeInfoList = router[route];
+  if (!routeInfoList)
+    return new Response("ERROR: Invalid route", {
+      status: StatusCodes.BAD_REQUEST,
+    });
+  return { routeInfoList, AUTH_TOKEN };
 }
 
 /**
@@ -46,17 +57,21 @@ export function getRouteInfo(url: string) {
  * @param {URLSearchParams} searchParams - The URLSearchParams object containing the route and any necessary parameters.
  * @returns The query URL for the Canvas API endpoint.
  */
-function buildQueryURL(endpoint: string, routeParams: string[] | undefined, searchParams: URLSearchParams) {
-    if (!routeParams) return `${API_URL}${endpoint}`
-    let newEndpoint = endpoint;
-    // replace the params in the endpoint with the values from the url params in the worker request
-    for (let i = 0; i < routeParams.length; i++) {
-        const param = routeParams[i]
-        const value = searchParams.get(param)
-        if (!value) return `Empty value for ${param}`
-        newEndpoint = newEndpoint.replace(param, value)
-    }
-    return `${API_URL}${endpoint}`
+function buildQueryURL(
+  endpoint: string,
+  routeParams: string[] | undefined,
+  searchParams: URLSearchParams
+) {
+  if (!routeParams) return `${API_URL}${endpoint}`;
+  let newEndpoint = endpoint;
+  // replace the params in the endpoint with the values from the url params in the worker request
+  for (let i = 0; i < routeParams.length; i++) {
+    const param = routeParams[i];
+    const value = searchParams.get(param);
+    if (!value) return `Empty value for ${param}`;
+    newEndpoint = newEndpoint.replace(param, value);
+  }
+  return `${API_URL}${newEndpoint}`;
 }
 
 /**
@@ -65,12 +80,11 @@ function buildQueryURL(endpoint: string, routeParams: string[] | undefined, sear
  * @returns The fetch options for the Canvas API endpoint.
  */
 function getFetchOptions(authToken: string): RequestInit {
-    return {
-        headers: {
-            Authorization:
-                `Bearer ${authToken}`
-        }
-    }
+  return {
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+    },
+  };
 }
 
 /**
@@ -81,18 +95,26 @@ function getFetchOptions(authToken: string): RequestInit {
  * @returns The data from the Canvas API endpoint.
  * @throws An error if the response status is not 200.
  */
-export async function getCanvasData(routeInfo: RouteInfo, authToken: string, searchParams: URLSearchParams) {
-    const queryURL = buildQueryURL(routeInfo.endpoint, routeInfo.params, searchParams)
-    // return the query url if the test param is set for testing and debugging
-    if (searchParams.get('testQueryURL')) {
-        return queryURL
-    }
-    // fetch the data from the canvas api
-    const response = await fetch(queryURL, getFetchOptions(authToken))
+export async function getCanvasData(
+  routeInfo: RouteInfo,
+  authToken: string,
+  searchParams: URLSearchParams
+) {
+  const queryURL = buildQueryURL(
+    routeInfo.endpoint,
+    routeInfo.params,
+    searchParams
+  );
+  // return the query url if the test param is set for testing and debugging
+  if (searchParams.get("testQueryURL")) {
+    return queryURL;
+  }
+  // fetch the data from the canvas api
+  const response = await fetch(queryURL, getFetchOptions(authToken));
 
-    // return the error if the response is not 200
-    if (response.status !== StatusCodes.OK) {
-        return `ERROR: ${response.status} ${response.statusText}`
-    }
-    return await response.json()
+  // return the error if the response is not 200
+  if (response.status !== StatusCodes.OK) {
+    return `ERROR: ${response.status} ${response.statusText}`;
+  }
+  return await response.json();
 }

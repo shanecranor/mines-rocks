@@ -21,14 +21,12 @@ export default {
 
     // routeData is valid, extract required data
     const { routeInfoList, AUTH_TOKEN } = routeData;
-
     // Execute canvas API calls and return the responses
     const { responses, status } = await getResponses(
       routeInfoList,
       AUTH_TOKEN,
       urlParams
     );
-
     //upsert data for each route in the responses
     for (const routeInfo of routeInfoList) {
       const { endpointName, supabaseTable, requiredKeys } = routeInfo;

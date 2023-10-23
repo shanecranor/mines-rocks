@@ -5,6 +5,7 @@ import {
   GradeStatistics,
   STAT_KEYS,
   Course,
+  isSeason,
 } from "./database";
 
 import {
@@ -181,6 +182,10 @@ export const getCourseAttributes = (course: Course): CourseAttributes => {
   const courseYear = dataList[1];
   // find the first 3 digit number, then remove everything after it
   const courseCode = dataList[2].replace(/(\d{3}).*/, "$1");
+  if (!isSeason(semester.toLowerCase())) throw new Error(`Invalid semester: ${semester} from ${dataString}`);
+  //if this code lives long enough, we'll have to update this to support 5 digit years
+  if (!courseYear.match(/\d{4}/)) throw new Error(`Invalid year: ${courseYear} from ${dataString}`);
+
   return {
     semester,
     courseCode,
@@ -188,3 +193,9 @@ export const getCourseAttributes = (course: Course): CourseAttributes => {
     courseName: course.name || "",
   };
 };
+
+export const splitCourseCode = (code: string) => {
+  const courseNumber = code.slice(-3);
+  const deptCode = code.slice(0, -3);
+  return { deptCode, courseNumber };
+}
