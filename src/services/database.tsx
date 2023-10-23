@@ -14,6 +14,8 @@ export function isSeason(variable: any): variable is Season {
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
 export type Course = Database["public"]["Tables"]["course_summary_data"]["Row"];
+export type BannerCourse = Database["public"]["Tables"]["banner_course_data"]["Row"];
+// export type Faculty = //TODO: figure out the type for faculty here
 export type Assignment =
   Database["public"]["Tables"]["assignment_data"]["Row"] & {
     score_statistics: { [key: string]: number };
@@ -37,6 +39,7 @@ export const STAT_KEYS: (
   | "lower_q"
 )[] = ["max", "min", "mean", "median", "upper_q", "lower_q"];
 
+
 const getResponseData = (response: any) => {
   if (response.error) {
     console.error("Error fetching from supabase");
@@ -47,9 +50,11 @@ const getResponseData = (response: any) => {
   return response.data;
 };
 
-export const getAssignmentGroups: () => Promise<
-  AssignmentGroup[]
-> = async () => {
+export const getBannerData: () => Promise<BannerCourse[]> = async () => {
+  const response = await supabase.from("banner_course_data").select("*");
+  return getResponseData(response);
+}
+export const getAssignmentGroups: () => Promise<AssignmentGroup[]> = async () => {
   const response = await supabase.from("assignment_group_data").select("*");
   return getResponseData(response);
 };

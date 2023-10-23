@@ -1,6 +1,7 @@
 import {
   Assignment,
   AssignmentGroup,
+  BannerCourse,
   Course,
   GradeStatistics,
   STAT_KEYS,
@@ -23,20 +24,23 @@ const CourseComponent = ({
   courseData,
   assignments,
   groupStats,
+  bannerCourses
 }: // assignmentData,
-{
-  courseData: Course;
-  assignments: Assignment[];
-  groupStats: GroupStat[];
-}) => {
+  {
+    courseData: Course;
+    assignments: Assignment[];
+    groupStats: GroupStat[];
+    bannerCourses: BannerCourse[];
+  }) => {
   const { semester, courseCode, courseYear, courseName } =
     getCourseAttributes(courseData);
   if (assignments.length === 0) {
     return <></>;
   }
+
   const { stats: avgStats, totalWeight } = averageCourseStats(groupStats);
   const summaryData = (
-    <SummaryData {...{ courseCode, semester, courseYear, avgStats }} />
+    <SummaryData {...{ courseCode, semester, courseYear, avgStats, bannerCourses }} />
   );
   const groupTableProps = {
     stats: groupStats,

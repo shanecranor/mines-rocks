@@ -8,12 +8,19 @@ export const SummaryData = ({
   semester,
   courseYear,
   avgStats,
+  bannerCourses
 }: any) => {
   // TODO fix types, should also have avg stats: gradeStatistics
+  let bannerCourseName = null;
+  if (bannerCourses && bannerCourses[0]) {
+    bannerCourseName = bannerCourses[0].courseTitle;
+  }
   return (
     <div className={styles["small-view"]}>
       <div className={styles["course-attributes"]}>
-        <div className={styles.code}>{Math.random() > 0.5 ? "Principles of Programming Languages" : "Data Structures"}
+        {/* fall back to course code if the banner course name isn't found */}
+        {/* this is definitely the case for courses before 2021 because banner data doesn't go back that far */}
+        <div className={styles.code}>{bannerCourseName || courseCode}
         </div>
         <span className={styles.when}>
           {semester} {courseYear}
