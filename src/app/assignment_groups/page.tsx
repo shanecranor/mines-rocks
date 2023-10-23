@@ -81,12 +81,12 @@ export default function Home() {
               // console.log(groupData);
               return (
                 <li key={course.id}>
-                  <CourseComponent
+                  {/* <CourseComponent
                     courseData={course}
                     key={course.id}
                     assignments={getAssignmentsByCourse(assignmentList, course)}
                     groupStats={groupData}
-                  />
+                  /> */}
                   <ul>
                     {courseAssignments.length}
                     {groupData.map((stat) => (
