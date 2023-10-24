@@ -10,7 +10,7 @@ export const SummaryData = ({
   courseYear,
   avgStats,
   bannerCourses,
-}: { courseCode: any, courseYear: any, avgStats: any, bannerCourses: BannerCourse[] }) => {
+}: { courseCode: any, courseYear: any, semester: any, avgStats: any, bannerCourses: BannerCourse[] }) => {
   // TODO fix types, should also have avg stats: gradeStatistics
   let bannerCourseName = null;
   if (bannerCourses && bannerCourses[0]) {
