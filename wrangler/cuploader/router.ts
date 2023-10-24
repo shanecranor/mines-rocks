@@ -25,8 +25,9 @@ export const router = <RouterObj>{
       //it might look like this:
       // dontOverwrite: [{ key: "score_breakdown", oldValue: true, newValue: false }],
       endpointName: "assignments",
+      //we don't store the submission but need to include for some reason so that canvas sends us the score statistics
       endpoint:
-        "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics",
+        "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics&include[]=submission",
       params: ["course_id"],
       supabaseTable: "assignment_data",
       //TODO: add required keys
