@@ -35,7 +35,7 @@ export const getStatsPerGroup: GetStatsPerGroup = (
     assignmentGroups
   );
   const isWeighted = courseAssignmentGroups.some(
-    (group) => group.group_weight !== null
+    (group) => group.group_weight != 0 && group.group_weight != null
   );
   const statsList = courseAssignmentGroups.map((group: AssignmentGroup) => {
     return getGroupStat(group, assignments, isWeighted);
@@ -147,7 +147,7 @@ export const averageCourseStats = (stats: GroupStat[]) => {
 
 export const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
   if (stat.isWeighted || !stat.group.group_weight) {
-    return stat.group.group_weight || "N/A";
+    return stat.group.group_weight ?? "N/A";
   }
   //group weights from canvas are by default multiplied by 100 so do that here as well
   return (stat.group.group_weight / totalWeight) * 100;

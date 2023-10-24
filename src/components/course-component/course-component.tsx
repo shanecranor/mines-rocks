@@ -34,6 +34,7 @@ const CourseComponent = ({
   }) => {
   const { semester, courseCode, courseYear, courseName } =
     getCourseAttributes(courseData);
+
   if (assignments.length === 0) {
     return <></>;
   }

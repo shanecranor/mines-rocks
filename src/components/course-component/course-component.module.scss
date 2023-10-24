@@ -17,14 +17,14 @@
 
   // max-width: 400px;
   > .small-view {
-    display: flex;
+    // display: flex;
     align-items: center;
+    margin-left: 4px;
 
     > .course-attributes {
       flex-grow: 1;
       // width: 150px;
       margin-bottom: 4px;
-      margin-left: 4px;
       // border-right: 2px double rgba(var(--foreground-rgb), 0.2);
       margin-right: 2px;
 
@@ -35,18 +35,19 @@
       }
     }
 
-    > .course-data {
+    > .course-info {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
       gap: 8px;
       // width: 100%;
-      height: 100%;
-
-      > .course-data-text {
-        display: flex;
-        // flex start right
-        justify-content: flex-end;
-        gap: 8px;
+      > .stat-chip {
+        border: 1px solid rgba(var(--foreground-rgb), 0.4);
+        //add a faint blurry inset shadow for styleee
+        box-shadow: inset 0px 0px 25px 0px rgba(var(--foreground-rgb), 0.05);
+        // background: rgba(var(--foreground-rgb), 0.025);
+        border-radius: 4px;
+        padding: 2px 4px;
       }
     }
   }

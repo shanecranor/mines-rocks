@@ -1,4 +1,9 @@
-import { getCourseSearchResults, getTermCode, setTerm } from "./banner";
+import {
+  TermCodeError,
+  getCourseSearchResults,
+  getTermCode,
+  setTerm,
+} from "./banner";
 import { createClient } from "@supabase/supabase-js";
 import { isSeason } from "./types";
 import { Row, cleanAndFilterData } from "../../shared-util/cleanData";
@@ -35,7 +40,6 @@ export default {
       const season = url.searchParams.get("season")?.toLowerCase();
       const subject = url.searchParams.get("subject");
       const courseNumber = url.searchParams.get("courseNumber");
-      const canvasCourseID = url.searchParams.get("canvasCourseID");
       if (!year || !season) {
         throw new Error("Missing year or season");
       }
@@ -72,7 +76,6 @@ export default {
         updatedCourseData as Row[], //probably should add a type guard
         tableKeys
       );
-      //   if (canvasCourseID && canvasCourseID !== null) {
 
       const upsertResponse = await upsertData(
         cleanedData,
@@ -82,6 +85,8 @@ export default {
       // console.log(upsertResponse);
       return buildResponse(cleanedData);
     } catch (e: any) {
+      if (e instanceof TermCodeError)
+        return new Response(e.message, { status: 200 });
       return new Response(e.message, { status: 500 });
     }
   },
