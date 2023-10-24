@@ -40,6 +40,30 @@ export default {
         table_id: supabaseTable,
       });
       const cleanedData = cleanAndFilterData(data, tableKeys, requiredKeys);
+      if (routeInfo.dontOverwriteIfNull) {
+        //load existing assignments for the target course from the table
+        const { data: existingData } = await supabase
+          .from(supabaseTable)
+          .select("*")
+          .eq("course_id", urlParams.get("course_id"));
+
+        for (const newRow of cleanedData) {
+          const assignmentId = newRow.assignment_id;
+          //find the existing row with the same assignment id
+          const existingRow = existingData?.find(
+            (r) => r.assignment_id === assignmentId
+          );
+          //if the existing row exists and the new row has a null value for a key that we don't want to overwrite
+          //then set the new row's value to the existing row's value
+          if (existingRow) {
+            for (const key of routeInfo.dontOverwriteIfNull) {
+              if (newRow[key] === null && existingRow[key] !== null) {
+                newRow[key] = existingRow[key];
+              }
+            }
+          }
+        }
+      }
       //update the response with the cleaned data, or an error message
       responses[endpointName] = await upsertData(
         cleanedData,

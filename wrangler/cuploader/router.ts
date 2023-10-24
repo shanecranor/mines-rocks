@@ -18,18 +18,13 @@ export const router = <RouterObj>{
       //TODO: add required keys
     },
     {
-      //not fine to upsert everything
-      //todo: add a key to the table that represents the values that we should not overwrite
-      //for example, if one person uploads a class and submits an assignment so we can see the score breakdown
-      //then another person uploads the class and doesn't submit an assignment, we don't want to overwrite the score breakdown
-      //it might look like this:
-      // dontOverwrite: [{ key: "score_breakdown", oldValue: true, newValue: false }],
       endpointName: "assignments",
       //we don't store the submission but need to include for some reason so that canvas sends us the score statistics
       endpoint:
         "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics&include[]=submission",
       params: ["course_id"],
       supabaseTable: "assignment_data",
+      dontOverwriteIfNull: ["score_statistics"],
       //TODO: add required keys
     },
   ],
