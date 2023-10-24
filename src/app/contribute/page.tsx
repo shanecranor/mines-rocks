@@ -16,6 +16,7 @@ function API_URL(route: string, key?: string) {
   return `${url}/?bearer=${key}&route=${route}`;
 }
 async function getBannerData(year: string, season: string, subject: string, courseNumber: string) {
+  console.log(`getting banner data for ${year} ${season} ${subject} ${courseNumber}`)
   const url = new URL("https://banner-uploader.shanecranor.workers.dev/")
   url.searchParams.append("year", year)
   url.searchParams.append("season", season)
@@ -55,7 +56,7 @@ const Home: NextPage = observer(() => {
   const selectedCourses$ = useObservable<number[]>([]);
   const courseData$ = useObservable<any>([]);
   const courseList = courseList$.get();
-
+  const problemCourses$ = useObservable<string[]>([]);
   const apiKey$ = useObservable<string>("");
   if (typeof window !== 'undefined') {
     apiKey$.set(localStorage.getItem("API_KEY") || apiKey$.get())
@@ -134,12 +135,12 @@ const Home: NextPage = observer(() => {
             if (Array.isArray(data)) {
               const filteredData = filterCourses(data)
               courseList$.set(filteredData);
-              // selectedCourses$.set(filteredData.map((course: Course) => course.id));
+              selectedCourses$.set(filteredData.map((course: Course) => course.id));
             }
           }}>
             Load Courses
           </button>
-          <button onClick={() => uploadCourses(courseList$, selectedCourses$, apiKey$, courseData$)}>
+          <button onClick={() => uploadCourses(courseList$, selectedCourses$, apiKey$, courseData$, problemCourses$)}>
             Contribute selected courses!
           </button>
         </main>
@@ -157,7 +158,7 @@ function getCourseColor(isSelected: boolean, statusCode: number | undefined) {
   return "none"
 
 }
-async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: any, courseData$: any) {
+async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: any, courseData$: any, problemCourses$: any) {
   const courseList = courseList$.get();
   const selectedCourses = selectedCourses$.get();
   const apiKey = apiKey$.get();
@@ -175,15 +176,22 @@ async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: a
   }
 
   for (const id of selectedCourses) {
-    courseData$.set({ ...courseData$.get(), [id]: -1 })
-    const currentCourse: Course = courseList.find((course: Course) => course.id === id);
-    const courseData = getCourseAttributes(currentCourse);
-    const { courseNumber, deptCode } = splitCourseCode(courseData.courseCode);
-    const response = await fetchCourseData(id, apiKey)
-    courseData$.set({ ...courseData$.get(), [id]: -2 })
-    const bannerData = await getBannerData(courseData.courseYear, courseData.semester, deptCode, courseNumber);
-
-    courseData$.set({ ...courseData$.get(), [id]: response.status })
+    try {
+      courseData$.set({ ...courseData$.get(), [id]: -1 })
+      const currentCourse: Course = courseList.find((course: Course) => course.id === id);
+      const courseData = getCourseAttributes(currentCourse);
+      const { courseNumber, deptCode } = splitCourseCode(courseData.courseCode);
+      const response = await fetchCourseData(id, apiKey)
+      courseData$.set({ ...courseData$.get(), [id]: -2 })
+      let bannerData = await getBannerData(courseData.courseYear, courseData.semester, deptCode, courseNumber);
+      if (typeof bannerData === "string") {
+        problemCourses$.set([...problemCourses$.get(), `${courseData.courseCode} ${courseData.semester} ${courseData.courseYear}`])
+        continue
+      }
+      courseData$.set({ ...courseData$.get(), [id]: response.status })
+    } catch (e) {
+      console.log(e)
+    }
   }
 }
 export default Home;
