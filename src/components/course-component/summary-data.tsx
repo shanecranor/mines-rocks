@@ -60,7 +60,7 @@ export const SummaryData = ({
         {/* this is definitely the case for courses before 2021 because banner data doesn't go back that far */}
         <div className={styles.code}>{bannerCourseName || courseCode}</div>
         <span className={styles.when}>
-          {semester} {courseYear} {creditHoursString && (<>: <strong>{creditHoursString}</strong> credits</>)}
+          {courseCode} • {semester} {courseYear}{creditHoursString && (<> • <strong>{creditHoursString}</strong> credits</>)}
         </span>
       </div>
       <div className={styles["course-info"]}>

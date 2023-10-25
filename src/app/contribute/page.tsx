@@ -40,7 +40,6 @@ async function fetchCourseData(id: number, key?: string) {
     }
   );
   const data = await response.json();
-  console.log(data)
   return { data: data, status: response.status };
 }
 
@@ -99,18 +98,32 @@ const Home: NextPage = observer(() => {
                 {
 
                   Array.isArray(courseList) && courseList.map((course: Course) => {
-                    const courseAttributes = getCourseAttributes(course)
-                    return (
-                      <tr key={course.id} style={{ background: getCourseColor(selectedCourses$.get().includes(course.id), courseData$.get()[course.id]) }}>
-                        <td>{courseData$.get()[course.id] || 0}</td>
-                        <td><input type="checkbox"
-                          onChange={(e) => handleCheckboxChange(e, course.id)}
-                          checked={selectedCourses$.get().includes(course.id)} /></td>
-                        <td>{courseAttributes.courseCode}</td>
-                        <td>{courseAttributes.semester} {courseAttributes.courseYear}</td>
-                        <td>{courseAttributes.courseName}</td>
-                      </tr>
-                    )
+                    try {
+                      const courseAttributes = getCourseAttributes(course)
+                      return (
+                        <tr key={course.id} style={{ background: getCourseColor(selectedCourses$.get().includes(course.id), courseData$.get()[course.id]) }}>
+                          <td>{courseData$.get()[course.id] || 0}</td>
+                          <td><input type="checkbox"
+                            onChange={(e) => handleCheckboxChange(e, course.id)}
+                            checked={selectedCourses$.get().includes(course.id)} /></td>
+                          <td>{courseAttributes.courseCode}</td>
+                          <td>{courseAttributes.semester} {courseAttributes.courseYear}</td>
+                          <td>{courseAttributes.courseName}</td>
+                        </tr>
+                      )
+                    } catch (e) {
+                      return (
+                        <tr key={course.id} style={{ background: getCourseColor(selectedCourses$.get().includes(course.id), courseData$.get()[course.id]) }}>
+                          <td>{courseData$.get()[course.id] || 0}</td>
+                          <td><input type="checkbox"
+                            onChange={(e) => handleCheckboxChange(e, course.id)}
+                            checked={selectedCourses$.get().includes(course.id)} /></td>
+                          <td>unknown course</td>
+                          <td>{course.name}</td>
+                          <td>{course.course_code}</td>
+                        </tr>
+                      )
+                    }
                   })
                 }
               </tbody>
@@ -134,8 +147,8 @@ const Home: NextPage = observer(() => {
             const data = await fetchCourseList(apiKey$.get())
             courseList$.set(data);
             if (Array.isArray(data)) {
-              const filteredData = filterCourses(data)
-              courseList$.set(filteredData);
+              const filteredData = filterCourses(data, true)
+              // courseList$.set(filteredData);
               selectedCourses$.set(filteredData.map((course: Course) => course.id));
             }
           }}>
@@ -159,6 +172,7 @@ function getCourseColor(isSelected: boolean, statusCode: number | undefined) {
   return "none"
 
 }
+
 async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: any, courseData$: any, problemCourses$: any) {
   const courseList = courseList$.get();
   const selectedCourses = selectedCourses$.get();
@@ -180,13 +194,13 @@ async function uploadCourses(courseList$: any, selectedCourses$: any, apiKey$: a
     try {
       courseData$.set({ ...courseData$.get(), [id]: -1 })
       const currentCourse: Course = courseList.find((course: Course) => course.id === id);
-      const courseData = getCourseAttributes(currentCourse);
-      const { courseNumber, deptCode } = splitCourseCode(courseData.courseCode);
       const response = await fetchCourseData(id, apiKey)
       courseData$.set({ ...courseData$.get(), [id]: -2 })
-      let bannerData = await getBannerData(courseData.courseYear, courseData.semester, deptCode, courseNumber);
+      const courseAttribs = getCourseAttributes(currentCourse);
+      const { courseNumber, deptCode } = splitCourseCode(courseAttribs.courseCode);
+      let bannerData = await getBannerData(courseAttribs.courseYear, courseAttribs.semester, deptCode, courseNumber);
       if (typeof bannerData === "string") {
-        problemCourses$.set([...problemCourses$.get(), `${courseData.courseCode} ${courseData.semester} ${courseData.courseYear}`])
+        problemCourses$.set([...problemCourses$.get(), `${courseAttribs.courseCode} ${courseAttribs.semester} ${courseAttribs.courseYear}`])
         continue
       }
       courseData$.set({ ...courseData$.get(), [id]: response.status })

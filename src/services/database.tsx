@@ -75,13 +75,15 @@ export const getCourseListFiltered: () => Promise<Course[]> = async () => {
   //shouldn't need this because we aren't uploading ignored courses but why not
   return filterCourses(courseList)
 };
-export const filterCourses = (courseList: Course[]) => {
+export const filterCourses = (courseList: Course[], dontTryCourseAttributes?: boolean) => {
   return courseList.filter(
     (course: Course) => {
-      try {
-        getCourseAttributes(course)
-      } catch (e: any) {
-        return false
+      if (!dontTryCourseAttributes) {
+        try {
+          getCourseAttributes(course)
+        } catch (e: any) {
+          return false
+        }
       }
       return course.name && !isIgnoredCourse(course.name)
     }
