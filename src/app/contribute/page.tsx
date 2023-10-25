@@ -40,13 +40,13 @@ async function fetchCourseData(id: number, key?: string) {
     }
   );
   const data = await response.json();
+  console.log(data)
   return { data: data, status: response.status };
 }
 
 async function fetchCourseList(key?: string) {
   const response = await fetch(`${API_URL("getCourses", key)}`);
   const data = await response.json();
-  console.log(data)
   return data.courses || data;
 }
 
@@ -135,6 +135,7 @@ const Home: NextPage = observer(() => {
             courseList$.set(data);
             if (Array.isArray(data)) {
               const filteredData = filterCourses(data)
+              courseList$.set(filteredData);
               selectedCourses$.set(filteredData.map((course: Course) => course.id));
             }
           }}>
