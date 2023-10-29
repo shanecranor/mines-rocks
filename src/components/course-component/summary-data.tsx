@@ -2,27 +2,24 @@
 import { CourseAttributes } from "@/services/data-aggregation";
 import BoxPlot from "./box-plot";
 import styles from "./course-component.module.scss";
-import { BannerCourse, GradeStatistics } from "@/services/database";
+import { BannerCourse, Course, GradeStatistics } from "@/services/database";
+import { getEnrollment, getLabAndNonLabCourses, instructorsFromBanner } from "@/services/info-aggregation";
 
 export const SummaryData = ({
+  course,
   courseCode,
   semester,
   courseYear,
   avgStats,
   bannerCourses,
-}: { courseCode: any, courseYear: any, semester: any, avgStats: any, bannerCourses: BannerCourse[] }) => {
+}: { course: Course, courseCode: any, courseYear: any, semester: any, avgStats: any, bannerCourses: BannerCourse[] }) => {
   // TODO fix types, should also have avg stats: gradeStatistics
   let bannerCourseName = null;
   if (bannerCourses && bannerCourses[0]) {
     bannerCourseName = bannerCourses[0].courseTitle;
   }
   //set number of section to the number of banner courses that are not labs (unless it is just a lab)
-  const nonLabCourses: BannerCourse[] = bannerCourses.filter(
-    (course: BannerCourse) => course.scheduleTypeDescription != "Lab"
-  );
-  const labCourses: BannerCourse[] = bannerCourses.filter(
-    (course: BannerCourse) => course.scheduleTypeDescription == "Lab"
-  );
+  const { nonLabCourses, labCourses } = getLabAndNonLabCourses(bannerCourses)
   const numSections = nonLabCourses.length || labCourses.length;
   const creditHoursLow = nonLabCourses[0]?.creditHourLow;
   const creditHoursHigh = nonLabCourses[0]?.creditHourHigh;
@@ -30,35 +27,27 @@ export const SummaryData = ({
     creditHoursLow && creditHoursHigh
       ? `${creditHoursLow}-${creditHoursHigh}`
       : creditHoursLow || creditHoursHigh;
-  const enrollment = nonLabCourses.reduce(
-    (prev: number, curr: BannerCourse) => prev + (curr.enrollment || 0),
-    0
-  ) || labCourses.reduce(
-    (prev: number, curr: BannerCourse) => prev + (curr.enrollment || 0),
-    0
-  );
+  const enrollment = getEnrollment(nonLabCourses, labCourses)
   const courseType = Array.from(
     new Set(
       bannerCourses.map(
-        (course: BannerCourse) => course.scheduleTypeDescription
+        (c: BannerCourse) => c.scheduleTypeDescription
       )
     )
   );
-  const instructorSet = new Set();
-  for (const course of bannerCourses) {
-    if (course.faculty === null || !Array.isArray(course.faculty)) continue;
-    for (const instructor of course.faculty) {
-      if (instructor === null || typeof instructor !== "object" || !("displayName" in instructor)) continue;
-      instructorSet.add((instructor.displayName as string)?.split(") ")[1] || instructor.displayName);
-    }
+  const instructors = instructorsFromBanner(bannerCourses)
+  function cleanCourseName(name: string | null) {
+    if (!name) return "no course name found"
+    const courseNameSuffixes = [", Sec", "-Fall", "-Spring", "-Summer", " (SC", ", Sprg", " Summer ", ", Fall", ", Spring", ", Summer"]
+    return courseNameSuffixes.reduce((prev, curr) => prev.split(curr)[0], name)
   }
-  const instructors = Array.from(instructorSet)
+  const courseDisplayName = bannerCourseName || cleanCourseName(course.name)
   return (
     <div className={styles["small-view"]}>
       <div className={styles["course-attributes"]}>
         {/* fall back to course code if the banner course name isn't found */}
         {/* this is definitely the case for courses before 2021 because banner data doesn't go back that far */}
-        <div className={styles.code}>{bannerCourseName || courseCode}</div>
+        <div className={styles.code}>{courseDisplayName}</div>
         <span className={styles.when}>
           {courseCode} • {semester} {courseYear}{creditHoursString && (<> • <strong>{creditHoursString}</strong> credits</>)}
         </span>

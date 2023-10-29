@@ -32,6 +32,7 @@ const SearchResults = ({
     const bannerCourses = getMatchingBannerCourses(course, bannerData);
     return {
       course: course,
+      bannerCourses,
       courseComponent: (
         <CourseComponent
           courseData={course}
