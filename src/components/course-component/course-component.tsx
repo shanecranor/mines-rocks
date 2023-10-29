@@ -42,7 +42,7 @@ const CourseComponent = ({
   const { stats: avgStats, totalWeight } = averageCourseStats(groupStats);
   const summaryData = (
     <SummaryData
-      {...{ courseCode, semester, courseYear, avgStats, bannerCourses }}
+      {...{ course: courseData, courseCode, semester, courseYear, avgStats, bannerCourses }}
     />
   );
   const groupTableProps = {

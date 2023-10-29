@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-import Image from "next/image";
 import styles from "./page.module.scss";
 import Head from "next/head";
 import {
@@ -10,7 +9,7 @@ import {
 } from "@/services/database";
 import SearchResults from "@/components/search/search-results/search-results";
 import SearchBar from "@/components/search/search-bar/search-bar";
-import FilterSettings from "@/components/search/filter-settings/filter-settings";
+import FilterSettings from "@/components/search/search-settings/filter-settings";
 import Navbar from "@/components/navbar/navbar";
 export default async function Home() {
   const courses = await getCourseListFiltered();

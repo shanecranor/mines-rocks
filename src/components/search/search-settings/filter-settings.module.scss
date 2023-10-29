@@ -1,0 +1,33 @@
+.filter-settings {
+  //   margin-top: -12px;
+  > h3 {
+    all: unset;
+    margin-bottom: 8px;
+  }
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // background: rgba(var(--foreground-rgb), 0.075);
+  //   border: 1px solid rgba(var(--foreground-rgb), 0.3);
+  border-radius: 4px;
+  min-width: 150px;
+  > form {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    > fieldset {
+      all: unset;
+      //   border: 1px solid rgba(var(--foreground-rgb), 0.3);
+      border-radius: 4px;
+      padding: 0px 6px;
+      > .setting-group {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+      }
+    }
+  }
+}
