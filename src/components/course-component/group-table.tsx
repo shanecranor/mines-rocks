@@ -20,6 +20,7 @@ export const GroupTable = ({
           <td className={styles["weight"]}>Weight</td>
           <td className={styles["category"]}>Category</td>
           <td>Average</td>
+          <td className={styles["quantity"]}>qty</td>
         </tr>
       </thead>
       <tbody>
@@ -31,9 +32,8 @@ export const GroupTable = ({
             typeof groupWeight === "number" ? groupWeight / 90 : 0;
           const roundedGroupWeight =
             groupWeight === "N/A" ? "N/A" : Math.round(groupWeight);
-          const transitionDelay = `${
-            isOpen ? idx / 30 : (stats.length - idx) / 100
-          }s`;
+          const transitionDelay = `${isOpen ? idx / 30 : (stats.length - idx) / 100
+            }s`;
           return (
             <tr key={stat.group.id + "table"}>
               <td>
@@ -50,6 +50,7 @@ export const GroupTable = ({
               </td>
               <td>{stat.group.name}</td>
               <td>{Math.round(stat.stats.mean)}%</td>
+              <td>{stat.numAssignments}</td>
             </tr>
           );
         })}
