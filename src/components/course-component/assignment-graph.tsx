@@ -20,14 +20,27 @@ export default function AssignmentGraph({
   // get start and end dates
   let startDateISO = courseData.start_at;
   let endDateISO = courseData.end_at;
-  if (!startDateISO) {
-    // get earliest assignment
-    return <></>;
+  let sortedAssignments;
+  if (!startDateISO || !endDateISO) {
+    // if no start date, use the earliest assignment date
+    // sort assignments by date
+    const filteredAssignments = assignments.filter(
+      (assignment) => assignment.due_at || assignment.created_at
+    );
+    sortedAssignments = filteredAssignments.sort((a, b) => {
+      if (a.due_at === null && a.created_at === null) return 1;
+      if (b.due_at === null && b.created_at === null) return -1;
+      const aDate = new Date(a.due_at || a.created_at!).getTime();
+      const bDate = new Date(b.due_at || b.created_at!).getTime();
+      return aDate - bDate;
+    });
+    //remove assignments with no date
+
+    // get first assignment date
+    startDateISO = sortedAssignments[0].due_at || sortedAssignments[0].created_at;
+    endDateISO = sortedAssignments[sortedAssignments.length - 1].due_at || sortedAssignments[sortedAssignments.length - 1].created_at;
   }
-  if (!endDateISO) {
-    // get latest assignment
-    return <></>;
-  }
+  if (startDateISO === null || endDateISO === null) return (<></>);
   const startDate = new Date(startDateISO).getTime();
   const endDate = new Date(endDateISO).getTime();
   function getAssignmentDatePercentage(
@@ -91,10 +104,10 @@ export default function AssignmentGraph({
       <div className={styles["assignment-graph"]}>
         <div
           className={styles["assignment-graph-content"]}
-          // TODO: hide if no graded assignments
-          // style={{
-          //   display: assignmentsFiltered.length ? "auto" : "none",
-          // }}
+        // TODO: hide if no graded assignments
+        // style={{
+        //   display: assignmentsFiltered.length ? "auto" : "none",
+        // }}
         >
           <div className="max-label">100%</div>
           <div className="min-label">0%</div>

@@ -16,6 +16,7 @@ import {
 export type GroupStat = {
   group: AssignmentGroup;
   stats: GradeStatistics;
+  numAssignments?: number;
   isWeighted: boolean;
 };
 
@@ -51,6 +52,7 @@ function getGroupStat(
 ): GroupStat {
   //get all assignments associated with the group
   const groupAssignments = getAssignmentsByGroup(assignments, group);
+  const numAssignments = groupAssignments.length;
   //calculate averageStatistic for each stat type
   const out = {} as GradeStatistics;
   for (const statKey of STAT_KEYS) {
@@ -64,7 +66,7 @@ function getGroupStat(
     newGroup.group_weight = meanStat.totalPossible;
     group = newGroup;
   }
-  return { stats: out, group, isWeighted };
+  return { stats: out, group, numAssignments, isWeighted };
 }
 
 export const getAssignmentsByCourse = (
