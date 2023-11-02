@@ -1,11 +1,11 @@
-"use client";
-import Head from "next/head";
+'use client';
+import Head from 'next/head';
 // react query imports
 import {
   QueryClient,
   QueryClientProvider,
   useQuery,
-} from "@tanstack/react-query";
+} from '@tanstack/react-query';
 import {
   Assignment,
   AssignmentGroup,
@@ -13,21 +13,21 @@ import {
   getAssignmentGroups,
   getAssignments,
   getCourseListFiltered,
-} from "@/services/database";
-import CourseComponent from "@/components/course-component/course-component";
-import { Stats } from "fs";
+} from '@/services/database';
+import CourseComponent from '@/components/course-component/course-component';
+import { Stats } from 'fs';
 import {
   getAssignmentsByCourse,
   getStatsPerGroup,
-} from "@/services/data-aggregation";
-import { groupCollapsed } from "console";
-import { getRelevantGroups } from "@/services/data-aggregation-utils";
+} from '@/services/data-aggregation';
+import { groupCollapsed } from 'console';
+import { getRelevantGroups } from '@/services/data-aggregation-utils';
 
 const queryClient = new QueryClient();
 
 export default function Home() {
   const { isLoading: isLoadingCourses, data: courseList } = useQuery({
-    queryKey: ["supaCourseList"],
+    queryKey: ['supaCourseList'],
     queryFn: getCourseListFiltered,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60 * 6,
@@ -35,7 +35,7 @@ export default function Home() {
     //it will only refetch if the page is open for 6 hours
   });
   const { data: assignmentGroupList } = useQuery({
-    queryKey: ["supaGroupList"],
+    queryKey: ['supaGroupList'],
     queryFn: getAssignmentGroups,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60 * 6,
@@ -44,7 +44,7 @@ export default function Home() {
   });
 
   const { isLoading, data: assignmentList } = useQuery({
-    queryKey: ["supaAssignmentList"],
+    queryKey: ['supaAssignmentList'],
     queryFn: getAssignments,
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 60 * 6,
@@ -67,15 +67,15 @@ export default function Home() {
             courseList?.map((course: Course) => {
               const courseAssignments = getAssignmentsByCourse(
                 assignmentList,
-                course
+                course,
               );
               const courseAssignmentGroups = getRelevantGroups(
                 courseAssignments,
-                assignmentGroupList || []
+                assignmentGroupList || [],
               );
               const groupData = getStatsPerGroup(
                 courseAssignments,
-                courseAssignmentGroups
+                courseAssignmentGroups,
               );
               // console.log("GROUP DATA");
               // console.log(groupData);
@@ -91,7 +91,7 @@ export default function Home() {
                     {courseAssignments.length}
                     {groupData.map((stat) => (
                       <div key={stat.group.id}>
-                        {stat.group.name}, Weight: {stat.group.group_weight}{" "}
+                        {stat.group.name}, Weight: {stat.group.group_weight}{' '}
                         Avg: {stat.stats.mean}
                       </div>
                     ))}

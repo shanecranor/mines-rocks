@@ -1,16 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-import styles from "./page.module.scss";
-import Head from "next/head";
+import styles from './page.module.scss';
+import Head from 'next/head';
 import {
   getAssignmentGroups,
   getAssignments,
   getCourseListFiltered,
   getBannerData,
-} from "@/services/database";
-import SearchResults from "@/components/search/search-results/search-results";
-import SearchBar from "@/components/search/search-bar/search-bar";
-import FilterSettings from "@/components/search/search-settings/filter-settings";
-import Navbar from "@/components/navbar/navbar";
+} from '@/services/database';
+import SearchResults from '@/components/search/search-results/search-results';
+import SearchBar from '@/components/search/search-bar/search-bar';
+import FilterSettings from '@/components/search/search-settings/filter-settings';
+import Navbar from '@/components/navbar/navbar';
 export default async function Home() {
   const courses = await getCourseListFiltered();
   const assignmentGroups = await getAssignmentGroups();
@@ -25,17 +25,17 @@ export default async function Home() {
       </Head>
       <Navbar />
       <main className={styles.main}>
-        <div className={styles["heading-container"]}>
-          <img src="logo4.png" className={styles["logo"]} alt="Logo" />
+        <div className={styles['heading-container']}>
+          <img src="logo4.png" className={styles['logo']} alt="Logo" />
           <h1>
             Data driven course selection <i>rocks</i>
           </h1>
         </div>
 
         <SearchBar />
-        <div className={styles["results-container"]}>
+        <div className={styles['results-container']}>
           <FilterSettings />
-          <div className={styles["search-results"]}>
+          <div className={styles['search-results']}>
             {/* {courses.map((course) => {
               const courseAssignments = getAssignmentsByCourse(
                 assignments,

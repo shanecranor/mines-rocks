@@ -3,9 +3,9 @@ import {
   getAssignmentMean,
   getGroupColor,
   getGroupWeight,
-} from "@/services/data-aggregation";
-import { Course, Assignment } from "@/services/database";
-import styles from "./assignment-graph.module.scss";
+} from '@/services/data-aggregation';
+import { Course, Assignment } from '@/services/database';
+import styles from './assignment-graph.module.scss';
 export default function AssignmentGraph({
   courseData,
   assignments,
@@ -25,7 +25,7 @@ export default function AssignmentGraph({
     // if no start date, use the earliest assignment date
     // sort assignments by date
     const filteredAssignments = assignments.filter(
-      (assignment) => assignment.due_at || assignment.created_at
+      (assignment) => assignment.due_at || assignment.created_at,
     );
     sortedAssignments = filteredAssignments.sort((a, b) => {
       if (a.due_at === null && a.created_at === null) return 1;
@@ -37,16 +37,19 @@ export default function AssignmentGraph({
     //remove assignments with no date
 
     // get first assignment date
-    startDateISO = sortedAssignments[0].due_at || sortedAssignments[0].created_at;
-    endDateISO = sortedAssignments[sortedAssignments.length - 1].due_at || sortedAssignments[sortedAssignments.length - 1].created_at;
+    startDateISO =
+      sortedAssignments[0].due_at || sortedAssignments[0].created_at;
+    endDateISO =
+      sortedAssignments[sortedAssignments.length - 1].due_at ||
+      sortedAssignments[sortedAssignments.length - 1].created_at;
   }
-  if (startDateISO === null || endDateISO === null) return (<></>);
+  if (startDateISO === null || endDateISO === null) return <></>;
   const startDate = new Date(startDateISO).getTime();
   const endDate = new Date(endDateISO).getTime();
   function getAssignmentDatePercentage(
     assignment: Assignment,
     startDate: number,
-    endDate: number
+    endDate: number,
   ) {
     const diff = endDate - startDate;
     const assignmentDateISO = assignment.due_at || assignment.created_at;
@@ -58,15 +61,15 @@ export default function AssignmentGraph({
     (assignment) =>
       (assignment.due_at || assignment.created_at) &&
       assignment.score_statistics &&
-      typeof assignment.score_statistics?.mean === "number"
+      typeof assignment.score_statistics?.mean === 'number',
   );
   const assignmentsNoScore = assignments.filter(
     (assignment) =>
       !assignment.score_statistics ||
-      typeof assignment.score_statistics.mean !== "number"
+      typeof assignment.score_statistics.mean !== 'number',
   );
   const assignmentsNoDate = assignments.filter(
-    (assignment) => !assignment.due_at && !assignment.created_at
+    (assignment) => !assignment.due_at && !assignment.created_at,
   );
   //todo: think about separating assignments that use due date from assignments that use created_at lol
   //TODO calculate overall assignment weight and sort by weight so that the larger assignments are sent to the back
@@ -74,11 +77,11 @@ export default function AssignmentGraph({
   let possibleErrorRange = 0;
   let totalPointsWeighted = 0;
   function getGroupWeightByID(groupStats: GroupStat[], id: number | null) {
-    if (typeof id !== "number") return 0;
+    if (typeof id !== 'number') return 0;
     for (const group of groupStats) {
       if (group?.group?.id === id) {
         const weight = getGroupWeight(group, totalWeight);
-        if (weight !== "N/A") {
+        if (weight !== 'N/A') {
           return weight;
         } else {
           return 0;
@@ -101,13 +104,13 @@ export default function AssignmentGraph({
   }
   return (
     <>
-      <div className={styles["assignment-graph"]}>
+      <div className={styles['assignment-graph']}>
         <div
-          className={styles["assignment-graph-content"]}
-        // TODO: hide if no graded assignments
-        // style={{
-        //   display: assignmentsFiltered.length ? "auto" : "none",
-        // }}
+          className={styles['assignment-graph-content']}
+          // TODO: hide if no graded assignments
+          // style={{
+          //   display: assignmentsFiltered.length ? "auto" : "none",
+          // }}
         >
           <div className="max-label">100%</div>
           <div className="min-label">0%</div>
@@ -126,16 +129,16 @@ export default function AssignmentGraph({
             return (
               <div
                 key={assignment.id}
-                className={styles["data-point"]}
+                className={styles['data-point']}
                 style={{
                   background: getGroupColor(
-                    assignment.assignment_group_id || 0
+                    assignment.assignment_group_id || 0,
                   ),
                   top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
                   left: `${getAssignmentDatePercentage(
                     assignment,
                     startDate,
-                    endDate
+                    endDate,
                   )}%`,
                   width: `${bubbleSize}px`,
                   height: `${bubbleSize}px`,
@@ -144,18 +147,18 @@ export default function AssignmentGraph({
             );
           })}
         </div>
-        <div className={styles["assignment-graph-content-no-stats"]}>
+        <div className={styles['assignment-graph-content-no-stats']}>
           {assignmentsNoScore.map((assignment) => (
             <div
               key={assignment.id}
-              className={styles["data-point"]}
+              className={styles['data-point']}
               style={{
                 background: getGroupColor(assignment.assignment_group_id || 0),
                 top: `0%`,
                 left: `${getAssignmentDatePercentage(
                   assignment,
                   startDate,
-                  endDate
+                  endDate,
                 )}%`,
                 width: `5px`,
                 height: `5px`,

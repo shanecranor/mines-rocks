@@ -1,63 +1,63 @@
 .assignment-graph {
-	// background:red;
-	height: 80px;
-	position: relative;
-	margin-top: 8px;
-	padding: 8px;
-	background: rgba(var(--foreground-rgb), 0.05);
-	border-radius: 4px;
-	display: flex;
-	gap: 8px;
-	flex-direction: column;
+  // background:red;
+  height: 80px;
+  position: relative;
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(var(--foreground-rgb), 0.05);
+  border-radius: 4px;
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
 
-	justify-content: center;
-	align-items: center;
+  justify-content: center;
+  align-items: center;
 
-	>.assignment-graph-content {
-		width: 100%;
-		height: 100%;
-		position: relative;
-		border: rgba(var(--foreground-rgb), 0.4) 1px solid;
-		border-radius: 4px;
+  > .assignment-graph-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border: rgba(var(--foreground-rgb), 0.4) 1px solid;
+    border-radius: 4px;
 
-		>.data-point {
-			position: absolute;
-			border-radius: 50%;
+    > .data-point {
+      position: absolute;
+      border-radius: 50%;
 
-			&:hover {
-				outline: 5px solid red;
+      &:hover {
+        outline: 5px solid red;
 
-				>::after {
-					content: attr(data-tooltip);
-				}
-			}
-		}
+        > ::after {
+          content: attr(data-tooltip);
+        }
+      }
+    }
 
-		>.min-label {
-			position: absolute;
-		}
+    > .min-label {
+      position: absolute;
+    }
 
-		>.max-label {
-			position: absolute;
-		}
+    > .max-label {
+      position: absolute;
+    }
 
-		>.hundred-line {
-			position: absolute;
-			width: 100%;
-			height: 1px;
-		}
-	}
+    > .hundred-line {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+    }
+  }
 
-	>.assignment-graph-content-no-stats {
-		height: 10px;
-		width: 100%;
-		position: relative;
-		border: rgba(var(--foreground-rgb), 0.4) 1px solid;
-		border-radius: 4px;
+  > .assignment-graph-content-no-stats {
+    height: 10px;
+    width: 100%;
+    position: relative;
+    border: rgba(var(--foreground-rgb), 0.4) 1px solid;
+    border-radius: 4px;
 
-		>.data-point {
-			position: absolute;
-			border-radius: 50%;
-		}
-	}
+    > .data-point {
+      position: absolute;
+      border-radius: 50%;
+    }
+  }
 }
