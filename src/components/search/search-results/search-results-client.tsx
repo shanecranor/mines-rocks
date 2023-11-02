@@ -73,7 +73,6 @@ function filterCourseList(courseList: any, searchOptions$: any) {
     const c = courseAndComponent.course;
     const bannerCourses = courseAndComponent.bannerCourses;
     const attributes = getCourseAttributes(c);
-    const semesterPrefs = searchOptions$.semester.get();
     const semesterKeys = Object.keys(searchOptions$.semester.get());
     const semesterValues = Object.values(searchOptions$.semester.get());
     const isSemesterMatch = semesterKeys.some((key, index) => {
@@ -83,14 +82,15 @@ function filterCourseList(courseList: any, searchOptions$: any) {
         }
       }
     });
-    //exit if semester doesn't match
+    //exit if semester filter doesn't match
     if (!isSemesterMatch) {
       return false
     }
 
-    const isCourseCodeMatch = attributes.courseCode
-      .toLowerCase()
-      .includes(searchText);
+    if (attributes.courseCode.toLowerCase().includes(searchText)) {
+      return true
+    }
+
     if (c.name) {
       if (c.name.toLowerCase().includes(searchText)) {
         return true;
@@ -103,11 +103,15 @@ function filterCourseList(courseList: any, searchOptions$: any) {
           return true;
         }
       }
+      let bannerCourseName = null;
+      if (bannerCourses && bannerCourses[0]) {
+        bannerCourseName = bannerCourses[0].courseTitle;
+      }
+      if (bannerCourseName && bannerCourseName.toLowerCase().includes(searchText)) {
+        return true;
+      }
     }
 
-    if (isCourseCodeMatch) {
-      return true;
-    }
 
     return false;
   });
