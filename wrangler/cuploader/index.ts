@@ -31,6 +31,10 @@ export default {
     for (const routeInfo of routeInfoList) {
       const { endpointName, supabaseTable, requiredKeys } = routeInfo;
       const data = responses[endpointName];
+      // add an upload date to the data
+      // its a little jank because it'll get removed when the data is cleaned if it isn't a column in the db
+      // the course_summary table has an upload_date column so it should work as expected
+      data["upload_date"] = new Date().toISOString();
       if (typeof data === "string") {
         return new Response(data, {
           status: StatusCodes.INTERNAL_SERVER_ERROR,
