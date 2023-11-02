@@ -28,7 +28,7 @@
         filter: blur(0px);
 
         &::after {
-          content: "rocks";
+          content: 'rocks';
           position: absolute;
           //don't wrap
           white-space: nowrap;
@@ -42,7 +42,7 @@
         }
 
         &::before {
-          content: "rocks";
+          content: 'rocks';
           position: absolute;
           white-space: nowrap;
 

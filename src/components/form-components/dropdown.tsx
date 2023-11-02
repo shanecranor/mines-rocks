@@ -1,8 +1,14 @@
-import { Observable } from "@legendapp/state";
-import { observer } from "@legendapp/state/react";
+import { Observable } from '@legendapp/state';
+import { observer } from '@legendapp/state/react';
 
 const Dropdown = observer(
-  ({ options, state$ }: { options: string[] | readonly string[]; state$: Observable<string> }) => {
+  ({
+    options,
+    state$,
+  }: {
+    options: string[] | readonly string[];
+    state$: Observable<string>;
+  }) => {
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
       state$.set(e.target.value);
     };
@@ -11,7 +17,7 @@ const Dropdown = observer(
       <select
         value={state$.get()}
         onChange={handleSelectChange}
-        style={{ marginRight: "4px" }}
+        style={{ marginRight: '4px' }}
       >
         {options.map((option, index) => (
           <option key={index} value={option}>
@@ -20,7 +26,7 @@ const Dropdown = observer(
         ))}
       </select>
     );
-  }
+  },
 );
 
 export default Dropdown;

@@ -2,8 +2,8 @@ import {
   GroupStat,
   getGroupColor,
   getGroupWeight,
-} from "@/services/data-aggregation";
-import styles from "./course-component.module.scss";
+} from '@/services/data-aggregation';
+import styles from './course-component.module.scss';
 export const GroupTable = ({
   stats,
   totalWeight,
@@ -16,11 +16,11 @@ export const GroupTable = ({
   return (
     <table>
       <thead>
-        <tr className={styles["column-labels"]}>
-          <td className={styles["weight"]}>Weight</td>
-          <td className={styles["category"]}>Category</td>
+        <tr className={styles['column-labels']}>
+          <td className={styles['weight']}>Weight</td>
+          <td className={styles['category']}>Category</td>
           <td>Average</td>
-          <td className={styles["quantity"]}>qty</td>
+          <td className={styles['quantity']}>qty</td>
         </tr>
       </thead>
       <tbody>
@@ -29,17 +29,18 @@ export const GroupTable = ({
           const isOpen = isOpen$.get();
           const groupWeight = getGroupWeight(stat, totalWeight);
           const transitionTime =
-            typeof groupWeight === "number" ? groupWeight / 90 : 0;
+            typeof groupWeight === 'number' ? groupWeight / 90 : 0;
           const roundedGroupWeight =
-            groupWeight === "N/A" ? "N/A" : Math.round(groupWeight);
-          const transitionDelay = `${isOpen ? idx / 30 : (stats.length - idx) / 100
-            }s`;
+            groupWeight === 'N/A' ? 'N/A' : Math.round(groupWeight);
+          const transitionDelay = `${
+            isOpen ? idx / 30 : (stats.length - idx) / 100
+          }s`;
           return (
-            <tr key={stat.group.id + "table"}>
+            <tr key={stat.group.id + 'table'}>
               <td>
                 {roundedGroupWeight}%
                 <div
-                  className={styles["weight-bar"]}
+                  className={styles['weight-bar']}
                   style={{
                     width: `${isOpen ? groupWeight : 0}%`,
                     background: getGroupColor(stat.group.id),

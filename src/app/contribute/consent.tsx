@@ -1,11 +1,11 @@
-import Navbar from "@/components/navbar/navbar";
-import styles from "./consent.module.scss";
+import Navbar from '@/components/navbar/navbar';
+import styles from './consent.module.scss';
 
 const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
   return (
     <>
       <Navbar />
-      <div className={styles["consent-form"]}>
+      <div className={styles['consent-form']}>
         <h1>Contributing Canvas Data</h1>
         <p>
           If you are still interested in contributing after reading through this
@@ -53,7 +53,7 @@ const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
         <p>
           mines.rocks is an open source tool that anyone can use to look at
           historical course data. You can check out the source code, open an
-          issue, or submit a PR here:{" "}
+          issue, or submit a PR here:{' '}
           <a href="https://github.com/shanecranor/canvas-api-project">
             mines.rocks on github
           </a>
@@ -75,7 +75,7 @@ const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
             onSubmit();
           }}
         >
-          <label className={styles["consent-checkbox"]}>
+          <label className={styles['consent-checkbox']}>
             <input type="checkbox" name="consent" required /> I understand and
             agree
           </label>

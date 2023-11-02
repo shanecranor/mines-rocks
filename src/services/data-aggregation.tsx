@@ -1,4 +1,4 @@
-import { toNamespacedPath } from "path";
+import { toNamespacedPath } from 'path';
 import {
   Assignment,
   AssignmentGroup,
@@ -6,12 +6,12 @@ import {
   STAT_KEYS,
   Course,
   isSeason,
-} from "./database";
+} from './database';
 
 import {
   getAssignmentsByGroup,
   getRelevantGroups,
-} from "./data-aggregation-utils";
+} from './data-aggregation-utils';
 
 export type GroupStat = {
   group: AssignmentGroup;
@@ -23,20 +23,20 @@ export type GroupStat = {
 //gets the average statistics for each assignment group
 type GetStatsPerGroup = (
   assignments: Assignment[],
-  assignmentGroups: AssignmentGroup[]
+  assignmentGroups: AssignmentGroup[],
 ) => GroupStat[];
 
 export const getStatsPerGroup: GetStatsPerGroup = (
   assignments,
-  assignmentGroups
+  assignmentGroups,
 ) => {
   // remove assignment groups that aren't relevant to the assignments
   const courseAssignmentGroups = getRelevantGroups(
     assignments,
-    assignmentGroups
+    assignmentGroups,
   );
   const isWeighted = courseAssignmentGroups.some(
-    (group) => group.group_weight != 0 && group.group_weight != null
+    (group) => group.group_weight != 0 && group.group_weight != null,
   );
   const statsList = courseAssignmentGroups.map((group: AssignmentGroup) => {
     return getGroupStat(group, assignments, isWeighted);
@@ -48,7 +48,7 @@ export const getStatsPerGroup: GetStatsPerGroup = (
 function getGroupStat(
   group: AssignmentGroup,
   assignments: Assignment[],
-  isWeighted: boolean
+  isWeighted: boolean,
 ): GroupStat {
   //get all assignments associated with the group
   const groupAssignments = getAssignmentsByGroup(assignments, group);
@@ -60,7 +60,7 @@ function getGroupStat(
     if (statValue != undefined) out[statKey] = statValue;
   }
   // if the weights are not set, set the group weight to the total possible points
-  const meanStat = averageStatistic(groupAssignments, "mean");
+  const meanStat = averageStatistic(groupAssignments, 'mean');
   if (!isWeighted && meanStat) {
     const newGroup = structuredClone(group);
     newGroup.group_weight = meanStat.totalPossible;
@@ -71,7 +71,7 @@ function getGroupStat(
 
 export const getAssignmentsByCourse = (
   assignments: Assignment[] | undefined,
-  course: Course
+  course: Course,
 ) => {
   if (!assignments) return [];
   return assignments.filter((assignment) => assignment.course_id === course.id);
@@ -79,18 +79,18 @@ export const getAssignmentsByCourse = (
 
 type AverageStatistic = (
   assignmentList: Assignment[] | undefined,
-  scoreStatistic: string
+  scoreStatistic: string,
 ) => { grade: number; totalPossible: number } | undefined;
 
 export const averageStatistic: AverageStatistic = (
   assignmentList,
-  scoreStatistic
+  scoreStatistic,
 ) => {
   if (!assignmentList) return;
   const pointsList = assignmentList.map((assignment) => {
     if (!assignment) return;
-    if (!assignment["points_possible"]) return;
-    const stats = assignment["score_statistics"];
+    if (!assignment['points_possible']) return;
+    const stats = assignment['score_statistics'];
     if (!stats) return;
     //check if scoreStatistic is one of the keys in stats
     if (!Object.keys(stats).includes(scoreStatistic)) {
@@ -99,7 +99,7 @@ export const averageStatistic: AverageStatistic = (
     }
     return {
       actual: stats[scoreStatistic],
-      possible: assignment["points_possible"],
+      possible: assignment['points_possible'],
     };
   });
   if (!pointsList || !pointsList.length) return;
@@ -107,16 +107,16 @@ export const averageStatistic: AverageStatistic = (
   const filteredScores = pointsList.filter(
     (points) =>
       points &&
-      typeof points.possible === "number" &&
-      typeof points.actual === "number"
+      typeof points.possible === 'number' &&
+      typeof points.actual === 'number',
   ) as { actual: number; possible: number }[];
   const totalPossible = filteredScores.reduce(
     (prev, curr) => prev + curr.possible,
-    0
+    0,
   );
   const totalActual = filteredScores.reduce(
     (prev, curr) => prev + curr.actual,
-    0
+    0,
   );
   return { grade: (totalActual / totalPossible) * 100, totalPossible };
 };
@@ -139,7 +139,7 @@ export const averageCourseStats = (stats: GroupStat[]) => {
     for (const statKey of STAT_KEYS) {
       const grade = stat.stats[statKey];
       let prev = out[statKey] || 0;
-      if (typeof grade === "number" && !Number.isNaN(grade)) {
+      if (typeof grade === 'number' && !Number.isNaN(grade)) {
         out[statKey] = prev + (grade * weight) / totalWeight;
       }
     }
@@ -149,15 +149,15 @@ export const averageCourseStats = (stats: GroupStat[]) => {
 
 export const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
   if (stat.isWeighted || !stat.group.group_weight) {
-    return stat.group.group_weight ?? "N/A";
+    return stat.group.group_weight ?? 'N/A';
   }
   //group weights from canvas are by default multiplied by 100 so do that here as well
   return (stat.group.group_weight / totalWeight) * 100;
 };
 
 export function getGroupColor(
-  id: number
-): import("csstype").Property.Background<string | number> | undefined {
+  id: number,
+): import('csstype').Property.Background<string | number> | undefined {
   const hue = (id * 165) % 360;
   return `HSL(${hue}, 50%, 60%)`;
 }
@@ -175,24 +175,26 @@ export type CourseAttributes = {
 };
 
 export const getCourseAttributes = (course: Course): CourseAttributes => {
-  const dataString = course.course_code || "";
+  const dataString = course.course_code || '';
   // split on both . and space
   const dataList = dataString.split(/\.|\s/);
   const semester = dataList[0]
-    .replace("Sprg", "Spring")
-    .replace("Smr", "Summer");
+    .replace('Sprg', 'Spring')
+    .replace('Smr', 'Summer');
   const courseYear = dataList[1];
   // find the first 3 digit number, then remove everything after it
-  const courseCode = dataList[2].replace(/(\d{3}).*/, "$1");
-  if (!isSeason(semester.toLowerCase())) throw new Error(`Invalid semester: ${semester} from ${dataString}`);
+  const courseCode = dataList[2].replace(/(\d{3}).*/, '$1');
+  if (!isSeason(semester.toLowerCase()))
+    throw new Error(`Invalid semester: ${semester} from ${dataString}`);
   //if this code lives long enough, we'll have to update this to support 5 digit years
-  if (!courseYear.match(/\d{4}/)) throw new Error(`Invalid year: ${courseYear} from ${dataString}`);
+  if (!courseYear.match(/\d{4}/))
+    throw new Error(`Invalid year: ${courseYear} from ${dataString}`);
 
   return {
     semester,
     courseCode,
     courseYear,
-    courseName: course.name || "",
+    courseName: course.name || '',
   };
 };
 
@@ -200,4 +202,4 @@ export const splitCourseCode = (code: string) => {
   const courseNumber = code.slice(-3);
   const deptCode = code.slice(0, -3);
   return { deptCode, courseNumber };
-}
+};

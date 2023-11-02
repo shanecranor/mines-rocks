@@ -1,4 +1,4 @@
-import styles from "./box-plot.module.scss";
+import styles from './box-plot.module.scss';
 export default function BoxPlot({
   stats,
 }: {
@@ -13,35 +13,35 @@ export default function BoxPlot({
 }) {
   const { max: maxVal, min: minVal, mean, median, upper_q, lower_q } = stats;
   return (
-    <div className={styles["box-plot"]}>
+    <div className={styles['box-plot']}>
       <div
-        className={styles["range"]}
+        className={styles['range']}
         style={{
           width: `${maxVal - minVal}%`,
           left: `${minVal}%`,
         }}
       />
       <div
-        className={styles["iqr"]}
+        className={styles['iqr']}
         style={{
           width: `${Math.round(upper_q - lower_q)}%`,
           left: `${Math.round(lower_q)}%`,
         }}
       />
       <div
-        className={styles["median-grade"]}
+        className={styles['median-grade']}
         style={{ left: `${Math.round(median)}%` }}
       />
       <div
-        className={styles["avg-grade"]}
+        className={styles['avg-grade']}
         style={{ left: `${Math.round(mean)}%` }}
       />
       <div
-        className={styles["min-grade"]}
+        className={styles['min-grade']}
         style={{ left: `${Math.round(minVal)}%` }}
       />
       <div
-        className={styles["max-grade"]}
+        className={styles['max-grade']}
         style={{ left: `${Math.round(maxVal)}%` }}
       />
     </div>
