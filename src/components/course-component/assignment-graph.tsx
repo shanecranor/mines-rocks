@@ -22,6 +22,20 @@ export default function AssignmentGraph({
   // get start and end dates
   let startDateISO = courseData.start_at;
   let endDateISO = courseData.end_at;
+  if (startDateISO && endDateISO) {
+    const startToEnd =
+      new Date(endDateISO).getTime() - new Date(startDateISO).getTime();
+    //if the distance between the start and end date is longer than 9 months, use the start and end date of the first and last assignment
+    if (startToEnd > 1000 * 60 * 60 * 24 * 30 * 9) {
+      startDateISO = null;
+      endDateISO = null;
+    }
+    //or if shorter than 5 weeks, use the start and end date of the first and last assignment
+    if (startToEnd < 1000 * 60 * 60 * 24 * 7 * 5) {
+      startDateISO = null;
+      endDateISO = null;
+    }
+  }
   let sortedAssignments;
   if (!startDateISO || !endDateISO) {
     // if no start date, use the earliest assignment date
@@ -32,29 +46,33 @@ export default function AssignmentGraph({
     sortedAssignments = filteredAssignments.sort((a, b) => {
       if (a.due_at === null && a.created_at === null) return 1;
       if (b.due_at === null && b.created_at === null) return -1;
-      const aDate = new Date(a.due_at || a.created_at!).getTime();
-      const bDate = new Date(b.due_at || b.created_at!).getTime();
+      const aDate = new Date(
+        a.due_at || a.updated_at || a.created_at!,
+      ).getTime();
+      const bDate = new Date(
+        b.due_at || b.updated_at || b.created_at!,
+      ).getTime();
       return aDate - bDate;
     });
     //remove assignments with no date
 
     // get first assignment date
-    startDateISO =
-      sortedAssignments[0].due_at || sortedAssignments[0].created_at;
-    endDateISO =
-      sortedAssignments[sortedAssignments.length - 1].due_at ||
-      sortedAssignments[sortedAssignments.length - 1].created_at;
+    const firstAssignment = sortedAssignments[0];
+    const lastAssignment = sortedAssignments[sortedAssignments.length - 1];
+    startDateISO = firstAssignment.due_at || firstAssignment.created_at;
+    endDateISO = lastAssignment.due_at || lastAssignment.created_at;
   }
   if (startDateISO === null || endDateISO === null) return <></>;
   const startDate = new Date(startDateISO).getTime();
-  const endDate = new Date(endDateISO).getTime();
+  const endDate = new Date(endDateISO).getTime() + 1000 * 60 * 60 * 24 * 3;
   function getAssignmentDatePercentage(
     assignment: Assignment,
     startDate: number,
     endDate: number,
   ) {
     const diff = endDate - startDate;
-    const assignmentDateISO = assignment.due_at || assignment.created_at;
+    const assignmentDateISO =
+      assignment.due_at || assignment.updated_at || assignment.created_at;
     if (!assignmentDateISO) return 0;
     const assignmentDate = new Date(assignmentDateISO).getTime();
     return ((assignmentDate - startDate) / diff) * 100;
@@ -104,6 +122,7 @@ export default function AssignmentGraph({
         getGroupWeightByID(groupStats, assignment.assignment_group_id)) /
       100;
   }
+  const bubbleSize = 10;
   return (
     <>
       <div className={styles['assignment-graph']}>
@@ -111,7 +130,6 @@ export default function AssignmentGraph({
         <div className={styles['graph-title']}>
           Individual Canvas Assignments
         </div>
-
         <div
           className={styles['assignment-graph-content']}
           // TODO: hide if no graded assignments
@@ -122,7 +140,6 @@ export default function AssignmentGraph({
           <div className={styles['max-label']}>100%</div>
           <div className={styles['min-label']}>0%</div>
           {assignmentsFiltered.map((assignment) => {
-            const bubbleSize = 5;
             // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
             // thinking about some kind of histogram display for assignments by grade percentage
             // might be better in table or text form
@@ -141,47 +158,83 @@ export default function AssignmentGraph({
                 groupStats.length,
               );
             }
-
+            const assignmentDatePercentage = getAssignmentDatePercentage(
+              assignment,
+              startDate,
+              endDate,
+            );
+            let labelTranslate = 'translate(10px)';
+            if (assignmentDatePercentage > 50) {
+              labelTranslate = 'translate(-100%)';
+            }
+            const mean = getAssignmentMean(assignment);
             return (
               <div
                 key={assignment.id}
                 className={styles['data-point']}
                 style={{
                   background: groupColor,
-                  top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
-                  left: `${getAssignmentDatePercentage(
-                    assignment,
-                    startDate,
-                    endDate,
-                  )}%`,
+                  top: `${100 - (mean || 0) * 100}%`,
+                  left: `${assignmentDatePercentage}%`,
                   width: `${bubbleSize}px`,
                   height: `${bubbleSize}px`,
                 }}
-              ></div>
+              >
+                <div
+                  className={styles['assignment-name-overlay']}
+                  style={{
+                    transform: labelTranslate,
+                  }}
+                >
+                  {mean !== undefined && Math.round(mean * 100)}% -{' '}
+                  {assignment.name}
+                </div>
+              </div>
             );
           })}
         </div>
         <div className={styles['assignment-graph-content-no-stats']}>
-          {assignmentsNoScore.map((assignment) => (
-            <div
-              key={assignment.id}
-              className={styles['data-point']}
-              style={{
-                background: getGroupColor(
-                  assignment.assignment_group_id || 0,
-                  groupStats.length,
-                ),
-                top: `0%`,
-                left: `${getAssignmentDatePercentage(
-                  assignment,
-                  startDate,
-                  endDate,
-                )}%`,
-                width: `5px`,
-                height: `5px`,
-              }}
-            />
-          ))}
+          {assignmentsNoScore.map((assignment) => {
+            const assignmentDatePercentage = getAssignmentDatePercentage(
+              assignment,
+              startDate,
+              endDate,
+            );
+            let labelTranslate = 'translate(10px)';
+            if (assignmentDatePercentage > 50) {
+              labelTranslate = 'translate(-100%)';
+            }
+            let groupColor: any = '#000';
+            if (assignment.assignment_group_id !== null) {
+              groupColor = getGroupColor(
+                getGroupStatByID(groupStats, assignment.assignment_group_id)
+                  .group,
+                groupStats.length,
+              );
+            }
+            return (
+              <div
+                key={assignment.id}
+                className={styles['data-point']}
+                style={{
+                  background: groupColor,
+                  top: `0%`,
+                  left: `${assignmentDatePercentage}%`,
+                  width: `${bubbleSize}px`,
+                  height: `${bubbleSize}px`,
+                }}
+              >
+                <div
+                  className={styles['assignment-name-overlay']}
+                  style={{
+                    transform: labelTranslate,
+                  }}
+                >
+                  {assignment.name}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       {/* {possibleErrorRange / totalPointsWeighted}
