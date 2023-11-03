@@ -2,10 +2,12 @@ import {
   GroupStat,
   getAssignmentMean,
   getGroupColor,
+  getGroupStatByID,
   getGroupWeight,
 } from '@/services/data-aggregation';
 import { Course, Assignment } from '@/services/database';
 import styles from './assignment-graph.module.scss';
+import { PaletteDemo } from '../../utils/colors';
 export default function AssignmentGraph({
   courseData,
   assignments,
@@ -105,6 +107,11 @@ export default function AssignmentGraph({
   return (
     <>
       <div className={styles['assignment-graph']}>
+        {/* <PaletteDemo /> */}
+        <div className={styles['graph-title']}>
+          Individual Canvas Assignments
+        </div>
+
         <div
           className={styles['assignment-graph-content']}
           // TODO: hide if no graded assignments
@@ -112,8 +119,8 @@ export default function AssignmentGraph({
           //   display: assignmentsFiltered.length ? "auto" : "none",
           // }}
         >
-          <div className="max-label">100%</div>
-          <div className="min-label">0%</div>
+          <div className={styles['max-label']}>100%</div>
+          <div className={styles['min-label']}>0%</div>
           {assignmentsFiltered.map((assignment) => {
             const bubbleSize = 5;
             // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
@@ -126,14 +133,21 @@ export default function AssignmentGraph({
             // vs the old graph where it is super specific with individual assignments and doesn't do super well with assignments that haven't been graded?
             // TODO: check out the grading policies for HASS200 or HASS498 and see if they show how many get dropped.
             // could put that data, along with number of assignments next to the average for each group
+            let groupColor: any = '#000';
+            if (assignment.assignment_group_id !== null) {
+              groupColor = getGroupColor(
+                getGroupStatByID(groupStats, assignment.assignment_group_id)
+                  .group,
+                groupStats.length,
+              );
+            }
+
             return (
               <div
                 key={assignment.id}
                 className={styles['data-point']}
                 style={{
-                  background: getGroupColor(
-                    assignment.assignment_group_id || 0,
-                  ),
+                  background: groupColor,
                   top: `${100 - (getAssignmentMean(assignment) || 0) * 100}%`,
                   left: `${getAssignmentDatePercentage(
                     assignment,
@@ -153,7 +167,10 @@ export default function AssignmentGraph({
               key={assignment.id}
               className={styles['data-point']}
               style={{
-                background: getGroupColor(assignment.assignment_group_id || 0),
+                background: getGroupColor(
+                  assignment.assignment_group_id || 0,
+                  groupStats.length,
+                ),
                 top: `0%`,
                 left: `${getAssignmentDatePercentage(
                   assignment,

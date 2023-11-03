@@ -1,6 +1,5 @@
 .assignment-graph {
   // background:red;
-  height: 80px;
   position: relative;
   margin-top: 8px;
   padding: 8px;
@@ -13,9 +12,15 @@
   justify-content: center;
   align-items: center;
 
+  > .graph-title {
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(var(--foreground-rgb), 0.8);
+  }
   > .assignment-graph-content {
     width: 100%;
-    height: 100%;
+    height: 60px;
     position: relative;
     border: rgba(var(--foreground-rgb), 0.4) 1px solid;
     border-radius: 4px;
@@ -35,6 +40,7 @@
 
     > .min-label {
       position: absolute;
+      top: 40px;
     }
 
     > .max-label {

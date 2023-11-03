@@ -4,6 +4,7 @@ import {
   getGroupWeight,
 } from '@/services/data-aggregation';
 import styles from './course-component.module.scss';
+import { IBM_EXPANDED_COLORS } from '@/utils/colors';
 export const GroupTable = ({
   stats,
   totalWeight,
@@ -38,12 +39,18 @@ export const GroupTable = ({
           return (
             <tr key={stat.group.id + 'table'}>
               <td>
+                <span
+                  className={styles['weight-color-block']}
+                  style={{
+                    background: getGroupColor(stat.group, stats.length),
+                  }}
+                ></span>
                 {roundedGroupWeight}%
                 <div
                   className={styles['weight-bar']}
                   style={{
                     width: `${isOpen ? groupWeight : 0}%`,
-                    background: getGroupColor(stat.group.id),
+                    background: getGroupColor(stat.group, stats.length),
                     transitionDelay,
                     transition: `width ${transitionTime}s ease-in-out`,
                   }}
