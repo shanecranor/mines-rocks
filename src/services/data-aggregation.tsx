@@ -12,6 +12,7 @@ import {
   getAssignmentsByGroup,
   getRelevantGroups,
 } from './data-aggregation-utils';
+import { IBM_COLORS, IBM_EXPANDED_COLORS } from '@/utils/colors';
 
 export type GroupStat = {
   group: AssignmentGroup;
@@ -155,12 +156,23 @@ export const getGroupWeight = (stat: GroupStat, totalWeight: number) => {
   return (stat.group.group_weight / totalWeight) * 100;
 };
 
-export function getGroupColor(
-  id: number,
-): import('csstype').Property.Background<string | number> | undefined {
-  const hue = (id * 165) % 360;
-  return `HSL(${hue}, 50%, 60%)`;
+export function getGroupStatByID(groupStats: GroupStat[], id: number) {
+  return groupStats.filter((group) => id === group.group.id)[0];
 }
+
+export function getGroupColor(
+  group: any,
+  numGroups?: number,
+): import('csstype').Property.Background<string | number> | undefined {
+  const id = group.position;
+  let palette = IBM_COLORS;
+  if (numGroups && numGroups > palette.length) {
+    palette = IBM_EXPANDED_COLORS;
+  }
+  return palette[id % palette.length];
+  // return `HSL(${hue}, 50%, 60%)`;
+}
+
 export function getAssignmentMean(assignment: Assignment) {
   if (assignment.score_statistics?.mean && assignment.points_possible) {
     return assignment.score_statistics?.mean / assignment?.points_possible;

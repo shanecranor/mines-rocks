@@ -102,7 +102,14 @@
             width: 40px;
             z-index: 1;
           }
-
+          > td .weight-color-block {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            //make the color block a circle
+            border-radius: 50%;
+            margin-right: 4px;
+          }
           > .category {
             width: 100%;
           }

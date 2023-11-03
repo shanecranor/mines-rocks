@@ -17,6 +17,7 @@
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
+    "chroma-js": "^2.4.2",
     "eslint": "^8.52.0",
     "eslint-config-next": "13.4.7",
     "http-status-codes": "^2.3.0",
@@ -31,6 +32,7 @@
     "wrangler": "^3.13.1"
   },
   "devDependencies": {
+    "@types/chroma-js": "^2.4.2",
     "@types/eslint": "^8",
     "supabase": "^1.68.6"
   }
