@@ -86,12 +86,18 @@ export default {
       return buildResponse(cleanedData);
     } catch (e: any) {
       if (e instanceof TermCodeError)
-        return new Response(e.message, { status: 200 });
-      return new Response(e.message, { status: 500 });
+        return new Response(e.message, { status: 200, headers: CORsHeaders });
+      return new Response(e.message, { status: 500, headers: CORsHeaders });
     }
   },
 };
-
+const CORsHeaders = {
+  //todo: restrict to mines.rocks?
+  "Access-Control-Allow-Headers": "*",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, HEAD, OPTIONS",
+  "content-type": "application/json;charset=UTF-8",
+}
 export async function upsertData(data: Row[], table: string, supabase: any) {
   // upsert the data to the supabase table
   const upsertResponse = await supabase.from(table).upsert(data);
@@ -102,12 +108,6 @@ export async function upsertData(data: Row[], table: string, supabase: any) {
 export function buildResponse(data: any) {
   const encodedData = JSON.stringify(data);
   return new Response(encodedData, {
-    headers: {
-      //todo: restrict to mines.rocks?
-      "Access-Control-Allow-Headers": "*",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, HEAD, OPTIONS",
-      "content-type": "application/json;charset=UTF-8",
-    },
+    headers: CORsHeaders,
   });
 }

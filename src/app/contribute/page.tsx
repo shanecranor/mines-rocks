@@ -208,6 +208,8 @@ const Home: NextPage = observer(() => {
                 selectedCourses$.set(
                   filteredData.map((course: Course) => course.id),
                 );
+              } else {
+                alert('Invalid API key');
               }
             }}
           >
