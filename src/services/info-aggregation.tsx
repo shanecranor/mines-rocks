@@ -1,5 +1,5 @@
 import { BannerCourse } from './database';
-
+import he from 'he';
 export function instructorsFromBanner(bannerCourses: BannerCourse[]): string[] {
   const instructorSet = new Set();
   for (const c of bannerCourses) {
@@ -12,8 +12,10 @@ export function instructorsFromBanner(bannerCourses: BannerCourse[]): string[] {
       )
         continue;
       instructorSet.add(
-        (instructor.displayName as string)?.split(') ')[1] ||
-          instructor.displayName,
+        he.decode(
+          (instructor.displayName as string)?.split(') ')[1] ||
+            (instructor.displayName as string),
+        ),
       );
     }
   }

@@ -28,12 +28,24 @@
     > .data-point {
       position: absolute;
       border-radius: 50%;
-
+      opacity: 0.8;
+      > .assignment-name-overlay {
+        display: none;
+      }
       &:hover {
-        outline: 5px solid red;
-
-        > ::after {
-          content: attr(data-tooltip);
+        z-index: 999;
+        opacity: 1;
+        outline: 1px solid white;
+        > .assignment-name-overlay {
+          cursor: default;
+          pointer-events: none;
+          z-index: 999;
+          width: max-content;
+          max-width: 300px;
+          display: block;
+          background: rgba(var(--background-start-rgb), 0.8);
+          padding: 2px;
+          border-radius: 4px;
         }
       }
     }
@@ -55,7 +67,7 @@
   }
 
   > .assignment-graph-content-no-stats {
-    height: 10px;
+    height: 12px;
     width: 100%;
     position: relative;
     border: rgba(var(--foreground-rgb), 0.4) 1px solid;
@@ -64,6 +76,26 @@
     > .data-point {
       position: absolute;
       border-radius: 50%;
+      opacity: 0.8;
+      > .assignment-name-overlay {
+        display: none;
+      }
+      &:hover {
+        z-index: 999;
+        opacity: 1;
+        outline: 1px solid white;
+        > .assignment-name-overlay {
+          cursor: default;
+          pointer-events: none;
+          z-index: 999;
+          width: max-content;
+          max-width: 300px;
+          display: block;
+          background: rgba(var(--background-start-rgb), 0.8);
+          padding: 2px;
+          border-radius: 4px;
+        }
+      }
     }
   }
 }
