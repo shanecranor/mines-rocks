@@ -66,14 +66,20 @@ export const SummaryData = ({
         {/* fall back to course code if the banner course name isn't found */}
         {/* this is definitely the case for courses before 2021 because banner data doesn't go back that far */}
         <div className={styles.code}>{courseDisplayName}</div>
-        <span className={styles.when}>
-          {courseCode} • {semester} {courseYear}
-          {creditHoursString && (
-            <>
-              {' • '}
-              <strong>{creditHoursString}</strong> credits
-            </>
-          )}
+        <span className={styles['extra-info']}>
+          <span>{courseCode}</span>
+          <span className={styles.divider}>{' • '}</span>
+          <span>
+            {semester} {courseYear}
+          </span>
+          <span className={styles.divider}>{' • '}</span>
+          <span>
+            {creditHoursString && (
+              <>
+                <strong>{creditHoursString}</strong> credits
+              </>
+            )}
+          </span>
         </span>
       </div>
       <div className={styles['course-info']}>

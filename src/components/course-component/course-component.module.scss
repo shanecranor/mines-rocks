@@ -22,6 +22,8 @@
     margin-left: 4px;
 
     > .course-attributes {
+      display: flex;
+      flex-direction: column;
       flex-grow: 1;
       // width: 150px;
       margin-bottom: 4px;
@@ -32,6 +34,12 @@
         font-weight: bold;
         // font-family: monospace;
         font-size: 24px;
+      }
+      > .extra-info {
+        padding: 3px 0px 5px 0px;
+        .divider {
+          padding: 0px 2px;
+        }
       }
     }
 

@@ -193,6 +193,7 @@ export default function AssignmentGraph({
             );
           })}
         </div>
+        Assignments without a score
         <div className={styles['assignment-graph-content-no-stats']}>
           {assignmentsNoScore.map((assignment) => {
             const assignmentDatePercentage = getAssignmentDatePercentage(
