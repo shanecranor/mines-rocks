@@ -93,12 +93,12 @@ function filterCourseList(courseList: any, searchOptions$: any) {
     const c = courseAndComponent.course;
     const bannerCourses = courseAndComponent.bannerCourses;
     //show partially completed courses?
-    if (
-      !searchOptions$.showPartialClasses.get() &&
-      (c.upload_date === null ||
-        (c.end_at && new Date(c.end_at) > new Date(c.upload_date)))
-    ) {
-      return false;
+    if (!searchOptions$.showPartialClasses.get()) {
+      const uploadDate =
+        c.upload_date === null
+          ? new Date('2023-11-01') //if upload date is null its bc the cf worker broke so we'll assume 2023
+          : new Date(c.upload_date);
+      if (c.end_at && new Date(c.end_at) > new Date(uploadDate)) return false;
     }
     const attributes = getCourseAttributes(c);
     const semesterKeys = Object.keys(searchOptions$.semester.get());

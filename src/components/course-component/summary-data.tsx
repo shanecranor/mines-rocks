@@ -56,6 +56,7 @@ export const SummaryData = ({
       ', Fall',
       ', Spring',
       ', Summer',
+      ' (CH',
     ];
     return courseNameSuffixes.reduce((prev, curr) => prev.split(curr)[0], name);
   }
@@ -89,6 +90,10 @@ export const SummaryData = ({
         {avgStats.mean && (
           <div className={styles['stat-chip']}>
             avg: <strong>{avgStats.mean?.toFixed(2)}%</strong>
+            <div className={styles['tooltip']}>
+              Average grade for all recorded assignments weighted by assignment
+              group
+            </div>
             {/* TODO: ADD ERROR RATE */}
           </div>
         )}
@@ -111,6 +116,9 @@ export const SummaryData = ({
                 width="14px"
                 style={{ filter: 'invert()' }}
               />
+              <div className={styles['tooltip']}>
+                Number of enrolled students in all sections
+              </div>
             </div>
           </>
         )}
