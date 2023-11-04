@@ -89,7 +89,11 @@ export default function AssignmentGraph({
       typeof assignment.score_statistics.mean !== 'number',
   );
   const assignmentsNoDate = assignments.filter(
-    (assignment) => !assignment.due_at && !assignment.created_at,
+    (assignment) =>
+      !assignment.due_at &&
+      !assignment.created_at &&
+      assignment.score_statistics &&
+      typeof assignment.score_statistics?.mean === 'number',
   );
   //todo: think about separating assignments that use due date from assignments that use created_at lol
   //TODO calculate overall assignment weight and sort by weight so that the larger assignments are sent to the back
@@ -130,113 +134,113 @@ export default function AssignmentGraph({
         <div className={styles['graph-title']}>
           Individual Canvas Assignments
         </div>
-        <div
-          className={styles['assignment-graph-content']}
-          // TODO: hide if no graded assignments
-          // style={{
-          //   display: assignmentsFiltered.length ? "auto" : "none",
-          // }}
-        >
-          <div className={styles['max-label']}>100%</div>
-          <div className={styles['min-label']}>0%</div>
-          {assignmentsFiltered.map((assignment) => {
-            // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
-            // thinking about some kind of histogram display for assignments by grade percentage
-            // might be better in table or text form
-            // ie there are 5 assignments that are worth 2% of your grade 2 assignments worth 10% and 1 assignment worth 70% of your grade
-            // this is probably better for individual course pages?
-            // this could potentially replace the assignment mean vs time graph
-            // feels a bit more useful for people who aren't in the class
-            // vs the old graph where it is super specific with individual assignments and doesn't do super well with assignments that haven't been graded?
-            // TODO: check out the grading policies for HASS200 or HASS498 and see if they show how many get dropped.
-            // could put that data, along with number of assignments next to the average for each group
-            let groupColor: any = '#000';
-            if (assignment.assignment_group_id !== null) {
-              groupColor = getGroupColor(
-                getGroupStatByID(groupStats, assignment.assignment_group_id)
-                  .group,
-                groupStats.length,
+        {assignmentsFiltered.length !== 0 && (
+          <div className={styles['assignment-graph-content']}>
+            <div className={styles['max-label']}>100%</div>
+            <div className={styles['min-label']}>0%</div>
+            {assignmentsFiltered.map((assignment) => {
+              // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
+              // thinking about some kind of histogram display for assignments by grade percentage
+              // might be better in table or text form
+              // ie there are 5 assignments that are worth 2% of your grade 2 assignments worth 10% and 1 assignment worth 70% of your grade
+              // this is probably better for individual course pages?
+              // this could potentially replace the assignment mean vs time graph
+              // feels a bit more useful for people who aren't in the class
+              // vs the old graph where it is super specific with individual assignments and doesn't do super well with assignments that haven't been graded?
+              // TODO: check out the grading policies for HASS200 or HASS498 and see if they show how many get dropped.
+              // could put that data, along with number of assignments next to the average for each group
+              let groupColor: any = '#000';
+              if (assignment.assignment_group_id !== null) {
+                groupColor = getGroupColor(
+                  getGroupStatByID(groupStats, assignment.assignment_group_id)
+                    .group,
+                  groupStats.length,
+                );
+              }
+              const assignmentDatePercentage = getAssignmentDatePercentage(
+                assignment,
+                startDate,
+                endDate,
               );
-            }
-            const assignmentDatePercentage = getAssignmentDatePercentage(
-              assignment,
-              startDate,
-              endDate,
-            );
-            let labelTranslate = 'translate(10px)';
-            if (assignmentDatePercentage > 50) {
-              labelTranslate = 'translate(-100%)';
-            }
-            const mean = getAssignmentMean(assignment);
-            return (
-              <div
-                key={assignment.id}
-                className={styles['data-point']}
-                style={{
-                  background: groupColor,
-                  top: `${100 - (mean || 0) * 100}%`,
-                  left: `${assignmentDatePercentage}%`,
-                  width: `${bubbleSize}px`,
-                  height: `${bubbleSize}px`,
-                }}
-              >
+              let labelTranslate = 'translate(10px)';
+              if (assignmentDatePercentage > 50) {
+                labelTranslate = 'translate(-100%)';
+              }
+              const mean = getAssignmentMean(assignment);
+              return (
                 <div
-                  className={styles['assignment-name-overlay']}
+                  key={assignment.id}
+                  className={styles['data-point']}
                   style={{
-                    transform: labelTranslate,
+                    background: groupColor,
+                    top: `${100 - (mean || 0) * 100}%`,
+                    left: `${assignmentDatePercentage}%`,
+                    width: `${bubbleSize}px`,
+                    height: `${bubbleSize}px`,
                   }}
                 >
-                  {mean !== undefined && Math.round(mean * 100)}% -{' '}
-                  {assignment.name}
+                  <div
+                    className={styles['assignment-name-overlay']}
+                    style={{
+                      transform: labelTranslate,
+                    }}
+                  >
+                    {mean !== undefined && Math.round(mean * 100)}% -{' '}
+                    {assignment.name}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-        Assignments without a score
-        <div className={styles['assignment-graph-content-no-stats']}>
-          {assignmentsNoScore.map((assignment) => {
-            const assignmentDatePercentage = getAssignmentDatePercentage(
-              assignment,
-              startDate,
-              endDate,
-            );
-            let labelTranslate = 'translate(10px)';
-            if (assignmentDatePercentage > 50) {
-              labelTranslate = 'translate(-100%)';
-            }
-            let groupColor: any = '#000';
-            if (assignment.assignment_group_id !== null) {
-              groupColor = getGroupColor(
-                getGroupStatByID(groupStats, assignment.assignment_group_id)
-                  .group,
-                groupStats.length,
               );
-            }
-            return (
-              <div
-                key={assignment.id}
-                className={styles['data-point']}
-                style={{
-                  background: groupColor,
-                  top: `0%`,
-                  left: `${assignmentDatePercentage}%`,
-                  width: `${bubbleSize}px`,
-                  height: `${bubbleSize}px`,
-                }}
-              >
-                <div
-                  className={styles['assignment-name-overlay']}
-                  style={{
-                    transform: labelTranslate,
-                  }}
-                >
-                  {assignment.name}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+            })}
+          </div>
+        )}
+        {assignmentsNoScore.length !== 0 && (
+          <>
+            Assignments without a score
+            <div className={styles['assignment-graph-content-no-stats']}>
+              {assignmentsNoScore.map((assignment) => {
+                const assignmentDatePercentage = getAssignmentDatePercentage(
+                  assignment,
+                  startDate,
+                  endDate,
+                );
+                let labelTranslate = 'translate(10px)';
+                if (assignmentDatePercentage > 50) {
+                  labelTranslate = 'translate(-100%)';
+                }
+                let groupColor: any = '#000';
+                if (assignment.assignment_group_id !== null) {
+                  groupColor = getGroupColor(
+                    getGroupStatByID(groupStats, assignment.assignment_group_id)
+                      .group,
+                    groupStats.length,
+                  );
+                }
+                return (
+                  <div
+                    key={assignment.id}
+                    className={styles['data-point']}
+                    style={{
+                      background: groupColor,
+                      top: `0%`,
+                      left: `${assignmentDatePercentage}%`,
+                      width: `${bubbleSize}px`,
+                      height: `${bubbleSize}px`,
+                    }}
+                  >
+                    <div
+                      className={styles['assignment-name-overlay']}
+                      style={{
+                        transform: labelTranslate,
+                      }}
+                    >
+                      {assignment.name}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
       {/* {possibleErrorRange / totalPointsWeighted}
       {assignmentsNoScore.map((assignment) => (

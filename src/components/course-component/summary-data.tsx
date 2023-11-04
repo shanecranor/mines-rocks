@@ -72,11 +72,14 @@ export const SummaryData = ({
           <span>
             {semester} {courseYear}
           </span>
-          <span className={styles.divider}>{' • '}</span>
+
           <span>
             {creditHoursString && (
               <>
-                <strong>{creditHoursString}</strong> credits
+                <span className={styles.divider}>{' • '}</span>
+                <span>
+                  <strong>{creditHoursString}</strong> credits
+                </span>
               </>
             )}
           </span>
