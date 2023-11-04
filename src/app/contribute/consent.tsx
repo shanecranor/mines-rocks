@@ -4,7 +4,6 @@ import styles from './consent.module.scss';
 const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
   return (
     <>
-      <Navbar />
       <div className={styles['consent-form']}>
         <h1>Contributing Canvas Data</h1>
         <p>
@@ -46,8 +45,8 @@ const ConsentForm = ({ onSubmit }: { onSubmit: () => void }) => {
         <p>
           <br />
           This site does <strong>NOT</strong> store or display any individual
-          grade data. The site also does not store or access any assignment
-          submissions. All data uploads are anonymous.
+          grade data. The site also does not store any assignment submissions.
+          All data uploads are anonymous.
         </p>
         <h2>What is mines.rocks?</h2>
         <p>

@@ -60,7 +60,7 @@ async function fetchCourseList(key?: string) {
 }
 
 const Home: NextPage = observer(() => {
-  const hasConsented$ = useObservable(true);
+  const hasConsented$ = useObservable(false);
   const courseList$ = useObservable<Course[] | string>('no courses loaded');
   const selectedCourses$ = useObservable<number[]>([]);
   const courseData$ = useObservable<any>([]);
@@ -100,6 +100,9 @@ const Home: NextPage = observer(() => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navbar />
+      {!hasConsented$.get() && (
+        <ConsentForm onSubmit={() => hasConsented$.set(true)} />
+      )}
       {hasConsented$.get() && (
         <main className={styles.main}>
           <h1>Courses to be uploaded:</h1>

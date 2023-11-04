@@ -19,6 +19,8 @@ export const searchOptions$ = observable({
     fall: true,
     summer: true,
   },
+  showPartialClasses: false,
+  showClassesWithoutScores: false,
   sortOptions: {
     allOptions: sortOptions,
     primarySort: "Date",

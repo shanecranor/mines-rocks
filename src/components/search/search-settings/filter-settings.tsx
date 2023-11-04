@@ -35,6 +35,14 @@ const FilterSettings = observer(() => {
             <Checkbox label="Summer" state$={searchOptions$.semester.summer} />
           </div>
         </fieldset>
+        <fieldset>
+          <div className={styles['setting-group']}>
+            <Checkbox
+              label="Show incomplete?"
+              state$={searchOptions$.showPartialClasses}
+            />
+          </div>
+        </fieldset>
       </form>
     </aside>
   );
