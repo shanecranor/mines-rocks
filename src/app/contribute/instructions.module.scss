@@ -1,0 +1,19 @@
+.instructions {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  > h1 {
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+  > p {
+    margin-bottom: 12px;
+  }
+  > ol {
+    padding-left: 30px;
+    > li {
+      padding: 7px 0px;
+    }
+  }
+}

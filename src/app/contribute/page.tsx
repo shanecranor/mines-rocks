@@ -13,6 +13,7 @@ import {
   getCourseAttributes,
   splitCourseCode,
 } from '@/services/data-aggregation';
+import Instructions from './instructions';
 
 function API_URL(route: string, key?: string) {
   const url = 'https://cuploader.shanecranor.workers.dev';
@@ -105,6 +106,7 @@ const Home: NextPage = observer(() => {
       )}
       {hasConsented$.get() && (
         <main className={styles.main}>
+          <Instructions></Instructions>
           <h1>Courses to be uploaded:</h1>
           {Array.isArray(courseList) && (
             <table className={styles['upload-table']}>
