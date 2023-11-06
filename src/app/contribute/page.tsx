@@ -205,15 +205,19 @@ const Home: NextPage = observer(() => {
           </label>
           <button
             onClick={async () => {
-              const data = await fetchCourseList(apiKey$.get());
-              courseList$.set(data);
-              if (Array.isArray(data)) {
-                const filteredData = filterCourses(data, true);
-                // courseList$.set(filteredData);
-                selectedCourses$.set(
-                  filteredData.map((course: Course) => course.id),
-                );
-              } else {
+              try {
+                const data = await fetchCourseList(apiKey$.get());
+                courseList$.set(data);
+                if (Array.isArray(data)) {
+                  const filteredData = filterCourses(data, true);
+                  // courseList$.set(filteredData);
+                  selectedCourses$.set(
+                    filteredData.map((course: Course) => course.id),
+                  );
+                } else {
+                  alert('Invalid API key');
+                }
+              } catch {
                 alert('Invalid API key');
               }
             }}

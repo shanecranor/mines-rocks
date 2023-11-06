@@ -24,7 +24,7 @@ const Instructions = () => {
         </li>
         <li>Click on your profile icon in the top left corner.</li>
         <li>
-          Select "Settings" from the list of options.
+          Select &ldquo;Settings&rdquo; from the list of options.
           <br></br>
           <img
             width="300px"
@@ -33,11 +33,11 @@ const Instructions = () => {
           />
         </li>
         <li>
-          Scroll down to the "Approved Integrations" section and scroll to the
-          last app
+          Scroll down to the &ldquo;Approved Integrations&rdquo; section and
+          scroll to the last app
         </li>
         <li>
-          Click the button labeled "New Access Token". <br></br>
+          Click the button labeled &ldquo;New Access Token&rdquo;. <br></br>
           <img
             src="new_access_token.png"
             alt="the button that creates a new access token"
@@ -45,9 +45,9 @@ const Instructions = () => {
         </li>
         <li>
           Provide a purpose for the token (you can type mines.rocks, or whatever
-          you want it doesn't matter for this site). To be safe, you should also
-          set the expiration date to some time in the near future, a few days or
-          a week from now is fine.
+          you want it doesn&apos;t matter for this site). To be safe, you should
+          also set the expiration date to some time in the near future, a few
+          days or a week from now is fine.
           <br></br>
           <img
             width="360px"
@@ -55,9 +55,13 @@ const Instructions = () => {
             alt="the ui that pops up when you click the new access token button"
           />
         </li>
-        <li>Click the "Generate Token" button to create your new API key.</li>
         <li>
-          Paste the API key into the textbox below and click "Load Courses!"
+          Click the &ldquo;Generate Token&rdquo; button to create your new API
+          key.
+        </li>
+        <li>
+          Paste the API key into the textbox below and click &ldquo;Load
+          Courses!&rdquo;
         </li>
       </ol>
     </div>
