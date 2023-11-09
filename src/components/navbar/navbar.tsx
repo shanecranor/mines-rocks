@@ -4,11 +4,13 @@ const Navbar = () => {
   return (
     <div className={styles['nav-container']}>
       <nav className={styles.nav}>
-        <div className={styles['site-logo']}>mines.rocks</div>
+        <a className={styles['site-logo']} href="/">
+          mines.rocks
+        </a>
         <div className={styles['nav-links']}>
           <a href="https://syllabuddies.pages.dev/">Syllabuddies</a>
           {/* <a>About</a> */}
-          <a>Contribute</a>
+          <a href="/contribute">Contribute</a>
         </div>
       </nav>
     </div>
