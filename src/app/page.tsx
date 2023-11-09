@@ -31,7 +31,10 @@ export default async function Home() {
             Data driven course selection <i>rocks</i>
           </h1>
         </div>
-
+        <div className={styles['flavor-text']}>
+          Database size: {assignments.length} assignments and {courses.length}{' '}
+          classes!
+        </div>
         <SearchBar />
         <div className={styles['results-container']}>
           <FilterSettings />

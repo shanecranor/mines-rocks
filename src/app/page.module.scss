@@ -7,7 +7,7 @@
     width: 100%;
     align-items: center;
     justify-content: center;
-    padding: 64px 0px 32px 0px;
+    padding: 64px 0px 0px 0px;
 
     > .logo {
       width: 100px;
@@ -71,6 +71,12 @@
         }
       }
     }
+  }
+  .flavor-text {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 18px;
+    font-weight: 500;
   }
 
   // div {
