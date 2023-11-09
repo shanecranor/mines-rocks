@@ -7,7 +7,7 @@ import {
 } from '@/services/data-aggregation';
 import { Course, Assignment } from '@/services/database';
 import styles from './assignment-graph.module.scss';
-import { PaletteDemo } from '../../utils/colors';
+// import { PaletteDemo } from '../../utils/colors';
 export default function AssignmentGraph({
   courseData,
   assignments,
