@@ -75,7 +75,7 @@ export default function AssignmentGraph({
       assignment.due_at || assignment.updated_at || assignment.created_at;
     if (!assignmentDateISO) return 0;
     const assignmentDate = new Date(assignmentDateISO).getTime();
-    return ((assignmentDate - startDate) / diff) * 100;
+    return ((assignmentDate - startDate) / diff) * 100; //.toFixed(2);
   }
   const assignmentsFiltered = assignments.filter(
     (assignment) =>
@@ -138,6 +138,8 @@ export default function AssignmentGraph({
           <div className={styles['assignment-graph-content']}>
             <div className={styles['max-label']}>100%</div>
             <div className={styles['min-label']}>0%</div>
+            <div className={styles['eos-label']}>end of semester</div>
+
             {assignmentsFiltered.map((assignment) => {
               // ((assignment.points_possible || 0) / totalPointsWeighted) * 100;
               // thinking about some kind of histogram display for assignments by grade percentage
@@ -163,7 +165,7 @@ export default function AssignmentGraph({
                 endDate,
               );
               let labelTranslate = 'translate(10px)';
-              if (assignmentDatePercentage > 50) {
+              if (Number(assignmentDatePercentage) > 50) {
                 labelTranslate = 'translate(-100%)';
               }
               const mean = getAssignmentMean(assignment);
@@ -173,7 +175,7 @@ export default function AssignmentGraph({
                   className={styles['data-point']}
                   style={{
                     background: groupColor,
-                    top: `${100 - (mean || 0) * 100}%`,
+                    top: `${(100 - (mean || 0) * 100).toFixed(2)}%`,
                     left: `${assignmentDatePercentage}%`,
                     width: `${bubbleSize}px`,
                     height: `${bubbleSize}px`,
@@ -185,8 +187,9 @@ export default function AssignmentGraph({
                       transform: labelTranslate,
                     }}
                   >
-                    {mean !== undefined && Math.round(mean * 100)}% -{' '}
-                    {assignment.name}
+                    {`${mean !== undefined && Math.round(mean * 100)}% - ${
+                      assignment.name
+                    }`}
                   </div>
                 </div>
               );
@@ -204,7 +207,7 @@ export default function AssignmentGraph({
                   endDate,
                 );
                 let labelTranslate = 'translate(10px)';
-                if (assignmentDatePercentage > 50) {
+                if (Number(assignmentDatePercentage) > 50) {
                   labelTranslate = 'translate(-100%)';
                 }
                 let groupColor: any = '#000';
