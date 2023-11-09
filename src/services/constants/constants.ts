@@ -8,5 +8,11 @@ export const IGNORE_CLASSES = [
   'Makerspace Training Portal',
   'Computer Science Student Portal',
   'Undergraduate Commencement',
-  'Graduate Commencement'
-]
+  'Graduate Commencement',
+  'Portal',
+  'Physical Metallurgy Laboratory',
+  'SAIL',
+  'BSO',
+  'Reservations',
+  'Check-Out',
+];

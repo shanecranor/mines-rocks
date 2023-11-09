@@ -6,15 +6,25 @@ export const router = <RouterObj>{
       endpoint: "api/v1/courses?per_page=1000",
       supabaseTable: "course_summary_data",
       requiredKeys: ["id", "name"],
+      uploadData: false,
     },
   ],
   getCourseData: [
+    {
+      endpointName: "course",
+      endpoint: "api/v1/courses/course_id",
+      params: ["course_id"],
+      supabaseTable: "course_summary_data",
+      uploadData: true,
+      requiredKeys: ["id", "name"],
+    },
     {
       //fine to upsert everything
       endpointName: "assignment_groups",
       endpoint: "api/v1/courses/course_id/assignment_groups",
       params: ["course_id"],
       supabaseTable: "assignment_group_data",
+      uploadData: true,
       //TODO: add required keys
     },
     {
@@ -24,6 +34,7 @@ export const router = <RouterObj>{
         "api/v1/courses/course_id/assignments?per_page=1000&include[]=score_statistics&include[]=submission",
       params: ["course_id"],
       supabaseTable: "assignment_data",
+      uploadData: true,
       dontOverwriteIfNull: ["score_statistics"],
       //TODO: add required keys
     },

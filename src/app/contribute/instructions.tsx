@@ -45,9 +45,11 @@ const Instructions = () => {
         </li>
         <li>
           Provide a purpose for the token (you can type mines.rocks, or whatever
-          you want it doesn&apos;t matter for this site). To be safe, you should
-          also set the expiration date to some time in the near future, a few
-          days or a week from now is fine.
+          you want. It doesn&apos;t effect the uploading). To be safe, you
+          should also set the expiration date to some time in the near future, a
+          few days or a week from now is fine. <br></br>Uploading is a one time
+          process, mines.rocks does not store your API key to use later so you
+          will have to upload again if you want to add more courses.
           <br></br>
           <img
             width="360px"

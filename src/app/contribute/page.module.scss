@@ -1,6 +1,20 @@
 .main {
   max-width: var(--max-width);
   margin: 0 auto;
+
+  form {
+    margin-bottom: 120px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    width: 100%;
+    input {
+      width: 100%;
+    }
+    button {
+      padding: 4px 8px;
+    }
+  }
   > .upload-table {
     width: 100%;
     border-collapse: collapse;

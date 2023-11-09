@@ -1,8 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
-import { Row, cleanAndFilterData } from "../shared-util/cleanData";
-import { StatusCodes } from "http-status-codes";
-import { getResponses, getRouteInfo } from "./getCanvasData";
-import { buildResponse } from "./util";
+import { createClient } from '@supabase/supabase-js';
+import { Row, cleanAndFilterData } from '../shared-util/cleanData';
+import { StatusCodes } from 'http-status-codes';
+import { getResponses, getRouteInfo } from './getCanvasData';
+import { buildResponse } from './util';
 interface Env {
   SUPABASE_URL: string;
   SUPABASE_SERVICE_ROLE: string;
@@ -10,10 +10,21 @@ interface Env {
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
   async fetch(request: Request, { SUPABASE_URL, SUPABASE_SERVICE_ROLE }: Env) {
+    if (request.method === 'OPTIONS') {
+      // Add a response to the preflight request
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'x-token',
+        },
+      });
+    }
+
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
     // Get routeInfoList and Auth token from the url
-    const routeData = getRouteInfo(request.url);
+    const routeData = getRouteInfo(request);
     const { searchParams: urlParams } = new URL(request.url);
 
     // return error if routeData is invalid
@@ -25,24 +36,31 @@ export default {
     const { responses, status } = await getResponses(
       routeInfoList,
       AUTH_TOKEN,
-      urlParams
+      urlParams,
     );
     //upsert data for each route in the responses
     for (const routeInfo of routeInfoList) {
       const { endpointName, supabaseTable, requiredKeys } = routeInfo;
       const data = responses[endpointName];
-      if (typeof data === "string") {
+      if (typeof data === 'string') {
         return new Response(data, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
           status: StatusCodes.INTERNAL_SERVER_ERROR,
         });
       }
-
+      //if no supabase table is provided do not upload the data to supabase, just return it.
+      if (supabaseTable === undefined) {
+        responses[endpointName] = data;
+        continue;
+      }
       // add an upload date to the data
       // its a little jank because it'll get removed when the data is cleaned if it isn't a column in the db
       // the course_summary table has an upload_date column so it should work as expected
-      data["upload_date"] = new Date().toISOString();
+      data['upload_date'] = new Date().toISOString();
 
-      const { data: tableKeys } = await supabase.rpc("list_columns", {
+      const { data: tableKeys } = await supabase.rpc('list_columns', {
         table_id: supabaseTable,
       });
       const cleanedData = cleanAndFilterData(data, tableKeys, requiredKeys);
@@ -50,14 +68,14 @@ export default {
         //load existing assignments for the target course from the table
         const { data: existingData } = await supabase
           .from(supabaseTable)
-          .select("*")
-          .eq("course_id", urlParams.get("course_id"));
+          .select('*')
+          .eq('course_id', urlParams.get('course_id'));
 
         for (const newRow of cleanedData) {
           const assignmentId = newRow.assignment_id;
           //find the existing row with the same assignment id
           const existingRow = existingData?.find(
-            (r) => r.assignment_id === assignmentId
+            (r) => r.assignment_id === assignmentId,
           );
           //if the existing row exists and the new row has a null value for a key that we don't want to overwrite
           //then set the new row's value to the existing row's value
@@ -70,11 +88,16 @@ export default {
           }
         }
       }
+      //if uploadData is false, just return the cleaned data
+      if (!routeInfo.uploadData) {
+        responses[endpointName] = cleanedData;
+        continue;
+      }
       //update the response with the cleaned data, or an error message
       responses[endpointName] = await upsertData(
         cleanedData,
-        routeInfo.supabaseTable,
-        supabase
+        supabaseTable,
+        supabase,
       );
     }
     // Build and return the final API response
@@ -92,7 +115,7 @@ export default {
 export async function upsertData(
   data: Row[],
   table: string,
-  supabase: any
+  supabase: any,
 ): Promise<Row[] | string> {
   // upsert the data to the supabase table
   const { data: returnData, error } = await supabase.from(table).upsert(data);

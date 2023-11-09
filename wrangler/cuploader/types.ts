@@ -6,7 +6,8 @@ export interface RouteInfo {
   endpointName: string;
   endpoint: string;
   params?: string[]; // string list of parameters to find/replace in the endpoint
-  supabaseTable: string; // table to upsert data to
+  supabaseTable?: string; // table to upsert data to
+  uploadData: boolean; // whether or not to upload the data to the table
   requiredKeys?: string[];
   // list of keys not to overwrite if the new value is null and the old value is not null
   dontOverwriteIfNull?: string[];

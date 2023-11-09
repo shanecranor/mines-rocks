@@ -14,9 +14,22 @@ import {
   splitCourseCode,
 } from '@/services/data-aggregation';
 import Instructions from './instructions';
+import { redirect } from 'next/dist/server/api-utils';
 
+type StatusString =
+  | 'Success'
+  | 'Uploading Canvas'
+  | 'Uploading Banner'
+  | 'Error uploading Canvas'
+  | 'Error uploading Banner'
+  | 'Error'
+  | '';
+const LOCAL_ENV = false;
 function API_URL(route: string, key?: string) {
-  const url = 'https://cuploader.shanecranor.workers.dev';
+  const url = LOCAL_ENV
+    ? 'http://localhost:8787'
+    : 'https://cuploader.shanecranor.workers.dev';
+  if (key === undefined) return `${url}/?route=${route}`;
   return `${url}/?bearer=${key}&route=${route}`;
 }
 async function getBannerData(
@@ -41,21 +54,21 @@ async function getBannerData(
 
 async function fetchCourseData(id: number, key?: string) {
   console.log(`fetching course data for ${id}`);
-  const response = await fetch(
-    `${API_URL('getCourseData', key)}&course_id=${id}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+  const response = await fetch(`${API_URL('getCourseData')}&course_id=${id}`, {
+    headers: {
+      'x-token': `Bearer ${key}`,
     },
-  );
+  });
   const data = await response.json();
   return { data: data, status: response.status };
 }
 
 async function fetchCourseList(key?: string) {
-  const response = await fetch(`${API_URL('getCourses', key)}`);
+  const response = await fetch(`${API_URL('getCourses')}`, {
+    headers: {
+      'x-token': `Bearer ${key}`,
+    },
+  });
   const data = await response.json();
   return data.courses || data;
 }
@@ -66,7 +79,6 @@ const Home: NextPage = observer(() => {
   const selectedCourses$ = useObservable<number[]>([]);
   const courseData$ = useObservable<any>([]);
   const courseList = courseList$.get();
-  const problemCourses$ = useObservable<string[]>([]);
   const apiKey$ = useObservable<string>('');
   if (typeof window !== 'undefined') {
     apiKey$.set(localStorage.getItem('API_KEY') || apiKey$.get());
@@ -107,149 +119,169 @@ const Home: NextPage = observer(() => {
       {hasConsented$.get() && (
         <main className={styles.main}>
           <Instructions></Instructions>
-          <h1>Courses to be uploaded:</h1>
           {Array.isArray(courseList) && (
-            <table className={styles['upload-table']}>
-              <thead>
-                <tr>
-                  <th>status</th>
-                  <th>upload?</th>
-                  <th>code</th>
-                  <th>year</th>
-                  <th>full name</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(courseList) &&
-                  courseList.map((course: Course) => {
-                    try {
-                      const courseAttributes = getCourseAttributes(course);
-                      return (
-                        <tr
-                          key={course.id}
-                          style={{
-                            background: getCourseColor(
-                              selectedCourses$.get().includes(course.id),
-                              courseData$.get()[course.id],
-                            ),
-                          }}
-                        >
-                          <td>{courseData$.get()[course.id] || 0}</td>
-                          <td>
-                            <input
-                              type="checkbox"
-                              onChange={(e) =>
-                                handleCheckboxChange(e, course.id)
-                              }
-                              checked={selectedCourses$
-                                .get()
-                                .includes(course.id)}
-                            />
-                          </td>
-                          <td>{courseAttributes.courseCode}</td>
-                          <td>
-                            {courseAttributes.semester}{' '}
-                            {courseAttributes.courseYear}
-                          </td>
-                          <td>{courseAttributes.courseName}</td>
-                        </tr>
-                      );
-                    } catch (e) {
-                      return (
-                        <tr
-                          key={course.id}
-                          style={{
-                            background: getCourseColor(
-                              selectedCourses$.get().includes(course.id),
-                              courseData$.get()[course.id],
-                            ),
-                          }}
-                        >
-                          <td>{courseData$.get()[course.id] || 0}</td>
-                          <td>
-                            <input
-                              type="checkbox"
-                              onChange={(e) =>
-                                handleCheckboxChange(e, course.id)
-                              }
-                              checked={selectedCourses$
-                                .get()
-                                .includes(course.id)}
-                            />
-                          </td>
-                          <td>unknown course</td>
-                          <td>{course.name}</td>
-                          <td>{course.course_code}</td>
-                        </tr>
-                      );
-                    }
-                  })}
-              </tbody>
-            </table>
+            <>
+              <h1>Courses to be uploaded:</h1>
+              <p>
+                Below is a table including all the Canvas courses that were able
+                to be retrieved. Only courses with a check mark next to them
+                will be uploaded. You can deselect any courses that you
+                don&apos;t want to upload.
+              </p>
+              <p id="instructions">
+                To start the upload, click &ldquo;Contribute selected
+                courses&rdquo;. If you have a lot of courses, this might take a
+                while. <strong>DO NOT</strong> close this window during the
+                upload process or the upload will not complete.
+              </p>
+              <table className={styles['upload-table']}>
+                <thead>
+                  <tr>
+                    <th>status</th>
+                    <th>upload?</th>
+                    <th>code</th>
+                    <th>year</th>
+                    <th>full name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.isArray(courseList) &&
+                    courseList.map((course: Course) => {
+                      try {
+                        const courseAttributes = getCourseAttributes(course);
+                        return (
+                          <tr
+                            key={course.id}
+                            style={{
+                              background: getCourseColor(
+                                selectedCourses$.get().includes(course.id),
+                                courseData$.get()[course.id],
+                              ),
+                            }}
+                          >
+                            <td>{courseData$.get()[course.id] || ''}</td>
+                            <td>
+                              <input
+                                type="checkbox"
+                                onChange={(e) =>
+                                  handleCheckboxChange(e, course.id)
+                                }
+                                checked={selectedCourses$
+                                  .get()
+                                  .includes(course.id)}
+                              />
+                            </td>
+                            <td>{courseAttributes.courseCode}</td>
+                            <td>
+                              {courseAttributes.semester}{' '}
+                              {courseAttributes.courseYear}
+                            </td>
+                            <td>{courseAttributes.courseName}</td>
+                          </tr>
+                        );
+                      } catch (e) {
+                        return (
+                          <tr
+                            key={course.id}
+                            style={{
+                              background: getCourseColor(
+                                selectedCourses$.get().includes(course.id),
+                                courseData$.get()[course.id],
+                              ),
+                            }}
+                          >
+                            <td>{courseData$.get()[course.id] || ''}</td>
+                            <td>
+                              <input
+                                type="checkbox"
+                                onChange={(e) =>
+                                  handleCheckboxChange(e, course.id)
+                                }
+                                checked={selectedCourses$
+                                  .get()
+                                  .includes(course.id)}
+                              />
+                            </td>
+                            <td>unknown course</td>
+                            <td>{course.name}</td>
+                            <td>{course.course_code}</td>
+                          </tr>
+                        );
+                      }
+                    })}
+                </tbody>
+              </table>
+            </>
           )}
           <br></br>
-          <label>
-            {' '}
-            Paste your canvas API key here: <br></br>
-            <input
-              type="text"
-              style={{ width: '30%', marginBottom: '20px' }}
-              value={apiKey$.get()}
-              onChange={(e) => {
-                apiKey$.set(e.target.value);
-                //only store the key if we are in development mode, this isn't super secure so not ideal for prod
-                if (process && process.env.NODE_ENV === 'development')
-                  localStorage.setItem('API_KEY', e.target.value);
-              }}
-            ></input>
-          </label>
-          <button
-            onClick={async () => {
-              try {
-                const data = await fetchCourseList(apiKey$.get());
-                courseList$.set(data);
-                if (Array.isArray(data)) {
-                  const filteredData = filterCourses(data, true);
-                  // courseList$.set(filteredData);
-                  selectedCourses$.set(
-                    filteredData.map((course: Course) => course.id),
-                  );
-                } else {
+          <form onSubmit={(e) => e.preventDefault()}>
+            <label>
+              Paste your Canvas API key in this text box <br></br>
+              <input
+                type="text"
+                value={apiKey$.get()}
+                onChange={(e) => {
+                  apiKey$.set(e.target.value);
+                  //only store the key if we are in development mode, this isn't super secure so not ideal for prod
+                  if (process && process.env.NODE_ENV === 'development')
+                    localStorage.setItem('API_KEY', e.target.value);
+                }}
+              ></input>
+            </label>
+            <button //TODO: move this to its own function
+              disabled={apiKey$.get().length === 0}
+              onClick={async () => {
+                try {
+                  const data = await fetchCourseList(apiKey$.get());
+                  courseList$.set(data);
+                  if (Array.isArray(data)) {
+                    const filteredData = filterCourses(data, true);
+                    // courseList$.set(filteredData);
+                    selectedCourses$.set(
+                      filteredData.map((course: Course) => course.id),
+                    );
+                  } else {
+                    alert('Invalid API key');
+                  }
+                } catch {
                   alert('Invalid API key');
                 }
-              } catch {
-                alert('Invalid API key');
+              }}
+            >
+              Load Courses
+            </button>
+            <button
+              disabled={selectedCourses$.get().length === 0}
+              onClick={() =>
+                uploadCourses(
+                  courseList$,
+                  selectedCourses$,
+                  apiKey$,
+                  courseData$,
+                )
               }
-            }}
-          >
-            Load Courses
-          </button>
-          <button
-            onClick={() =>
-              uploadCourses(
-                courseList$,
-                selectedCourses$,
-                apiKey$,
-                courseData$,
-                problemCourses$,
-              )
-            }
-          >
-            Contribute selected courses!
-          </button>
+            >
+              Contribute selected courses!
+            </button>
+          </form>
         </main>
       )}
     </>
   );
 });
-function getCourseColor(isSelected: boolean, statusCode: number | undefined) {
-  if (statusCode === 200) return 'green';
-  if (statusCode === -1) return 'lightsteelblue';
-  if (statusCode === -2) return 'steelblue';
 
-  if (statusCode && statusCode !== 200) return 'red';
-  if (isSelected) return '#FFFFFF3A';
-  return 'none';
+function getCourseColor(isSelected: boolean, statusString: StatusString) {
+  //create a status string map that maps status strings to colors
+  const statusStringMap: Record<StatusString, string> = {
+    Success: 'green',
+    'Uploading Canvas': 'lightsteelblue',
+    'Uploading Banner': 'steelblue',
+    'Error uploading Canvas': 'red',
+    'Error uploading Banner': 'red',
+    '': '#101010',
+    Error: 'red',
+  };
+  return statusStringMap[statusString];
 }
 
 async function uploadCourses(
@@ -257,7 +289,6 @@ async function uploadCourses(
   selectedCourses$: any,
   apiKey$: any,
   courseData$: any,
-  problemCourses$: any,
 ) {
   const courseList = courseList$.get();
   const selectedCourses = selectedCourses$.get();
@@ -274,15 +305,21 @@ async function uploadCourses(
     alert('No courses selected!');
     return;
   }
-
+  if (document !== null) {
+    document
+      .getElementById('instructions')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   for (const id of selectedCourses) {
     try {
-      courseData$.set({ ...courseData$.get(), [id]: -1 });
+      let statusString: StatusString = 'Uploading Canvas';
+      courseData$.set({ ...courseData$.get(), [id]: statusString });
       const currentCourse: Course = courseList.find(
         (course: Course) => course.id === id,
       );
       const response = await fetchCourseData(id, apiKey);
-      courseData$.set({ ...courseData$.get(), [id]: -2 });
+      statusString = 'Uploading Banner';
+      courseData$.set({ ...courseData$.get(), [id]: statusString });
       const courseAttribs = getCourseAttributes(currentCourse);
       const { courseNumber, deptCode } = splitCourseCode(
         courseAttribs.courseCode,
@@ -294,13 +331,13 @@ async function uploadCourses(
         courseNumber,
       );
       if (typeof bannerData === 'string') {
-        problemCourses$.set([
-          ...problemCourses$.get(),
-          `${courseAttribs.courseCode} ${courseAttribs.semester} ${courseAttribs.courseYear}`,
-        ]);
-        continue;
+        statusString = 'Error uploading Banner';
+        courseData$.set({ ...courseData$.get(), [id]: statusString });
       }
-      courseData$.set({ ...courseData$.get(), [id]: response.status });
+      courseData$.set({
+        ...courseData$.get(),
+        [id]: response.status === 200 ? 'Success' : 'Error',
+      });
     } catch (e) {
       console.log(e);
     }
