@@ -128,11 +128,17 @@ const Home: NextPage = observer(() => {
                 will be uploaded. You can deselect any courses that you
                 don&apos;t want to upload.
               </p>
+              <br></br>
               <p id="instructions">
                 To start the upload, click &ldquo;Contribute selected
                 courses&rdquo;. If you have a lot of courses, this might take a
                 while. <strong>DO NOT</strong> close this window during the
-                upload process or the upload will not complete.
+                upload process or the upload will not complete. <br></br>{' '}
+                <br></br>
+                Note: your courses will not show up immediately after uploading.
+                It may take anywhere from an hour to a day for the site to
+                update. <br></br>
+                <br></br>
               </p>
               <table className={styles['upload-table']}>
                 <thead>
