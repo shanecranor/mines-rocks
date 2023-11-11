@@ -1,32 +1,47 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+/* eslint-disable import/no-anonymous-default-export */
 
 export interface Env {
-	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
-	//
-	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-	// MY_DURABLE_OBJECT: DurableObjectNamespace;
-	//
-	// Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-	// MY_BUCKET: R2Bucket;
-	//
-	// Example binding to a Service. Learn more at https://developers.cloudflare.com/workers/runtime-apis/service-bindings/
-	// MY_SERVICE: Fetcher;
-	//
-	// Example binding to a Queue. Learn more at https://developers.cloudflare.com/queues/javascript-apis/
-	// MY_QUEUE: Queue;
+	MINES_ROCKS_WEBHOOK: string;
 }
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		//get url params from the request
+		const url = new URL(request.url);
+		const { searchParams } = url;
+		//check if searchParams has the "site" param
+		const site = searchParams.get('site');
+		const message = searchParams.get('message');
+		if (!site) {
+			return new Response('ERROR: No site');
+		}
+		if (!message) {
+			return new Response('ERROR: No message');
+		}
+		if (site === 'mines-rocks') {
+			//pull the webhook from the env
+			const webhook = env.MINES_ROCKS_WEBHOOK;
+			const discordResponse = await sendToDiscordWebhook(webhook, message);
+			return new Response('Message sent: ' + discordResponse);
+		}
 		return new Response('Hello World!');
 	},
 };
+
+async function sendToDiscordWebhook(webhookUrl: string, message: string) {
+	const payload = JSON.stringify({ content: message });
+
+	const response = await fetch(webhookUrl, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			content: message,
+		}),
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to send message: ${response.status} ${response.statusText}`);
+	}
+
+	return `Successfully sent with status: ${response.status}`;
+}

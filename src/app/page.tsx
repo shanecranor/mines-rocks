@@ -11,6 +11,13 @@ import SearchResults from '@/components/search/search-results/search-results';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';
+
+export const metadata = {
+  title: 'mines.rocks: data driven course selection',
+  description:
+    'See grade distributions, assignment weights, and other historical data for your courses',
+};
+
 export default async function Home() {
   const courses = await getCourseListFiltered();
   const assignmentGroups = await getAssignmentGroups();
@@ -18,11 +25,6 @@ export default async function Home() {
   const bannerData = await getBannerData();
   return (
     <>
-      <Head>
-        <title>Find your perfect course</title>
-        <meta name="description" content="crowd sourced course data" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <Navbar />
       <main className={styles.main}>
         <div className={styles['heading-container']}>
