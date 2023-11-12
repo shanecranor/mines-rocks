@@ -15,7 +15,7 @@ import Navbar from '@/components/navbar/navbar';
 export const metadata = {
   title: 'mines.rocks: data driven course selection',
   description:
-    'See grade distributions, assignment weights, and other historical data for your courses',
+    'See grade distributions, assignment weights, and other historical data for your courses.',
 };
 
 export default async function Home() {
