@@ -80,13 +80,14 @@ export default function AssignmentGraph({
   const assignmentsFiltered = assignments.filter(
     (assignment) =>
       (assignment.due_at || assignment.created_at) &&
-      assignment.score_statistics &&
+      !isNaN(getAssignmentMean(assignment)) &&
       typeof assignment.score_statistics?.mean === 'number',
   );
   const assignmentsNoScore = assignments.filter(
     (assignment) =>
       !assignment.score_statistics ||
-      typeof assignment.score_statistics.mean !== 'number',
+      typeof assignment.score_statistics.mean !== 'number' ||
+      isNaN(getAssignmentMean(assignment)),
   );
   const assignmentsNoDate = assignments.filter(
     (assignment) =>

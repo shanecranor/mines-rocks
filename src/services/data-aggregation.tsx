@@ -177,6 +177,7 @@ export function getAssignmentMean(assignment: Assignment) {
   if (assignment.score_statistics?.mean && assignment.points_possible) {
     return assignment.score_statistics?.mean / assignment?.points_possible;
   }
+  return NaN;
 }
 
 export type CourseAttributes = {
