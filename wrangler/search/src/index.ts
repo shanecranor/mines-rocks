@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 
-import { getCourseSummaryData } from './db-caching';
+import { getBannerData, getCourseSummaryData } from './db-caching';
 
 export interface Env {
 	SUPABASE_URL: string;
@@ -16,7 +16,9 @@ export default {
 		const per_page = Number(searchParams.get('per_page') || DEFAULT_PAGE_SIZE);
 		const page = Number(searchParams.get('page') || 0);
 
-		const classData = (await getCourseSummaryData(env)) as any[];
+		const classData = (await getCourseSummaryData(env, ctx)) as any[];
+		const bannerData = (await getBannerData(env, ctx)) as any[];
+		//splice the banner data into the class data
 
 		const results = classData.slice(page * per_page, (page + 1) * per_page);
 		return new Response(JSON.stringify(results), {
