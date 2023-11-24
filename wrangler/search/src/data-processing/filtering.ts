@@ -10,6 +10,11 @@ export type SearchOptions = {
 export function filterCourseList(courseList: ExtendedCourse[], searchOptions: SearchOptions) {
 	const searchText = searchOptions.searchText.toLowerCase();
 	return courseList.filter((course: ExtendedCourse) => {
+		try {
+			getCourseAttributes(course);
+		} catch (e) {
+			return false;
+		}
 		const bannerCourses = course.bannerCourses;
 		//show partially completed courses?
 		if (!searchOptions.showPartialClasses) {

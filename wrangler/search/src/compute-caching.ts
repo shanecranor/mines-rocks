@@ -9,7 +9,7 @@ export async function getCached(cacheKey: string, onMiss: () => any, ctx: Execut
 		const response = new Response(JSON.stringify(data));
 		response.headers.append('Cache-Control', `s-maxage=${maxAge}`);
 
-		ctx.waitUntil(cache.put(key, response.clone()));
+		ctx.waitUntil(cache.put(key, response));
 
 		return data;
 	} else {
