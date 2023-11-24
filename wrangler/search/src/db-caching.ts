@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { Env } from '.';
+import { BannerCourse, Course } from './types/types';
 
 export async function getCourseSummaryData(env: Env, ctx: ExecutionContext) {
-	return await cacheSupabaseDB('course_summary_data', env, ctx);
+	return (await cacheSupabaseDB('course_summary_data', env, ctx)) as Course[];
 }
 
 export async function getBannerData(env: Env, ctx: ExecutionContext) {
-	return await cacheSupabaseDB('banner_course_data', env, ctx);
+	return (await cacheSupabaseDB('banner_course_data', env, ctx)) as BannerCourse[];
 }
 
 async function cacheSupabaseDB(dbName: string, env: Env, ctx: ExecutionContext) {
