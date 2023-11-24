@@ -21,8 +21,8 @@ export const metadata = {
 
 export default async function Home() {
   const courses = await getCourseListFiltered();
-  const assignmentGroups = []; // await getAssignmentGroups();
-  const assignments = []; //await getAssignments();
+  const assignmentGroups = await getAssignmentGroups();
+  const assignments = await getAssignments();
   const bannerData = await getBannerData();
   return (
     <>
