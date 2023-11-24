@@ -24,11 +24,9 @@ export function aggregateCourseData(canvasCourses: Course[], bannerCourses: Bann
 
 function buildBannerCourseMap(bannerData: BannerCourse[]): Map<string, BannerCourse[]> {
 	const map = new Map<string, BannerCourse[]>();
-
 	for (const bannerCourse of bannerData) {
 		const attributes = getBannerCourseAttributes(bannerCourse);
 		const key = `${attributes.courseCode}-${attributes.semester}-${attributes.courseYear}`.toLowerCase(); // Ensure consistent casing
-
 		if (!map.has(key)) {
 			map.set(key, []);
 		}
@@ -38,7 +36,6 @@ function buildBannerCourseMap(bannerData: BannerCourse[]): Map<string, BannerCou
 	return map;
 }
 
-// Step 3: Modified getMatchingBannerCourses
 function getMatchingBannerCourses(course: Course, bannerMap: Map<string, BannerCourse[]>) {
 	const canvasAtribs = getCourseAttributes(course);
 	const key = `${canvasAtribs.courseCode}-${canvasAtribs.semester}-${canvasAtribs.courseYear}`.toLowerCase(); // Consistent with map key formatting
