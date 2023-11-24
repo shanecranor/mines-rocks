@@ -37,6 +37,7 @@ export const CloudResults = observer(() => {
       );
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchOptions$.searchText.get()]);
   return (
     <div>
