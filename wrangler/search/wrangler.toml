@@ -1,7 +1,8 @@
 name = "search"
 main = "src/index.ts"
 compatibility_date = "2023-11-21"
-
+[limits]
+cpu_ms = 3000
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
 # Docs: https://developers.cloudflare.com/workers/platform/environment-variables
