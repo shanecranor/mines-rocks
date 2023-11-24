@@ -1,5 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 
+import { aggregateCourseData, cleanCourseData } from './data-processing/aggregation/aggregate-course-data';
 import { getBannerData, getCourseSummaryData } from './db-caching';
 
 export interface Env {
@@ -19,7 +20,7 @@ export default {
 		const classData = (await getCourseSummaryData(env, ctx)) as any[];
 		const bannerData = (await getBannerData(env, ctx)) as any[];
 		//splice the banner data into the class data
-
+		// const courses = aggregateCourseData(classData, bannerData);
 		const results = classData.slice(page * per_page, (page + 1) * per_page);
 		return new Response(JSON.stringify(results), {
 			headers: {
