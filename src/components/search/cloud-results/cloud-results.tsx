@@ -3,6 +3,7 @@ import { Observable, isArray } from '@legendapp/state';
 import { observer, useObservable } from '@legendapp/state/react';
 import { searchOptions$ } from '../search-options';
 import { useEffect, useState } from 'react';
+import { Course } from '@/services/database';
 
 async function performSearch() {
   console.log(searchOptions$.searchText.peek());
@@ -41,7 +42,7 @@ export const CloudResults = observer(() => {
   }, [searchOptions$.searchText.get()]);
   return (
     <div>
-      {searchResults.map((r) => (
+      {searchResults.map((r: Course) => (
         <div key={r.id}>{r.name}</div>
       ))}
     </div>
