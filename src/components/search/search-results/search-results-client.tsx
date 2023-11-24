@@ -23,12 +23,15 @@ const SearchResultsClient = observer(
     const courseList = filterCourseList(courseComponentList, searchOptions$);
     return (
       <div className={styles['results']}>
-        {sortCourseList(
-          filterCourseList(courseList, searchOptions$),
-          searchOptions$,
-        ).map((c: CourseAndComponent) => {
-          return c.courseComponent;
-        })}
+        <div>
+          Showing {Math.min(20, courseList.length)} out of {courseList.length}{' '}
+          courses.
+        </div>
+        {sortCourseList(courseList, searchOptions$)
+          .splice(0, 30)
+          .map((c: CourseAndComponent) => {
+            return c.courseComponent;
+          })}
       </div>
     );
   },

@@ -14,7 +14,7 @@ export function aggregateCourseData(canvasCourses: Course[], bannerCourses: Bann
 			getCourseAttributes(course);
 			const matchingBannerCourses = getMatchingBannerCourses(course, bannerMap);
 			(course as ExtendedCourse).bannerCourses = matchingBannerCourses;
-			const instructors = instructorsFromBanner(bannerCourses);
+			const instructors = instructorsFromBanner(matchingBannerCourses);
 			(course as ExtendedCourse).instructors = instructors;
 			extendedCourses.push(course);
 		} catch (e) {}
