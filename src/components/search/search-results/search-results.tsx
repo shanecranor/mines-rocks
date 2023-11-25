@@ -25,11 +25,12 @@ const SearchResults = ({
   assignmentGroups: AssignmentGroup[];
   bannerData: BannerCourse[];
 }) => {
-  // console.log(courses);
+  //create a map of banner courses
+  const bannerMap = buildBannerCourseMap(bannerData);
   const courseComponentList = courses.map((course: Course) => {
     const courseAssignments = getAssignmentsByCourse(assignments, course);
     const stats = getStatsPerGroup(courseAssignments, assignmentGroups);
-    const bannerCourses = getMatchingBannerCourses(course, bannerData);
+    const bannerCourses = getMatchingBannerCourses(course, bannerMap);
     return {
       course: course,
       bannerCourses,
@@ -47,26 +48,34 @@ const SearchResults = ({
   return <SearchResultsClient {...{ courseComponentList }} />;
 };
 export default SearchResults;
-function getMatchingBannerCourses(course: Course, bannerData: BannerCourse[]) {
-  return bannerData.filter((bannerCourse) => {
-    const bannerAtribs = getBannerCourseAttributes(bannerCourse);
-    const canvasAtribs = getCourseAttributes(course);
-    return (
-      bannerAtribs.courseCode.localeCompare(
-        canvasAtribs.courseCode,
-        undefined,
-        { sensitivity: 'base' },
-      ) === 0 &&
-      bannerAtribs.semester.localeCompare(canvasAtribs.semester, undefined, {
-        sensitivity: 'base',
-      }) === 0 &&
-      bannerAtribs.courseYear.localeCompare(
-        canvasAtribs.courseYear,
-        undefined,
-        { sensitivity: 'base' },
-      ) === 0
-    );
-  });
+function buildBannerCourseMap(
+  bannerData: BannerCourse[],
+): Map<string, BannerCourse[]> {
+  const map = new Map<string, BannerCourse[]>();
+
+  for (const bannerCourse of bannerData) {
+    const attributes = getBannerCourseAttributes(bannerCourse);
+    const key =
+      `${attributes.courseCode}-${attributes.semester}-${attributes.courseYear}`.toLowerCase(); // Ensure consistent casing
+
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key)!.push(bannerCourse);
+  }
+
+  return map;
+}
+
+function getMatchingBannerCourses(
+  course: Course,
+  bannerMap: Map<string, BannerCourse[]>,
+) {
+  const canvasAtribs = getCourseAttributes(course);
+  const key =
+    `${canvasAtribs.courseCode}-${canvasAtribs.semester}-${canvasAtribs.courseYear}`.toLowerCase(); // Consistent with map key formatting
+
+  return bannerMap.get(key) || [];
 }
 
 function getBannerCourseAttributes(
