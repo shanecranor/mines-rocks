@@ -48,3 +48,20 @@ export function getEnrollment(
     )
   );
 }
+export function cleanCourseName(name: string | null) {
+  if (!name) return 'no course name found';
+  const courseNameSuffixes = [
+    ', Sec',
+    '-Fall',
+    '-Spring',
+    '-Summer',
+    ' (SC',
+    ', Sprg',
+    ' Summer ',
+    ', Fall',
+    ', Spring',
+    ', Summer',
+    ' (CH',
+  ];
+  return courseNameSuffixes.reduce((prev, curr) => prev.split(curr)[0], name);
+}

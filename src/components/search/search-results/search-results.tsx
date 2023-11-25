@@ -48,7 +48,7 @@ const SearchResults = ({
   return <SearchResultsClient {...{ courseComponentList }} />;
 };
 export default SearchResults;
-function buildBannerCourseMap(
+export function buildBannerCourseMap(
   bannerData: BannerCourse[],
 ): Map<string, BannerCourse[]> {
   const map = new Map<string, BannerCourse[]>();
@@ -67,7 +67,7 @@ function buildBannerCourseMap(
   return map;
 }
 
-function getMatchingBannerCourses(
+export function getMatchingBannerCourses(
   course: Course,
   bannerMap: Map<string, BannerCourse[]>,
 ) {

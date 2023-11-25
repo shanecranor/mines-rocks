@@ -4,6 +4,13 @@ import { getBannerCourseAttributes, getCourseAttributes, instructorsFromBanner }
 export type ExtendedCourse = Course & {
 	bannerCourses?: BannerCourse[];
 	instructors?: string[];
+	searchString?: string;
+	attributes?: {
+		semester: string;
+		courseCode: string;
+		courseYear: string;
+		courseName: string;
+	};
 };
 
 export function aggregateCourseData(canvasCourses: Course[], bannerCourses: BannerCourse[]): ExtendedCourse[] {
@@ -11,11 +18,19 @@ export function aggregateCourseData(canvasCourses: Course[], bannerCourses: Bann
 	const bannerMap = buildBannerCourseMap(bannerCourses);
 	for (const course of canvasCourses) {
 		try {
-			getCourseAttributes(course);
+			const { semester, courseCode, courseYear, courseName } = getCourseAttributes(course);
 			const matchingBannerCourses = getMatchingBannerCourses(course, bannerMap);
-			(course as ExtendedCourse).bannerCourses = matchingBannerCourses;
+
+			const extCourse = course as ExtendedCourse;
+			extCourse.attributes = { semester, courseCode, courseYear, courseName };
+
+			extCourse.bannerCourses = matchingBannerCourses;
 			const instructors = instructorsFromBanner(matchingBannerCourses);
-			(course as ExtendedCourse).instructors = instructors;
+
+			extCourse.instructors = instructors;
+			const name = matchingBannerCourses[0].courseTitle || courseName;
+			const searchString = `${name} | ${courseCode} | ${instructors.join(' | ')}`.toLowerCase();
+			extCourse.searchString = searchString;
 			extendedCourses.push(course);
 		} catch (e) {}
 	}
@@ -32,11 +47,10 @@ function buildBannerCourseMap(bannerData: BannerCourse[]): Map<string, BannerCou
 		}
 		map.get(key)!.push(bannerCourse);
 	}
-
 	return map;
 }
 
-function getMatchingBannerCourses(course: Course, bannerMap: Map<string, BannerCourse[]>) {
+export function getMatchingBannerCourses(course: Course, bannerMap: Map<string, BannerCourse[]>) {
 	const canvasAtribs = getCourseAttributes(course);
 	const key = `${canvasAtribs.courseCode}-${canvasAtribs.semester}-${canvasAtribs.courseYear}`.toLowerCase(); // Consistent with map key formatting
 	return bannerMap.get(key) || [];

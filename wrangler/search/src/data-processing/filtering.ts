@@ -15,8 +15,6 @@ export function filterCourseList(courseList: ExtendedCourse[], searchOptions: Se
 		} catch (e) {
 			return false;
 		}
-		const bannerCourses = course.bannerCourses;
-		//show partially completed courses?
 		if (!searchOptions.showPartialClasses) {
 			const uploadDate =
 				course.upload_date === null
@@ -24,45 +22,22 @@ export function filterCourseList(courseList: ExtendedCourse[], searchOptions: Se
 					: new Date(course.upload_date);
 			if (course.end_at && new Date(course.end_at) > new Date(uploadDate)) return false;
 		}
-		const attributes = getCourseAttributes(course);
+
+		const attributes = course.attributes;
 		const semesterKeys = Object.keys(searchOptions.semester);
 		const semesterValues = Object.values(searchOptions.semester);
 		const isSemesterMatch = semesterKeys.some((key, index) => {
 			if (semesterValues[index]) {
-				if (attributes.semester.toLowerCase().includes(key)) {
+				if (attributes && attributes.semester.toLowerCase().includes(key)) {
 					return true;
 				}
 			}
 		});
-		//exit if semester filter doesn't match
 		if (!isSemesterMatch) {
 			return false;
 		}
 
-		if (attributes.courseCode.toLowerCase().includes(searchText)) {
-			return true;
-		}
-
-		if (course.name) {
-			if (course.name.toLowerCase().includes(searchText)) {
-				return true;
-			}
-		}
-		if (bannerCourses) {
-			const instructors = instructorsFromBanner(bannerCourses);
-			for (const instructor of instructors) {
-				if (instructor.toLowerCase().includes(searchText)) {
-					return true;
-				}
-			}
-			let bannerCourseName = null;
-			if (bannerCourses && bannerCourses[0]) {
-				bannerCourseName = bannerCourses[0].courseTitle;
-			}
-			if (bannerCourseName && bannerCourseName.toLowerCase().includes(searchText)) {
-				return true;
-			}
-		}
+		if (course.searchString && course.searchString.includes(searchText)) return true;
 
 		return false;
 	});

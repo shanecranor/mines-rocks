@@ -6,12 +6,16 @@ import {
   getAssignments,
   getCourseListFiltered,
   getBannerData,
+  getDbSize,
 } from '@/services/database';
-import SearchResults from '@/components/search/search-results/search-results';
+import SearchResults, {
+  buildBannerCourseMap,
+} from '@/components/search/search-results/search-results';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';
 import { CloudResults } from '@/components/search/cloud-results/cloud-results';
+import { create } from 'domain';
 
 export const metadata = {
   title: 'mines.rocks: data driven course selection',
@@ -20,10 +24,10 @@ export const metadata = {
 };
 
 export default async function Home() {
-  const courses = await getCourseListFiltered();
-  const assignmentGroups = await getAssignmentGroups();
-  const assignments = await getAssignments();
-  const bannerData = await getBannerData();
+  const numCourses = await getDbSize('course_summary_data');
+  const numAssignments = await getDbSize('assignment_data');
+  const bannerCourses = await getBannerData();
+  const bannerCourseMap = buildBannerCourseMap(bannerCourses);
   return (
     <>
       <Navbar />
@@ -35,14 +39,13 @@ export default async function Home() {
           </h1>
         </div>
         <div className={styles['flavor-text']}>
-          Database size: {assignments.length} assignments and {courses.length}{' '}
-          classes!
+          Database size: {numAssignments} assignments and {numCourses} classes!
         </div>
         <SearchBar />
         <div className={styles['results-container']}>
           <FilterSettings />
           <div className={styles['search-results']}>
-            <CloudResults />
+            <CloudResults bannerCourseMap={bannerCourseMap} />
           </div>
         </div>
       </main>
