@@ -1,31 +1,61 @@
 /* eslint-disable @next/next/no-img-element */
-import { CourseAttributes } from '@/services/data-aggregation';
+import {
+  CourseAttributes,
+  getCourseAttributes,
+} from '@/services/data-aggregation';
 import BoxPlot from './box-plot';
 import styles from './course-component.module.scss';
-import { BannerCourse, Course, GradeStatistics } from '@/services/database';
+import {
+  BannerCourse,
+  Course,
+  GradeStatistics,
+  getCourseById,
+} from '@/services/database';
 import {
   cleanCourseName,
   getEnrollment,
   getLabAndNonLabCourses,
   instructorsFromBanner,
 } from '@/services/info-aggregation';
+import { useQuery } from '@tanstack/react-query';
+import { getMatchingBannerCourses } from '../search/search-results/search-results';
+type CourseSummaryData = {
+  name: string;
+  courseCode: string;
+  semesterYear: string;
+  creditHours: string;
+  numSections: number;
+  courseType: string[];
+  instructors: string[];
+  enrollment: number;
+};
 
-export const SummaryData = ({
-  course,
-  courseCode,
-  semester,
-  courseYear,
-  avgStats,
-  bannerCourses,
-}: {
-  course: Course;
-  courseCode: any;
-  courseYear: any;
-  semester: any;
-  avgStats: any;
-  bannerCourses: BannerCourse[];
+export const NewSummaryData = ({
+  courseId,
+  bannerCourseMap,
+}: // courseSummaryData,
+{
+  courseId: string | number;
+  bannerCourseMap: Map<string, BannerCourse[]>;
+  //   courseSummaryData: CourseSummaryData;
 }) => {
   // TODO fix types, should also have avg stats: gradeStatistics
+  const { isLoading, data: course } = useQuery({
+    queryKey: [`course${courseId}`],
+    queryFn: async () => await getCourseById(String(courseId)),
+  });
+
+  if (isLoading) {
+    return <>loading {courseId}</>;
+  }
+  if (!course) return <>no course found</>;
+  const bannerCourses = bannerCourseMap
+    ? getMatchingBannerCourses(course as Course, bannerCourseMap)
+    : [];
+  const { semester, courseCode, courseYear } = getCourseAttributes(
+    course as Course,
+  );
+  const avgStats = { mean: 0, median: 0, stdDev: 0, errorRate: 0 };
   let bannerCourseName = null;
   if (bannerCourses && bannerCourses[0]) {
     bannerCourseName = bannerCourses[0].courseTitle;
@@ -72,16 +102,17 @@ export const SummaryData = ({
         </span>
       </div>
       <div className={styles['course-info']}>
-        {avgStats.mean && (
-          <div className={styles['stat-chip']}>
-            avg: <strong>{avgStats.mean?.toFixed(2)}%</strong>
-            <div className={styles['tooltip']}>
-              Average grade for all recorded assignments weighted by assignment
-              group
-            </div>
-            {/* TODO: ADD ERROR RATE */}
-          </div>
-        )}
+        {
+          // avgStats.mean && (
+          //   <div className={styles['stat-chip']}>
+          //     avg: <strong>{avgStats.mean?.toFixed(2)}%</strong>
+          //     <div className={styles['tooltip']}>
+          //       Average grade for all recorded assignments weighted by assignment
+          //       group
+          //     </div>
+          //     {/* TODO: ADD ERROR RATE */}
+          //   </div>)
+        }
         {bannerCourses.length != 0 && (
           <>
             <div className={styles['stat-chip']}>

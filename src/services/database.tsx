@@ -50,6 +50,12 @@ const getResponseData = (response: any) => {
   return response.data;
 };
 
+export const getDbSize = async (dbName: string) => {
+  const response = await supabase.from(dbName).select('id');
+  const data = getResponseData(response);
+  return data.length;
+};
+
 export const getBannerData: () => Promise<BannerCourse[]> = async () => {
   const response = await supabase.from('banner_course_data').select('*');
   return getResponseData(response);
@@ -69,6 +75,16 @@ export const getAssignments: () => Promise<Assignment[]> = async () => {
 const getCourseList: () => Promise<Course[]> = async () => {
   const response = await supabase.from('course_summary_data').select('*');
   return getResponseData(response);
+};
+
+export const getCourseById: (courseId: string) => Promise<Course> = async (
+  courseId,
+) => {
+  const response = await supabase
+    .from('course_summary_data')
+    .select('*')
+    .eq('id', courseId);
+  return getResponseData(response)[0];
 };
 
 export const getCourseListFiltered: () => Promise<Course[]> = async () => {
