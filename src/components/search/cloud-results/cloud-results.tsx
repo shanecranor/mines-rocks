@@ -4,7 +4,10 @@ import { observer, useObservable } from '@legendapp/state/react';
 import { searchOptions$ } from '../search-options';
 import { useEffect, useState } from 'react';
 import { BannerCourse, Course } from '@/services/database';
-import { NewSummaryData } from '@/components/course-component/new-summary-data';
+import {
+  CourseSummaryData,
+  NewSummaryData,
+} from '@/components/course-component/new-summary-data';
 import NewCourseComponent from '@/components/course-component/new-course-component';
 import styles from './search-results.module.scss';
 
@@ -46,17 +49,9 @@ export const CloudResults = observer(
     }, [searchOptions$.searchText.get()]);
     return (
       <div className={styles['results']}>
-        {searchResults.map((r: Course) => (
+        {searchResults.map((r: CourseSummaryData) => (
           <>
-            <NewCourseComponent
-              courseId={r.id}
-              summaryProps={{
-                id: r.id,
-                name: r.name,
-                courseCode: r.course_code,
-              }}
-              bannerCourseMap={bannerCourseMap}
-            />
+            <NewCourseComponent courseId={r.id} courseData={r} />
           </>
         ))}
       </div>

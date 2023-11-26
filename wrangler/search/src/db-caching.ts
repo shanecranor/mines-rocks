@@ -21,7 +21,7 @@ async function cacheSupabaseDB(dbName: string, env: Env, ctx: ExecutionContext) 
 		const { data, error } = await supabase.from(dbName).select('*');
 
 		if (error) {
-			log(`supabase_${dbName}_fetch_error_${error.message}`);
+			await log(`supabase_${dbName}_fetch_error_${error.message}`);
 			throw error;
 		}
 
@@ -31,7 +31,7 @@ async function cacheSupabaseDB(dbName: string, env: Env, ctx: ExecutionContext) 
 		response.headers.append('Cache-Control', 's-maxage=172800');
 
 		ctx.waitUntil(cache.put(cacheKey, response.clone()));
-		log(`supabase_${dbName}_cache_miss`);
+		await log(`supabase_${dbName}_cache_miss`);
 	} else {
 		console.log('cache hit');
 	}

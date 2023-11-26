@@ -10,17 +10,15 @@ import {
 import styles from './course-component.module.scss';
 
 import { observer, useObservable } from '@legendapp/state/react';
-import { NewSummaryData } from './new-summary-data';
+import { CourseSummaryData, NewSummaryData } from './new-summary-data';
 
 const NewCourseComponent = observer(
   ({
     courseId,
-    bannerCourseMap,
-    summaryProps,
+    courseData,
   }: {
     courseId: string | number;
-    bannerCourseMap: any;
-    summaryProps: any;
+    courseData: CourseSummaryData;
   }) => {
     const isOpen$ = useObservable<boolean>(false);
     return (
@@ -29,10 +27,7 @@ const NewCourseComponent = observer(
           className={`${styles['course-component']}`}
           onClick={() => isOpen$.set(!isOpen$.peek())}
         >
-          <NewSummaryData
-            courseId={courseId}
-            bannerCourseMap={bannerCourseMap}
-          />
+          <NewSummaryData courseId={courseId} courseData={courseData} />
           {/* TY to the goat https://css-tricks.com/author/chriscoyier/ for CSS Grid animations :) */}
           <div
             className={styles['big-view']}

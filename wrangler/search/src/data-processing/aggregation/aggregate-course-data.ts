@@ -5,11 +5,11 @@ export type ExtendedCourse = Course & ExtProps;
 export type ExtProps = {
 	name: string;
 	searchString: string;
-	instructors: string[];
-	creditHours: string;
-	numSections: number;
-	courseTypes: string[];
-	enrollment: number;
+	instructors?: string[];
+	creditHours?: string;
+	numSections?: number;
+	courseTypes?: string[];
+	enrollment?: number;
 	attributes: {
 		semester: string;
 		courseCode: string;
@@ -24,22 +24,35 @@ export function aggregateCourseData(canvasCourses: Course[], bannerCourses: Bann
 		try {
 			const { semester, courseCode, courseYear } = getCourseAttributes(course.course_code);
 			const matchingBannerCourses = getMatchingBannerCourses(course, bannerMap);
-			const instructors = instructorsFromBanner(matchingBannerCourses);
-			const bannerCourseName = matchingBannerCourses[0].courseTitle;
-			const { nonLabCourses, labCourses } = getLabAndNonLabCourses(bannerCourses);
-			const name = bannerCourseName || cleanCourseName(course.name);
-			const extProps: ExtProps = {
-				name,
-				attributes: { semester, courseCode, courseYear },
-				searchString: `${name} | ${courseCode} | ${instructors.join(' | ')}`.toLowerCase(),
-				instructors,
-				creditHours: getCreditHours(matchingBannerCourses),
-				numSections: nonLabCourses.length || labCourses.length,
-				courseTypes: Array.from(new Set(bannerCourses.map((c: BannerCourse) => String(c.scheduleTypeDescription)))),
-				enrollment: getEnrollment(nonLabCourses, labCourses),
-			};
-			const extCourse: ExtendedCourse = Object.assign(course, extProps);
-			extendedCourses.push(extCourse);
+			if (matchingBannerCourses.length === 0) {
+				// If there are no matching banner courses, we can't get more data
+				const name = cleanCourseName(course.name);
+				const extProps: ExtProps = {
+					name,
+					attributes: { semester, courseCode, courseYear },
+					searchString: `${name} | ${courseCode}`.toLowerCase(),
+				};
+				const extCourse: ExtendedCourse = Object.assign(course, extProps);
+				extendedCourses.push(extCourse);
+			} else {
+				// If there are banner courses, lets get more stuff!
+				const instructors = instructorsFromBanner(matchingBannerCourses);
+				const bannerCourseName = matchingBannerCourses[0].courseTitle;
+				const { nonLabCourses, labCourses } = getLabAndNonLabCourses(matchingBannerCourses);
+				const name = bannerCourseName || cleanCourseName(course.name);
+				const extProps: ExtProps = {
+					name,
+					attributes: { semester, courseCode, courseYear },
+					searchString: `${name} | ${courseCode} | ${instructors.join(' | ')}`.toLowerCase(),
+					instructors,
+					creditHours: getCreditHours(matchingBannerCourses),
+					numSections: nonLabCourses.length || labCourses.length,
+					courseTypes: Array.from(new Set(matchingBannerCourses.map((c: BannerCourse) => String(c.scheduleTypeDescription)))),
+					enrollment: getEnrollment(nonLabCourses, labCourses),
+				};
+				const extCourse: ExtendedCourse = Object.assign(course, extProps);
+				extendedCourses.push(extCourse);
+			}
 		} catch (e) {}
 	}
 	return extendedCourses;
