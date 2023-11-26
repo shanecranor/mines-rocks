@@ -1,11 +1,11 @@
-const logURL = 'https://feedback.shanecranor.workers.dev/?site=mines-rocks&message=';
+import { log } from './logging';
+
 export async function getCached(cacheKey: string, onMiss: () => any, ctx: ExecutionContext, maxAge = 172800) {
 	const key = `https://cache.rocks/${cacheKey}`;
-	const cache = await caches.open('compute-cache');
+	const cache = await caches.open('compute-cache-0'); //increment to create new cache for testing
 	let cachedResponse = await cache.match(key);
-	const t = await fetch(`${logURL}test_${cacheKey}`);
 	if (!cachedResponse) {
-		await fetch(`${logURL}compute_cache_miss_${cacheKey}`);
+		log(`compute_cache_miss_${cacheKey}`);
 		const data = await onMiss();
 		const response = new Response(JSON.stringify(data));
 		response.headers.append('Cache-Control', `s-maxage=${maxAge}`);

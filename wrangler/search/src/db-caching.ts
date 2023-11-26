@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Env } from '.';
 import { BannerCourse, Course } from './types/types';
+import { log } from './logging';
 
 export async function getCourseSummaryData(env: Env, ctx: ExecutionContext) {
 	return (await cacheSupabaseDB('course_summary_data', env, ctx)) as Course[];
@@ -20,9 +21,7 @@ async function cacheSupabaseDB(dbName: string, env: Env, ctx: ExecutionContext) 
 		const { data, error } = await supabase.from(dbName).select('*');
 
 		if (error) {
-			await fetch(
-				`https://feedback.mines.rocks/?site=mines-rocks&message=${encodeURI(`Supabase ${dbName} fetch error: ${error.message}`)}`
-			);
+			log(`supabase_${dbName}_fetch_error_${error.message}`);
 			throw error;
 		}
 
@@ -32,7 +31,7 @@ async function cacheSupabaseDB(dbName: string, env: Env, ctx: ExecutionContext) 
 		response.headers.append('Cache-Control', 's-maxage=172800');
 
 		ctx.waitUntil(cache.put(cacheKey, response.clone()));
-		await fetch(`https://feedback.mines.rocks/?site=mines-rocks&message=cache_miss_${dbName}`);
+		log(`supabase_${dbName}_cache_miss`);
 	} else {
 		console.log('cache hit');
 	}

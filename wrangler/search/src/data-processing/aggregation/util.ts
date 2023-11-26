@@ -1,7 +1,7 @@
 import { Course, BannerCourse, isSeason } from '../../types/types';
 import he from 'he';
-export const getCourseAttributes = (course: Course) => {
-	const dataString = course.course_code || '';
+export const getCourseAttributes = (dataString: string | null) => {
+	if (!dataString) throw new Error('No course code found');
 	// split on both . and space
 	const dataList = dataString.split(/\.|\s/);
 	const semester = dataList[0].replace('Sprg', 'Spring').replace('Smr', 'Summer');
@@ -16,7 +16,6 @@ export const getCourseAttributes = (course: Course) => {
 		semester,
 		courseCode,
 		courseYear,
-		courseName: course.name || '',
 	};
 };
 

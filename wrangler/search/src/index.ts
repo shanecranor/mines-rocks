@@ -36,6 +36,10 @@ export default {
 				searchText: search || '',
 				showPartialClasses,
 				semester: { spring: true, summer: true, fall: true },
+				sortOptions: {
+					primarySort: 'Date',
+					isPrimarySortReversed: true,
+				},
 			});
 
 			const results = searchResults.slice(page * per_page, (page + 1) * per_page);

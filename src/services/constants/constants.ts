@@ -15,4 +15,13 @@ export const IGNORE_CLASSES = [
   'BSO',
   'Reservations',
   'Check-Out',
+  'Online Launch Orientation',
+  'Weaver Towers',
+  'Spruce Hall',
+  'eLearning Template',
+  'Guide to Online Learning',
+  'AMS Communications Students',
+  'Mines Park Apartments',
+  'Chem Lab Team',
+  'Core Review',
 ];

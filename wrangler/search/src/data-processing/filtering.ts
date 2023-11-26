@@ -6,15 +6,14 @@ export type SearchOptions = {
 	searchText: string;
 	showPartialClasses: boolean;
 	semester: { [key: string]: boolean };
+	sortOptions: {
+		primarySort: string;
+		isPrimarySortReversed: boolean;
+	};
 };
 export function filterCourseList(courseList: ExtendedCourse[], searchOptions: SearchOptions) {
 	const searchText = searchOptions.searchText.toLowerCase();
 	return courseList.filter((course: ExtendedCourse) => {
-		try {
-			getCourseAttributes(course);
-		} catch (e) {
-			return false;
-		}
 		if (!searchOptions.showPartialClasses) {
 			const uploadDate =
 				course.upload_date === null

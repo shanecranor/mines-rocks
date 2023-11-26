@@ -16,9 +16,11 @@ const NewCourseComponent = observer(
   ({
     courseId,
     bannerCourseMap,
+    summaryProps,
   }: {
     courseId: string | number;
     bannerCourseMap: any;
+    summaryProps: any;
   }) => {
     const isOpen$ = useObservable<boolean>(false);
     return (
