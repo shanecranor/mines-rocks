@@ -1,5 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 
+import { log } from './logging';
 import { getCached } from './compute-caching';
 import { aggregateCourseData } from './data-processing/aggregation/aggregate-course-data';
 import { filterCourseList } from './data-processing/filtering';
@@ -19,6 +20,7 @@ export default {
 			const per_page = Number(searchParams.get('per_page') || DEFAULT_PAGE_SIZE);
 			const page = Number(searchParams.get('page') || 0);
 			const search = searchParams.get('search');
+			await log(`search_${search}`);
 			const showPartialClasses = false;
 
 			//splice the banner data into the class data
@@ -31,7 +33,6 @@ export default {
 				},
 				ctx
 			);
-
 			const searchResults = filterCourseList(courses, {
 				searchText: search || '',
 				showPartialClasses,
@@ -44,8 +45,17 @@ export default {
 
 			const results = searchResults.slice(page * per_page, (page + 1) * per_page);
 			const resultsLite = results.map((course) => ({
-				name: course.searchString,
+				name: course.name,
 				id: course.id,
+				attributes: course.attributes,
+				upload_date: course.upload_date,
+				start_at: course.start_at,
+				end_at: course.end_at,
+				instructors: course.instructors,
+				creditHours: course.creditHours,
+				numSections: course.numSections,
+				courseTypes: course.courseTypes,
+				enrollment: course.enrollment,
 			}));
 			return new Response(JSON.stringify(resultsLite), {
 				headers: {
@@ -54,6 +64,7 @@ export default {
 				},
 			});
 		} catch (e) {
+			await log(`error_${(e as Error).message}`);
 			return new Response((e as Error).stack, {
 				headers: {
 					'Content-Type': 'text/plain',

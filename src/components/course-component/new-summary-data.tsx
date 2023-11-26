@@ -18,70 +18,59 @@ import {
   instructorsFromBanner,
 } from '@/services/info-aggregation';
 import { useQuery } from '@tanstack/react-query';
-import { getMatchingBannerCourses } from '../search/search-results/search-results';
-type CourseSummaryData = {
+export type CourseSummaryData = {
   name: string;
-  courseCode: string;
-  semesterYear: string;
-  creditHours: string;
-  numSections: number;
-  courseType: string[];
-  instructors: string[];
-  enrollment: number;
+  id: string;
+  attributes: {
+    courseCode: string;
+    semester: string;
+    courseYear: string;
+  };
+  upload_date: string | null;
+  start_at: string | null;
+  end_at: string | null;
+  instructors?: string[];
+  creditHours?: string;
+  numSections?: number;
+  courseType?: string[];
+  enrollment?: number;
 };
 
 export const NewSummaryData = ({
   courseId,
-  bannerCourseMap,
+  courseData,
 }: // courseSummaryData,
 {
   courseId: string | number;
-  bannerCourseMap: Map<string, BannerCourse[]>;
-  //   courseSummaryData: CourseSummaryData;
+  courseData: CourseSummaryData;
 }) => {
   // TODO fix types, should also have avg stats: gradeStatistics
-  const { isLoading, data: course } = useQuery({
-    queryKey: [`course${courseId}`],
-    queryFn: async () => await getCourseById(String(courseId)),
-  });
+  // const { isLoading, data: course } = useQuery({
+  //   queryKey: [`course${courseId}`],
+  //   queryFn: async () => await getCourseById(String(courseId)),
+  // });
 
-  if (isLoading) {
-    return <>loading {courseId}</>;
-  }
-  if (!course) return <>no course found</>;
-  const bannerCourses = bannerCourseMap
-    ? getMatchingBannerCourses(course as Course, bannerCourseMap)
-    : [];
-  const { semester, courseCode, courseYear } = getCourseAttributes(
-    course as Course,
-  );
-  const avgStats = { mean: 0, median: 0, stdDev: 0, errorRate: 0 };
-  let bannerCourseName = null;
-  if (bannerCourses && bannerCourses[0]) {
-    bannerCourseName = bannerCourses[0].courseTitle;
-  }
-  //set number of section to the number of banner courses that are not labs (unless it is just a lab)
-  const { nonLabCourses, labCourses } = getLabAndNonLabCourses(bannerCourses);
-  const numSections = nonLabCourses.length || labCourses.length;
-  const creditHoursLow = nonLabCourses[0]?.creditHourLow;
-  const creditHoursHigh = nonLabCourses[0]?.creditHourHigh;
-  const creditHoursString =
-    creditHoursLow && creditHoursHigh
-      ? `${creditHoursLow}-${creditHoursHigh}`
-      : creditHoursLow || creditHoursHigh;
-  const enrollment = getEnrollment(nonLabCourses, labCourses);
-  const courseType = Array.from(
-    new Set(bannerCourses.map((c: BannerCourse) => c.scheduleTypeDescription)),
-  );
-  const instructors = instructorsFromBanner(bannerCourses);
+  // if (isLoading) {
+  //   return <>loading {courseId}</>;
+  // }
+  // if (!course) return <>no course found</>;
 
-  const courseDisplayName = bannerCourseName || cleanCourseName(course.name);
+  const { semester, courseCode, courseYear } = courseData.attributes;
+  const {
+    name,
+    creditHours,
+    numSections,
+    courseType,
+    instructors,
+    enrollment,
+  } = courseData;
+
   return (
     <div className={styles['small-view']}>
       <div className={styles['course-attributes']}>
         {/* fall back to course code if the banner course name isn't found */}
         {/* this is definitely the case for courses before 2021 because banner data doesn't go back that far */}
-        <div className={styles.code}>{courseDisplayName}</div>
+        <div className={styles.code}>{name}</div>
         <span className={styles['extra-info']}>
           <span>{courseCode}</span>
           <span className={styles.divider}>{' • '}</span>
@@ -90,11 +79,11 @@ export const NewSummaryData = ({
           </span>
 
           <span>
-            {creditHoursString && (
+            {creditHours && (
               <>
                 <span className={styles.divider}>{' • '}</span>
                 <span>
-                  <strong>{creditHoursString}</strong> credits
+                  <strong>{creditHours}</strong> credits
                 </span>
               </>
             )}
@@ -113,13 +102,17 @@ export const NewSummaryData = ({
           //     {/* TODO: ADD ERROR RATE */}
           //   </div>)
         }
-        {bannerCourses.length != 0 && (
+        {numSections && (
           <>
             <div className={styles['stat-chip']}>
               {numSections} {numSections == 1 ? 'section' : 'sections'}
             </div>
-            <div className={styles['stat-chip']}>{courseType.join(' & ')}</div>
-            {instructors.length == 1 && (
+            {courseType && (
+              <div className={styles['stat-chip']}>
+                {courseType.join(' & ')}
+              </div>
+            )}
+            {instructors && instructors.length == 1 && (
               <div className={styles['stat-chip']}>
                 Instructor: {instructors[0] as string}
               </div>
