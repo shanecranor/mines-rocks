@@ -1,15 +1,19 @@
 import { BannerCourse, Course } from '../../types/types';
 import { getBannerCourseAttributes, getCourseAttributes, instructorsFromBanner } from './util';
 
-export type ExtendedCourse = Course & {
-	bannerCourses?: BannerCourse[];
-	instructors?: string[];
-	searchString?: string;
-	attributes?: {
+export type ExtendedCourse = Course & ExtProps;
+export type ExtProps = {
+	name: string;
+	searchString: string;
+	instructors: string[];
+	creditHours: string;
+	numSections: number;
+	courseTypes: string[];
+	enrollment: number;
+	attributes: {
 		semester: string;
 		courseCode: string;
 		courseYear: string;
-		courseName: string;
 	};
 };
 
@@ -18,23 +22,50 @@ export function aggregateCourseData(canvasCourses: Course[], bannerCourses: Bann
 	const bannerMap = buildBannerCourseMap(bannerCourses);
 	for (const course of canvasCourses) {
 		try {
-			const { semester, courseCode, courseYear, courseName } = getCourseAttributes(course);
+			const { semester, courseCode, courseYear } = getCourseAttributes(course.course_code);
 			const matchingBannerCourses = getMatchingBannerCourses(course, bannerMap);
-
-			const extCourse = course as ExtendedCourse;
-			extCourse.attributes = { semester, courseCode, courseYear, courseName };
-
-			extCourse.bannerCourses = matchingBannerCourses;
 			const instructors = instructorsFromBanner(matchingBannerCourses);
-
-			extCourse.instructors = instructors;
-			const name = matchingBannerCourses[0].courseTitle || courseName;
-			const searchString = `${name} | ${courseCode} | ${instructors.join(' | ')}`.toLowerCase();
-			extCourse.searchString = searchString;
-			extendedCourses.push(course);
+			const bannerCourseName = matchingBannerCourses[0].courseTitle;
+			const { nonLabCourses, labCourses } = getLabAndNonLabCourses(bannerCourses);
+			const name = bannerCourseName || cleanCourseName(course.name);
+			const extProps: ExtProps = {
+				name,
+				attributes: { semester, courseCode, courseYear },
+				searchString: `${name} | ${courseCode} | ${instructors.join(' | ')}`.toLowerCase(),
+				instructors,
+				creditHours: getCreditHours(matchingBannerCourses),
+				numSections: nonLabCourses.length || labCourses.length,
+				courseTypes: Array.from(new Set(bannerCourses.map((c: BannerCourse) => String(c.scheduleTypeDescription)))),
+				enrollment: getEnrollment(nonLabCourses, labCourses),
+			};
+			const extCourse: ExtendedCourse = Object.assign(course, extProps);
+			extendedCourses.push(extCourse);
 		} catch (e) {}
 	}
-	return canvasCourses;
+	return extendedCourses;
+}
+function getCreditHours(bannerCourses: BannerCourse[]) {
+	const creditHoursLow = bannerCourses[0]?.creditHourLow;
+	const creditHoursHigh = bannerCourses[0]?.creditHourHigh;
+	const creditHoursString = creditHoursLow && creditHoursHigh ? `${creditHoursLow}-${creditHoursHigh}` : creditHoursLow || creditHoursHigh;
+	return String(creditHoursString);
+}
+export function cleanCourseName(name: string | null) {
+	if (!name) return 'no course name found';
+	const courseNameSuffixes = [
+		', Sec',
+		'-Fall',
+		'-Spring',
+		'-Summer',
+		' (SC',
+		', Sprg',
+		' Summer ',
+		', Fall',
+		', Spring',
+		', Summer',
+		' (CH',
+	];
+	return courseNameSuffixes.reduce((prev, curr) => prev.split(curr)[0], name);
 }
 
 function buildBannerCourseMap(bannerData: BannerCourse[]): Map<string, BannerCourse[]> {
@@ -51,7 +82,20 @@ function buildBannerCourseMap(bannerData: BannerCourse[]): Map<string, BannerCou
 }
 
 export function getMatchingBannerCourses(course: Course, bannerMap: Map<string, BannerCourse[]>) {
-	const canvasAtribs = getCourseAttributes(course);
+	const canvasAtribs = getCourseAttributes(course.course_code);
 	const key = `${canvasAtribs.courseCode}-${canvasAtribs.semester}-${canvasAtribs.courseYear}`.toLowerCase(); // Consistent with map key formatting
 	return bannerMap.get(key) || [];
+}
+
+export function getLabAndNonLabCourses(bannerCourses: BannerCourse[]) {
+	const nonLabCourses: BannerCourse[] = bannerCourses.filter((c: BannerCourse) => c.scheduleTypeDescription != 'Lab');
+	const labCourses: BannerCourse[] = bannerCourses.filter((c: BannerCourse) => c.scheduleTypeDescription == 'Lab');
+
+	return { nonLabCourses, labCourses };
+}
+function getEnrollment(nonLabCourses: BannerCourse[], labCourses: BannerCourse[]) {
+	return (
+		nonLabCourses.reduce((prev: number, curr: BannerCourse) => prev + (curr.enrollment || 0), 0) ||
+		labCourses.reduce((prev: number, curr: BannerCourse) => prev + (curr.enrollment || 0), 0)
+	);
 }

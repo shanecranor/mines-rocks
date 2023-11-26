@@ -72,7 +72,7 @@ export const getAssignments: () => Promise<Assignment[]> = async () => {
   return getResponseData(response);
 };
 
-const getCourseList: () => Promise<Course[]> = async () => {
+export const getCourseList: () => Promise<Course[]> = async () => {
   const response = await supabase.from('course_summary_data').select('*');
   return getResponseData(response);
 };
@@ -87,18 +87,30 @@ export const getCourseById: (courseId: string) => Promise<Course> = async (
   return getResponseData(response)[0];
 };
 
-export const getCourseListFiltered: () => Promise<Course[]> = async () => {
+export const getAssignmentsForCourse: (
+  courseId: string,
+) => Promise<Assignment[]> = async (courseId) => {
+  const response = await supabase
+    .from('assignment_data')
+    .select('*')
+    .eq('course_id', courseId);
+  return getResponseData(response);
+};
+
+export const getCourseListFiltered: (
+  dontTryCourseAttributes?: boolean,
+) => Promise<Course[]> = async (removeInvalidAttributes: boolean = true) => {
   const courseList = await getCourseList();
   //filter out courses that are in the ignore list
   //shouldn't need this because we aren't uploading ignored courses but why not
-  return filterCourses(courseList);
+  return filterCourses(courseList, removeInvalidAttributes);
 };
 export const filterCourses = (
   courseList: Course[],
-  dontTryCourseAttributes?: boolean,
+  removeInvalidAttributes?: boolean,
 ) => {
-  return courseList.filter((course: Course) => {
-    if (!dontTryCourseAttributes) {
+  const out = courseList.filter((course: Course) => {
+    if (removeInvalidAttributes) {
       try {
         getCourseAttributes(course);
       } catch (e: any) {
@@ -107,6 +119,7 @@ export const filterCourses = (
     }
     return course.name && !isIgnoredCourse(course.name);
   });
+  return out;
 };
 const isIgnoredCourse = (courseName: string) => {
   return IGNORE_CLASSES.some((ignoredClass) =>

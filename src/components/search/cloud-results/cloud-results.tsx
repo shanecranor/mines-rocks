@@ -48,8 +48,15 @@ export const CloudResults = observer(
       <div className={styles['results']}>
         {searchResults.map((r: Course) => (
           <>
-            <div key={r.id}>{r.name}</div>
-            <NewCourseComponent courseId={r.id} bannerCourseMap={bannerCourseMap} />
+            <NewCourseComponent
+              courseId={r.id}
+              summaryProps={{
+                id: r.id,
+                name: r.name,
+                courseCode: r.course_code,
+              }}
+              bannerCourseMap={bannerCourseMap}
+            />
           </>
         ))}
       </div>
