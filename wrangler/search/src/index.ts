@@ -5,61 +5,27 @@ import { getCached } from './compute-caching';
 import { aggregateCourseData } from './data-processing/aggregation/aggregate-course-data';
 import { filterCourseList } from './data-processing/filtering';
 import { getBannerData, getCourseSummaryData } from './db-caching';
+import { doCourseSearch } from './routes/course-search';
+import { doAssignmentAggregation } from './routes/assignment-aggregation';
 
 export interface Env {
 	SUPABASE_URL: string;
 	SUPABASE_KEY: string;
 }
-const DEFAULT_PAGE_SIZE = 20;
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		try {
-			//get url params from the request
 			const url = new URL(request.url);
 			const { searchParams } = url;
-			const per_page = Number(searchParams.get('per_page') || DEFAULT_PAGE_SIZE);
-			const page = Number(searchParams.get('page') || 0);
 			const search = searchParams.get('search');
-			await log(`search_${search}`);
-			const showPartialClasses = false;
-
-			//splice the banner data into the class data
-			const courses = await getCached(
-				'courses',
-				async () => {
-					const classData = (await getCourseSummaryData(env, ctx)) as any[];
-					const bannerData = (await getBannerData(env, ctx)) as any[];
-					return aggregateCourseData(classData, bannerData);
-				},
-				ctx
-			);
-			const searchResults = filterCourseList(courses, {
-				searchText: search || '',
-				showPartialClasses,
-				semester: { spring: true, summer: true, fall: true },
-				sortOptions: {
-					primarySort: 'Date',
-					isPrimarySortReversed: true,
-				},
-			});
-
-			const results = searchResults.slice(page * per_page, (page + 1) * per_page);
-			const resultsLite = results.map((course) => ({
-				name: course.name,
-				id: course.id,
-				attributes: course.attributes,
-				upload_date: course.upload_date,
-				start_at: course.start_at,
-				end_at: course.end_at,
-				instructors: course.instructors,
-				creditHours: course.creditHours,
-				numSections: course.numSections,
-				courseTypes: course.courseTypes,
-				enrollment: course.enrollment,
-			}));
-			return new Response(JSON.stringify(resultsLite), {
+			if (search != null) return await doCourseSearch(request, env, ctx);
+			const courseId = searchParams.get('courseId');
+			if (courseId) {
+				return await doAssignmentAggregation(request, env, ctx);
+			}
+			return new Response('No route specified', {
 				headers: {
-					'Content-Type': 'application/json',
+					'Content-Type': 'text/plain',
 					'Access-Control-Allow-Origin': '*',
 				},
 			});
