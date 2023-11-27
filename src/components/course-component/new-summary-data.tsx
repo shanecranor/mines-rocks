@@ -45,10 +45,11 @@ export const NewSummaryData = ({
   courseData: CourseSummaryData;
 }) => {
   // TODO fix types, should also have avg stats: gradeStatistics
-  // const { isLoading, data: course } = useQuery({
-  //   queryKey: [`course${courseId}`],
-  //   queryFn: async () => await getCourseById(String(courseId)),
-  // });
+  const { isLoading, data: course } = useQuery({
+    queryKey: [`courseStats${courseId}`],
+    queryFn: async () =>
+      await fetch(`https://search.mines.rocks/stats/${courseId}`),
+  });
 
   // if (isLoading) {
   //   return <>loading {courseId}</>;
