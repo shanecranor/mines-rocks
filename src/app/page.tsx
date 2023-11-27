@@ -19,10 +19,10 @@ export const metadata = {
 };
 
 export default async function Home() {
-  const courses = await getCourseListFiltered();
-  const assignmentGroups = await getAssignmentGroups();
-  const assignments = await getAssignments();
-  const bannerData = await getBannerData();
+  // const courses = await getCourseListFiltered();
+  // const assignmentGroups = await getAssignmentGroups();
+  // const assignments = await getAssignments();
+  // const bannerData = await getBannerData();
   return (
     <>
       <Navbar />
@@ -33,10 +33,10 @@ export default async function Home() {
             Data driven course selection <i>rocks</i>
           </h1>
         </div>
-        <div className={styles['flavor-text']}>
+        {/* <div className={styles['flavor-text']}>
           Database size: {assignments.length} assignments and {courses.length}{' '}
           classes!
-        </div>
+        </div> */}
         <SearchBar />
         <div className={styles['results-container']}>
           <FilterSettings />
@@ -59,14 +59,14 @@ export default async function Home() {
                 />
               );
             })} */}
-            <SearchResults
+            {/* <SearchResults
               {...{
                 courses,
                 assignments,
                 assignmentGroups,
                 bannerData,
               }}
-            />
+            /> */}
           </div>
         </div>
       </main>
