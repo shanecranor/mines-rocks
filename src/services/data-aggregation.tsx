@@ -1,4 +1,3 @@
-import { toNamespacedPath } from 'path';
 import {
   Assignment,
   AssignmentGroup,

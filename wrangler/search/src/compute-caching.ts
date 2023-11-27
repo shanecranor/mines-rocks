@@ -1,7 +1,7 @@
 import { log } from './logging';
 
 export async function getCached(cacheKey: string, onMiss: () => any, ctx: ExecutionContext, maxAge = 172800) {
-	const key = `https://cache.rocks/${cacheKey}`;
+	const key = `https://cache.rocks/${encodeURI(cacheKey)}`;
 	const cache = await caches.open('compute-cache-2'); //increment to create new cache for testing
 	let cachedResponse = await cache.match(key);
 	if (!cachedResponse) {

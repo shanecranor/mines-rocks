@@ -1,5 +1,6 @@
-import { Course, BannerCourse, isSeason } from '../../types/types';
+import { BannerCourse, isSeason } from '../../types/types';
 import he from 'he';
+
 export const getCourseAttributes = (dataString: string | null) => {
 	if (!dataString) throw new Error('No course code found');
 	// split on both . and space
