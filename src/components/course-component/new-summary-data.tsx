@@ -39,17 +39,14 @@ export type CourseSummaryData = {
 export const NewSummaryData = ({
   courseId,
   courseData,
+  mean,
 }: // courseSummaryData,
 {
   courseId: string | number;
   courseData: CourseSummaryData;
+  mean: number | null;
 }) => {
   // TODO fix types, should also have avg stats: gradeStatistics
-  const { isLoading, data: course } = useQuery({
-    queryKey: [`courseStats${courseId}`],
-    queryFn: async () =>
-      await fetch(`https://search.mines.rocks/stats/${courseId}`),
-  });
 
   // if (isLoading) {
   //   return <>loading {courseId}</>;
@@ -92,17 +89,16 @@ export const NewSummaryData = ({
         </span>
       </div>
       <div className={styles['course-info']}>
-        {
-          // avgStats.mean && (
-          //   <div className={styles['stat-chip']}>
-          //     avg: <strong>{avgStats.mean?.toFixed(2)}%</strong>
-          //     <div className={styles['tooltip']}>
-          //       Average grade for all recorded assignments weighted by assignment
-          //       group
-          //     </div>
-          //     {/* TODO: ADD ERROR RATE */}
-          //   </div>)
-        }
+        {mean && (
+          <div className={styles['stat-chip']}>
+            avg: <strong>{mean?.toFixed(2)}%</strong>
+            <div className={styles['tooltip']}>
+              Average grade for all recorded assignments weighted by assignment
+              group
+            </div>
+            {/* TODO: ADD ERROR RATE */}
+          </div>
+        )}
         {numSections && (
           <>
             <div className={styles['stat-chip']}>
