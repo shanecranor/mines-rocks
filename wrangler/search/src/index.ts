@@ -7,6 +7,7 @@ import { filterCourseList } from './data-processing/filtering';
 import { getBannerData, getCourseSummaryData } from './db-caching';
 import { doCourseSearch } from './routes/course-search';
 import { doAssignmentAggregation } from './routes/assignment-aggregation';
+import path from 'path';
 
 export interface Env {
 	SUPABASE_URL: string;
@@ -20,7 +21,8 @@ export default {
 			const search = searchParams.get('search');
 			if (search != null) return await doCourseSearch(request, env, ctx);
 			const courseId = searchParams.get('courseId');
-			if (courseId) {
+			const pathName = url.pathname;
+			if (pathName === '/stats/' && courseId) {
 				return await doAssignmentAggregation(request, env, ctx);
 			}
 			return new Response('No route specified', {
