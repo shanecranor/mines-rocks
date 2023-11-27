@@ -27,21 +27,21 @@ export const metadata = {
 };
 
 export default async function Home() {
-  const numCourses = await getDbSize('course_summary_data');
-  const courses = await getCourseListFiltered(false);
-  const assignmentMap = new Map<number, Assignment[]>();
-  for (const course of courses) {
-    const assignments = await getAssignmentsForCourse(String(course.id));
-    assignmentMap.set(course.id, assignments);
-  }
-  const numAssignments = await getDbSize('assignment_data');
-  const bannerCourses = await getBannerData();
-  const bannerCourseMap = buildBannerCourseMap(bannerCourses);
+  // const numCourses = await getDbSize('course_summary_data');
+  // const courses = await getCourseListFiltered(false);
+  // const assignmentMap = new Map<number, Assignment[]>();
+  // for (const course of courses) {
+  //   const assignments = await getAssignmentsForCourse(String(course.id));
+  //   assignmentMap.set(course.id, assignments);
+  // }
+  // const numAssignments = await getDbSize('assignment_data');
+  // const bannerCourses = await getBannerData();
+  // const bannerCourseMap = buildBannerCourseMap(bannerCourses);
   return (
     <>
       <Navbar />
       <main className={styles.main}>
-        <div className={styles['heading-container']}>
+        {/* <div className={styles['heading-container']}>
           <img src="logo4.png" className={styles['logo']} alt="Logo" />
           <h1>
             Broken courses !<i>rocks</i>
@@ -82,7 +82,7 @@ export default async function Home() {
               </tbody>
             </table>
           </div>
-        </div>
+        </div> */}
       </main>
     </>
   );
