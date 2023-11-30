@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import styles from './summary-data.module.scss';
+import { useSearchParams } from 'next/navigation';
 export type CourseAttributes = {
   semester: 'Fall' | 'Spring' | 'Summer';
   courseCode: string;
@@ -29,13 +30,7 @@ export const NewSummaryData = ({
   courseData: CourseSummaryData;
   mean: number | undefined;
 }) => {
-  // TODO fix types, should also have avg stats: gradeStatistics
-
-  // if (isLoading) {
-  //   return <>loading {courseId}</>;
-  // }
-  // if (!course) return <>no course found</>;
-
+  const searchParams = useSearchParams();
   const { semester, courseCode, courseYear } = courseData.attributes;
   const {
     name,
@@ -56,7 +51,8 @@ export const NewSummaryData = ({
           <span>{courseCode}</span>
           <span className={styles.divider}>{' • '}</span>
           <span>
-            {courseData.id} {semester} {courseYear}
+            {searchParams.get('debug') && courseData.id + ' • '} {semester}{' '}
+            {courseYear}
           </span>
 
           <span>
