@@ -8,7 +8,10 @@ const SearchBar = observer(() => {
       <input
         type="text"
         placeholder="Search for a course"
-        onChange={(e) => searchOptions$.searchText.set(e.target.value)}
+        value={searchOptions$.searchText.get()}
+        onChange={(e) => {
+          searchOptions$.searchText.set(e.target.value);
+        }}
       ></input>
     </div>
   );

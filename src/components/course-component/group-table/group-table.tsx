@@ -3,7 +3,7 @@ import {
   getGroupColor,
   getGroupWeight,
 } from '@/services/data-aggregation';
-import styles from './course-component.module.scss';
+import styles from './group-table.module.scss';
 import { IBM_EXPANDED_COLORS } from '@/utils/colors';
 export const GroupTable = ({
   stats,
@@ -15,7 +15,7 @@ export const GroupTable = ({
   isOpen$: any;
 }) => {
   return (
-    <table>
+    <table className={styles['table']}>
       <thead>
         <tr className={styles['column-labels']}>
           <td className={styles['weight']}>Weight</td>

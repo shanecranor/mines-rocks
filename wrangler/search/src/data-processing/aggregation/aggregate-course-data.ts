@@ -1,6 +1,6 @@
 import { BannerCourse, Course } from '../../types/types';
 import { getBannerCourseAttributes, getCourseAttributes, instructorsFromBanner } from './util';
-
+import he from 'he';
 export type ExtendedCourse = Course & ExtProps;
 export type ExtProps = {
 	name: string;
@@ -39,7 +39,7 @@ export function aggregateCourseData(canvasCourses: Course[], bannerCourses: Bann
 				const instructors = instructorsFromBanner(matchingBannerCourses);
 				const bannerCourseName = matchingBannerCourses[0].courseTitle;
 				const { nonLabCourses, labCourses } = getLabAndNonLabCourses(matchingBannerCourses);
-				const name = bannerCourseName || cleanCourseName(course.name);
+				const name = he.decode(bannerCourseName || '') || cleanCourseName(course.name);
 				const extProps: ExtProps = {
 					name,
 					attributes: { semester, courseCode, courseYear },

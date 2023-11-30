@@ -1,6 +1,5 @@
 'use client';
 import type { NextPage } from 'next';
-import { IGNORE_CLASSES } from './ignoreClasses';
 import Head from 'next/head';
 // Create a single supabase client for interacting with your database
 import { createClient } from '@supabase/supabase-js';

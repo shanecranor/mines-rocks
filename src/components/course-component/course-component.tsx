@@ -5,8 +5,8 @@ import {
   Course,
   GradeStatistics,
   STAT_KEYS,
+  getAssignmentsForCourse,
 } from '@/services/database';
-import styles from './course-component.module.scss';
 import {
   GroupStat,
   averageCourseStats,
@@ -15,14 +15,13 @@ import {
   getGroupColor,
   getCourseAttributes,
 } from '@/services/data-aggregation';
-import { SummaryData } from './summary-data';
+import { SummaryData } from './summary-data/summary-data';
 import CourseClientComponent from './course-client-component';
-import AssignmentGraph from './assignment-graph';
-import { GroupTable } from './group-table';
+import AssignmentGraph from './assignment-graph/assignment-graph';
+import { GroupTable } from './group-table/group-table';
 
-const CourseComponent = ({
+const CourseComponent = async ({
   courseData,
-  assignments,
   groupStats,
   bannerCourses,
 }: // assignmentData,
@@ -34,7 +33,7 @@ const CourseComponent = ({
 }) => {
   const { semester, courseCode, courseYear, courseName } =
     getCourseAttributes(courseData);
-
+  const assignments = await getAssignmentsForCourse(String(courseData.id));
   if (assignments.length === 0) {
     return <></>;
   }

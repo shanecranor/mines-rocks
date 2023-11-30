@@ -12,8 +12,16 @@ export async function doCourseSearch(request: Request, env: Env, ctx: ExecutionC
 	const per_page = Number(searchParams.get('per_page')) || 20;
 	const page = Number(searchParams.get('page') || 0);
 	const search = searchParams.get('search');
+	const showPartialClasses = searchParams.get('show_partial') === 'true';
+	let semester = { spring: true, summer: true, fall: true };
+	if (searchParams.get('filter_semester') === 'true') {
+		semester = ['spring', 'summer', 'fall'].reduce((acc, cur) => {
+			acc[cur] = searchParams.get(cur) === 'true';
+			return acc;
+		}, {} as any);
+	}
+
 	await log(`search_${search}`);
-	const showPartialClasses = false;
 
 	//splice the banner data into the class data
 	const courses = await getCached(
@@ -28,7 +36,7 @@ export async function doCourseSearch(request: Request, env: Env, ctx: ExecutionC
 	const searchResults = filterCourseList(courses, {
 		searchText: search || '',
 		showPartialClasses,
-		semester: { spring: true, summer: true, fall: true },
+		semester,
 		sortOptions: {
 			primarySort: 'Date',
 			isPrimarySortReversed: true,

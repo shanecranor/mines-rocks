@@ -6,7 +6,7 @@ import { SearchOptions } from './filtering';
 function getCourseDate(course: Course) {
 	if (course.start_at !== null) return new Date(course.start_at);
 	if (course.end_at !== null) return new Date(course.end_at);
-	if (course.created_at !== null) return new Date(course.created_at);
+	// if (course.created_at !== null) return new Date(course.created_at);
 	return new Date(0);
 }
 
