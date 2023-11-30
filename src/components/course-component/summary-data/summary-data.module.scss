@@ -1,0 +1,60 @@
+.small-view {
+  // display: flex;
+  align-items: center;
+  margin-left: 4px;
+
+  > .course-attributes {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    // width: 150px;
+    margin-bottom: 4px;
+    // border-right: 2px double rgba(var(--foreground-rgb), 0.2);
+    margin-right: 2px;
+
+    > .code {
+      font-weight: bold;
+      // font-family: monospace;
+      font-size: 24px;
+    }
+    > .extra-info {
+      padding: 5px 0px 5px 0px;
+      .divider {
+        padding: 0px 2px;
+      }
+    }
+  }
+
+  > .course-info {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    // width: 100%;
+    > .stat-chip {
+      border: 1px solid rgba(var(--foreground-rgb), 0.4);
+      //add a faint blurry inset shadow for styleee
+      box-shadow: inset 0px 0px 25px 0px rgba(var(--foreground-rgb), 0.05);
+      // background: rgba(var(--foreground-rgb), 0.025);
+      border-radius: 4px;
+      padding: 2px 4px;
+      > .tooltip {
+        display: none;
+      }
+      &:hover {
+        > .tooltip {
+          display: block;
+          position: absolute;
+          transform: translate(0, -45px);
+          z-index: 2;
+          background: rgba(var(--background-start-rgb), 0.9);
+          padding: 4px;
+          border-radius: 4px;
+          font-size: 15px;
+          font-weight: bold;
+          // box-shadow: 0px 0px 25px 0px rgba(var(--foreground-rgb), 0.2);
+        }
+      }
+    }
+  }
+}

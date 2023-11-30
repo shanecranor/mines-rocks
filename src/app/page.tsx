@@ -11,6 +11,7 @@ import SearchResults from '@/components/search/search-results/search-results';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';
+import { SsgResults } from '@/components/search/ssg-results/ssg-results';
 
 export const metadata = {
   title: 'mines.rocks: data driven course selection',
@@ -19,10 +20,10 @@ export const metadata = {
 };
 
 export default async function Home() {
-  // const courses = await getCourseListFiltered();
-  // const assignmentGroups = await getAssignmentGroups();
+  const courses = await getCourseListFiltered();
+  const assignmentGroups = await getAssignmentGroups();
   // const assignments = await getAssignments();
-  // const bannerData = await getBannerData();
+  const bannerData = await getBannerData();
   return (
     <>
       <Navbar />
@@ -41,32 +42,7 @@ export default async function Home() {
         <div className={styles['results-container']}>
           <FilterSettings />
           <div className={styles['search-results']}>
-            {/* {courses.map((course) => {
-              const courseAssignments = getAssignmentsByCourse(
-                assignments,
-                course
-              );
-              const stats = getStatsPerGroup(
-                courseAssignments,
-                assignmentGroups
-              );
-              return (
-                <CourseComponent
-                  courseData={course}
-                  key={course.id}
-                  assignments={courseAssignments}
-                  groupStats={stats}
-                />
-              );
-            })} */}
-            {/* <SearchResults
-              {...{
-                courses,
-                assignments,
-                assignmentGroups,
-                bannerData,
-              }}
-            /> */}
+            <SsgResults />
           </div>
         </div>
       </main>

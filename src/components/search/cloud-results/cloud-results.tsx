@@ -7,7 +7,7 @@ import { BannerCourse, Course } from '@/services/database';
 import {
   CourseSummaryData,
   NewSummaryData,
-} from '@/components/course-component/new-summary-data';
+} from '@/components/course-component/summary-data/new-summary-data';
 import NewCourseComponent from '@/components/course-component/new-course-component';
 import styles from './search-results.module.scss';
 
@@ -50,9 +50,7 @@ export const CloudResults = observer(
     return (
       <div className={styles['results']}>
         {searchResults.map((r: CourseSummaryData) => (
-          <>
-            <NewCourseComponent courseId={r.id} courseData={r} />
-          </>
+          <NewCourseComponent courseData={r} key={r.id} />
         ))}
       </div>
     );

@@ -2,11 +2,11 @@
 import styles from './course-component.module.scss';
 import { observer, useObservable } from '@legendapp/state/react';
 import { Observable } from '@legendapp/state';
-import { SummaryData } from './summary-data';
+import { SummaryData } from './summary-data/summary-data';
 import { Assignment, Course } from '@/services/database';
 import { GroupStat } from '@/services/data-aggregation';
 import { group } from 'console';
-import { GroupTable } from './group-table';
+import { GroupTable } from './group-table/group-table';
 
 const CourseClientComponent = observer(
   ({

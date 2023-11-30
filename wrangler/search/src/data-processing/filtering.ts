@@ -14,6 +14,7 @@ export type SearchOptions = {
 export function filterCourseList(courseList: ExtendedCourse[], searchOptions: SearchOptions) {
 	const searchText = searchOptions.searchText.toLowerCase();
 	return courseList.filter((course: ExtendedCourse) => {
+		if (isIgnoredCourse(course.name)) return false;
 		if (!searchOptions.showPartialClasses) {
 			const uploadDate =
 				course.upload_date === null
@@ -41,3 +42,33 @@ export function filterCourseList(courseList: ExtendedCourse[], searchOptions: Se
 		return false;
 	});
 }
+const isIgnoredCourse = (courseName: string) => {
+	return IGNORE_CLASSES.some((ignoredClass) => courseName.includes(ignoredClass));
+};
+const IGNORE_CLASSES = [
+	'Canvas API project course',
+	'CASA Advising',
+	'Sandbox - ',
+	'SANS Security Awareness Course',
+	'Tutoring',
+	'Operation Oredigger',
+	'Makerspace Training Portal',
+	'Computer Science Student Portal',
+	'Undergraduate Commencement',
+	'Graduate Commencement',
+	'Portal',
+	'Physical Metallurgy Laboratory',
+	'SAIL',
+	'BSO',
+	'Reservations',
+	'Check-Out',
+	'Online Launch Orientation',
+	'Weaver Towers',
+	'Spruce Hall',
+	'eLearning Template',
+	'Guide to Online Learning',
+	'AMS Communications Students',
+	'Mines Park Apartments',
+	'Chem Lab Team',
+	'Core Review',
+];

@@ -10,30 +10,36 @@ import {
 import styles from './course-component.module.scss';
 
 import { observer, useObservable } from '@legendapp/state/react';
-import { CourseSummaryData, NewSummaryData } from './new-summary-data';
+import {
+  CourseSummaryData,
+  NewSummaryData,
+} from './summary-data/new-summary-data';
 import { useQuery } from '@tanstack/react-query';
-import { GroupTable } from './group-table';
+import { GroupTable } from './group-table/group-table';
+import NewAssignmentGraph from './assignment-graph/new-assignment-graph';
+import { GroupStat } from '@/services/data-aggregation';
+interface CloudCourseStats {
+  overallStats: {
+    stats: GradeStatistics;
+    totalWeight: number;
+  };
+  groupStats: GroupStat[];
+}
 async function getCourseStats(courseId: string | number) {
   const response = await fetch(
     `https://search.mines.rocks/stats/?courseId=${courseId}`,
   );
-  return await response.json();
+  return (await response.json()) as CloudCourseStats;
 }
 const NewCourseComponent = observer(
-  ({
-    courseId,
-    courseData,
-  }: {
-    courseId: string | number;
-    courseData: CourseSummaryData;
-  }) => {
+  ({ courseData }: { courseData: CourseSummaryData }) => {
+    const courseId = courseData.id;
     const { isLoading, data: courseStats } = useQuery({
       queryKey: [`courseStats${courseId}`],
       queryFn: async () => await getCourseStats(courseId),
       //cache for 10 days
       staleTime: 1000 * 60 * 60 * 24 * 10,
     });
-    console.log(courseStats);
     const isOpen$ = useObservable<boolean>(false);
     return (
       <>
@@ -59,14 +65,21 @@ const NewCourseComponent = observer(
             >
               <div className={styles['divider']} />
               {/* graphs and stuff go here */}
-              {!isLoading && (
-                <GroupTable
-                  stats={courseStats?.groupStats}
-                  totalWeight={Number(
-                    courseStats.overallStats.stats.totalWeight,
+              {!isLoading && courseStats && (
+                <>
+                  <GroupTable
+                    stats={courseStats?.groupStats}
+                    totalWeight={Number(courseStats.overallStats.totalWeight)}
+                    isOpen$={isOpen$}
+                  />
+                  {isOpen$.get() && (
+                    <NewAssignmentGraph
+                      courseData={courseData}
+                      groupStats={courseStats.groupStats}
+                      totalWeight={Number(courseStats.overallStats.totalWeight)}
+                    />
                   )}
-                  isOpen$={isOpen$}
-                />
+                </>
               )}
             </div>
           </div>

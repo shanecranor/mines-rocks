@@ -1,19 +1,19 @@
-"use client";
-import { observable } from "@legendapp/state";
+'use client';
+import { observable } from '@legendapp/state';
 export const sortOptions = [
-  "Date",
+  'Date',
   // "Dept",
-  "Course Number",
-  "Course Name",
+  'Course Number',
+  'Course Name',
   // "Has Banner Data?",
   // "Avg Grade",
-  "Total Enrollment",
-  "Total Sections",
+  'Total Enrollment',
+  'Total Sections',
 ] as const;
 export type SortOptions = (typeof sortOptions)[number];
 
 export const searchOptions$ = observable({
-  searchText: "",
+  searchText: '',
   semester: {
     spring: true,
     fall: true,
@@ -23,8 +23,8 @@ export const searchOptions$ = observable({
   showClassesWithoutScores: false,
   sortOptions: {
     allOptions: sortOptions,
-    primarySort: "Date",
+    primarySort: 'Date',
     isPrimarySortReversed: false,
-    secondarySort: "Dept",
+    secondarySort: 'Dept',
   },
 });

@@ -92,9 +92,22 @@ export const getAssignmentsForCourse: (
 ) => Promise<Assignment[]> = async (courseId) => {
   const response = await supabase
     .from('assignment_data')
-    .select('*')
+    .select(
+      'id,name,score_statistics,points_possible,assignment_group_id,due_at,created_at,updated_at',
+    )
     .eq('course_id', courseId);
   return getResponseData(response);
+};
+
+export const getNumAssignments: (
+  courseId: string,
+) => Promise<Assignment[]> = async (courseId) => {
+  const response = await supabase
+    .from('assignment_data')
+    .select('id')
+    .eq('course_id', courseId);
+  const data = getResponseData(response);
+  return data.length;
 };
 
 export const getCourseListFiltered: (
