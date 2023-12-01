@@ -21,12 +21,10 @@ export type CourseSummaryData = {
 };
 
 export const NewSummaryData = ({
-  courseId,
   courseData,
   mean,
 }: // courseSummaryData,
 {
-  courseId: string | number;
   courseData: CourseSummaryData;
   mean: number | undefined;
 }) => {

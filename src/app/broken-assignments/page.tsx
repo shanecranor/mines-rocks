@@ -26,11 +26,12 @@ export const metadata = {
 export default async function Home() {
   const numCourses = await getDbSize('course_summary_data');
   const courses = await getCourseListFiltered(false);
-  const assignmentMap = new Map<number, Assignment[]>();
-  for (const course of courses) {
-    const assignments = await getAssignmentsForCourse(String(course.id));
-    assignmentMap.set(course.id, assignments);
-  }
+  const assignments = await getAssignments();
+  // const assignmentMap = new Map<number, Assignment[]>();
+  // for (const course of courses) {
+  //   const assignments = await getAssignmentsForCourse(String(course.id));
+  //   assignmentMap.set(course.id, assignments);
+  // }
   return (
     <>
       <Navbar />
@@ -38,7 +39,7 @@ export default async function Home() {
         <div className={styles['heading-container']}>
           <img src="logo4.png" className={styles['logo']} alt="Logo" />
           <h1>
-            Broken courses !<i>rocks</i>
+            Broken assignments !<i>rocks</i>
           </h1>
         </div>
         <div className={styles['results-container']}>
@@ -46,28 +47,37 @@ export default async function Home() {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Course Code</th>
                   <th>Name</th>
-                  <th># Assignments</th>
+                  <th>Course ID</th>
+                  <th>Points Possible</th>
+                  <th>Mean Score</th>
                 </tr>
               </thead>
               <tbody>
-                {courses
-                  .filter((course) => {
-                    try {
-                      getCourseAttributes(course);
+                {assignments
+                  .filter((a) => {
+                    if (!a.points_possible) {
                       return false;
-                    } catch (e) {
-                      return true;
                     }
+                    if (!a.score_statistics?.mean) {
+                      return false;
+                    }
+                    return (
+                      Number(a.points_possible) <
+                      Number(a.score_statistics?.mean)
+                    );
                   })
-                  .map((course) => (
-                    <tr key={course.id}>
-                      <td>{course.id}</td>
-                      <td>{course.course_code}</td>
-                      <td>{course.name}</td>
-                      <td>{assignmentMap?.get(course.id)?.length}</td>
+                  .map((assignment) => (
+                    <tr key={assignment.id}>
+                      <td>{assignment.name}</td>
+                      <td>
+                        {
+                          courses.filter((c) => c.id == assignment.course_id)[0]
+                            .course_code
+                        }
+                      </td>
+                      <td>{assignment.points_possible}</td>
+                      <td>{JSON.stringify(assignment.score_statistics)}</td>
                     </tr>
                   ))}
               </tbody>

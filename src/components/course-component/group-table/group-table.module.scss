@@ -4,43 +4,58 @@
   padding-top: 4px;
   border-radius: 4px;
   position: relative;
-
-  tr {
-    > td {
+  table {
+    border: 0px;
+    border-collapse: collapse;
+    tr {
       padding-bottom: 4px;
-      z-index: 4;
-    }
-
-    &.column-labels {
-      font-weight: bold;
 
       > td {
-        padding-bottom: 2px;
+        padding-bottom: 4px;
+        padding-top: 4px;
+        z-index: 4;
       }
-    }
 
-    > .weight {
-      padding-right: 4px;
-      min-width: min(80px, 12cqw);
-    }
+      &:hover {
+        background: rgba(var(--foreground-rgb), 0.05);
+      }
 
-    > td .weight-bar {
-      transform: translate(0, 1px);
-      height: 2px;
-      position: absolute;
-      width: 40px;
-      z-index: 1;
-    }
-    > td .weight-color-block {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      //make the color block a circle
-      border-radius: 50%;
-      margin-right: 4px;
-    }
-    > .category {
-      width: 100%;
+      &.column-labels {
+        font-weight: bold;
+
+        > td {
+          padding-bottom: 2px;
+        }
+      }
+
+      > .weight {
+        padding-right: 4px;
+        min-width: min(80px, 12cqw);
+      }
+
+      > td .weight-bar {
+        transform: translate(0, 1px);
+        height: 2px;
+        position: absolute;
+        width: 40px;
+        z-index: 1;
+      }
+
+      > td .weight-color-block {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        //make the color block a circle
+        border-radius: 50%;
+        margin-right: 4px;
+      }
+      > .category {
+        width: 100%;
+      }
+
+      > .avg {
+        min-width: min(55px, 8cqw);
+      }
     }
   }
 }

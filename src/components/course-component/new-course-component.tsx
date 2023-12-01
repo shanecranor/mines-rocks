@@ -1,12 +1,5 @@
 'use client';
-import {
-  Assignment,
-  AssignmentGroup,
-  BannerCourse,
-  Course,
-  GradeStatistics,
-  STAT_KEYS,
-} from '@/services/database';
+import { GradeStatistics } from '@/services/database';
 import styles from './course-component.module.scss';
 
 import { observer, useObservable } from '@legendapp/state/react';
@@ -16,7 +9,7 @@ import {
 } from './summary-data/new-summary-data';
 import { useQuery } from '@tanstack/react-query';
 import { GroupTable } from './group-table/group-table';
-import NewAssignmentGraph from './assignment-graph/new-assignment-graph';
+import { NewAssignmentGraph } from './assignment-graph/new-assignment-graph';
 import { GroupStat } from '@/services/data-aggregation';
 interface CloudCourseStats {
   overallStats: {
@@ -42,6 +35,7 @@ const NewCourseComponent = observer(
     });
     const isOpen$ = useObservable<boolean>(false);
     const hasOpen$ = useObservable<boolean>(false); // removes pop-out animation for graphs after first load
+    const hoveredGroup$ = useObservable<number | null>(null);
     if (isOpen$.get()) {
       hasOpen$.set(true);
     }
@@ -52,7 +46,6 @@ const NewCourseComponent = observer(
           onClick={() => isOpen$.set(!isOpen$.peek())}
         >
           <NewSummaryData
-            courseId={courseId}
             courseData={courseData}
             mean={courseStats?.overallStats.stats.mean}
           />
@@ -75,12 +68,14 @@ const NewCourseComponent = observer(
                     stats={courseStats?.groupStats}
                     totalWeight={Number(courseStats.overallStats.totalWeight)}
                     isOpen$={isOpen$}
+                    hoveredGroup$={hoveredGroup$}
                   />
                   {hasOpen$.get() && (
                     <NewAssignmentGraph
                       courseData={courseData}
                       groupStats={courseStats.groupStats}
                       totalWeight={Number(courseStats.overallStats.totalWeight)}
+                      hoveredGroup$={hoveredGroup$}
                     />
                   )}
                 </>
