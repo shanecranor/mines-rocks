@@ -4,6 +4,7 @@ import { BannerCourse, Course } from './types/types';
 import { log } from './logging';
 import { get } from 'http';
 import { getCached } from './compute-caching';
+import { ExecutionContext } from '@cloudflare/workers-types';
 
 export async function getCourseSummaryData(env: Env, ctx: ExecutionContext) {
 	return (await cacheSupabaseDB('course_summary_data', env, ctx)) as Course[];

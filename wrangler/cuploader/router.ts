@@ -19,13 +19,11 @@ export const router = <RouterObj>{
       requiredKeys: ["id", "name"],
     },
     {
-      //fine to upsert everything
       endpointName: "assignment_groups",
       endpoint: "api/v1/courses/course_id/assignment_groups",
       params: ["course_id"],
       supabaseTable: "assignment_group_data",
       uploadData: true,
-      //TODO: add required keys
     },
     {
       endpointName: "assignments",

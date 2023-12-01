@@ -1,14 +1,9 @@
 /* eslint-disable import/no-anonymous-default-export */
 
 import { log } from './logging';
-import { getCached } from './compute-caching';
-import { aggregateCourseData } from './data-processing/aggregation/aggregate-course-data';
-import { filterCourseList } from './data-processing/filtering';
-import { getBannerData, getCourseSummaryData } from './db-caching';
 import { doCourseSearch } from './routes/course-search';
 import { doAssignmentAggregation } from './routes/assignment-aggregation';
 import { ExecutionContext } from '@cloudflare/workers-types';
-import path from 'path';
 
 export interface Env {
 	SUPABASE_URL: string;

@@ -11,7 +11,7 @@ const NUM_RESULTS = 20;
  * Renders the search results from the staticly fetched data
  * Search and filter options are applied client side
  * @param courses - The array of course summary data.
- * @returns The JSX element representing the search results.
+ * @returns The JSX element that displays the search results.
  */
 const SsgSearchResultsClient = observer(
   ({ courses }: { courses: CourseSummaryData[] }) => {
