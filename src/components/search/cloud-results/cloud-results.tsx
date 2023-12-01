@@ -18,41 +18,33 @@ async function performSearch() {
   );
   return await response.json();
 }
-export const CloudResults = observer(
-  ({ bannerCourseMap }: { bannerCourseMap: Map<string, BannerCourse[]> }) => {
-    // const results$ = useObservable<any[] | Promise<any[]>>(performSearch());
-    // const resultsArr = results$.get();
-    // if (!isArray(resultsArr)) {
-    //   return <div>loading...</div>;
-    // }
-
-    const [searchResults, setSearchResults] = useState([]);
-    const timer$ = useObservable();
-    useEffect(() => {
-      const fetchData = async () => {
-        if (timer$.get()) {
-          clearTimeout(timer$.get() as number);
-        }
-        timer$.set(
-          setTimeout(async () => {
-            try {
-              const results = await performSearch();
-              setSearchResults(results);
-            } catch (error) {
-              console.error('Error fetching search results:', error);
-            }
-          }, 400),
-        );
-      };
-      fetchData();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [searchOptions$.searchText.get()]);
-    return (
-      <div className={styles['results']}>
-        {searchResults.map((r: CourseSummaryData) => (
-          <NewCourseComponent courseData={r} key={r.id} />
-        ))}
-      </div>
-    );
-  },
-);
+export const CloudResults = observer(() => {
+  const [searchResults, setSearchResults] = useState([]);
+  const timer$ = useObservable();
+  useEffect(() => {
+    const fetchData = async () => {
+      if (timer$.get()) {
+        clearTimeout(timer$.get() as number);
+      }
+      timer$.set(
+        setTimeout(async () => {
+          try {
+            const results = await performSearch();
+            setSearchResults(results);
+          } catch (error) {
+            console.error('Error fetching search results:', error);
+          }
+        }, 400),
+      );
+    };
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchOptions$.searchText.get()]);
+  return (
+    <div className={styles['results']}>
+      {searchResults.map((r: CourseSummaryData) => (
+        <NewCourseComponent courseData={r} key={r.id} />
+      ))}
+    </div>
+  );
+});

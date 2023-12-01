@@ -41,6 +41,10 @@ const NewCourseComponent = observer(
       staleTime: 1000 * 60 * 60 * 24 * 10,
     });
     const isOpen$ = useObservable<boolean>(false);
+    const hasOpen$ = useObservable<boolean>(false); // removes pop-out animation for graphs after first load
+    if (isOpen$.get()) {
+      hasOpen$.set(true);
+    }
     return (
       <>
         <div
@@ -72,7 +76,7 @@ const NewCourseComponent = observer(
                     totalWeight={Number(courseStats.overallStats.totalWeight)}
                     isOpen$={isOpen$}
                   />
-                  {isOpen$.get() && (
+                  {hasOpen$.get() && (
                     <NewAssignmentGraph
                       courseData={courseData}
                       groupStats={courseStats.groupStats}

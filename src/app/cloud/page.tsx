@@ -26,8 +26,6 @@ export const metadata = {
 export default async function Home() {
   const numCourses = await getDbSize('course_summary_data');
   const numAssignments = await getDbSize('assignment_data');
-  const bannerCourses = await getBannerData();
-  const bannerCourseMap = buildBannerCourseMap(bannerCourses);
   return (
     <>
       <Navbar />
@@ -43,9 +41,10 @@ export default async function Home() {
         </div>
         <SearchBar />
         <div className={styles['results-container']}>
-          <FilterSettings />
+          {/* <FilterSettings /> */}
+          {/* This is commented out because it isn't fully implemented yet */}
           <div className={styles['search-results']}>
-            <CloudResults bannerCourseMap={bannerCourseMap} />
+            <CloudResults />
           </div>
         </div>
       </main>
