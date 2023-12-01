@@ -1,7 +1,7 @@
 'use client';
 import { Observable, isArray } from '@legendapp/state';
 import { observer, useObservable } from '@legendapp/state/react';
-import { searchOptions$ } from '../search-options';
+import { searchOptions$ } from '../../search-options';
 import { useEffect, useState } from 'react';
 import { BannerCourse, Course } from '@/services/database';
 import {

@@ -13,7 +13,8 @@ export const SsgResults = async () => {
     `https://search.mines.rocks/?search=&per_page=10000&show_partial=true`,
   );
   const courses = await response.json();
-  // get number of assignments for each course
+  // Fetch the number of assignments for each course
+  // TODO: Fetch in parallel, or move to cloudflare worker
   for (const course of courses) {
     const numAssignments = await getNumAssignments(course.id);
     course.numAssignments = numAssignments;

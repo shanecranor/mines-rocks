@@ -12,7 +12,7 @@ import SearchResults from '@/components/search/search-results/search-results';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';
-import { SsgResults } from '@/components/search/ssg-results/ssg-results';
+import { SsgResults } from '@/components/search/search-results/ssg-results/ssg-results';
 
 export const metadata = {
   title: 'mines.rocks: data driven course selection',
