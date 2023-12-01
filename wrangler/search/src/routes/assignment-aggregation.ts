@@ -1,3 +1,4 @@
+import { ExecutionContext } from '@cloudflare/workers-types';
 import { Env } from '..';
 import { aggregateGroupStats, getStatsPerGroup } from '../data-processing/aggregation/assignment-aggregation';
 import { getGroupIds } from '../data-processing/aggregation/assignment-util';

@@ -1,3 +1,4 @@
+import { ExecutionContext } from '@cloudflare/workers-types';
 import { log } from './logging';
 
 export async function getCached(cacheKey: string, onMiss: () => any, ctx: ExecutionContext, maxAge = 172800) {
