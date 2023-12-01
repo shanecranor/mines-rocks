@@ -1,14 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import styles from './page.module.scss';
-import Head from 'next/head';
-import {
-  getAssignmentGroups,
-  getAssignments,
-  getCourseListFiltered,
-  getBannerData,
-  getDbSize,
-} from '@/services/database';
-import SearchResults from '@/components/search/search-results/search-results';
+import { getDbSize } from '@/services/database';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';

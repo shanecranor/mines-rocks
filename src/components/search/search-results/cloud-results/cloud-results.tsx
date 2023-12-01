@@ -18,6 +18,10 @@ async function performSearch() {
   );
   return await response.json();
 }
+/**
+ * Fetches all the course data from the cloudflare worker on the client and displays it
+ * @returns JSX with the search results
+ */
 export const CloudResults = observer(() => {
   const [searchResults, setSearchResults] = useState([]);
   const timer$ = useObservable();

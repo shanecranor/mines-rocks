@@ -7,6 +7,7 @@ import { filterCourseList } from './data-processing/filtering';
 import { getBannerData, getCourseSummaryData } from './db-caching';
 import { doCourseSearch } from './routes/course-search';
 import { doAssignmentAggregation } from './routes/assignment-aggregation';
+import { ExecutionContext } from '@cloudflare/workers-types';
 import path from 'path';
 
 export interface Env {

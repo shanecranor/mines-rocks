@@ -5,7 +5,7 @@ import { getNumAssignments } from '@/services/database';
 
 /**
  * Fetches all courses from the cloudflare worker and passes them to the client search results component.
- * @returns The component that displays the search results.
+ * @returns A JSX element that wraps the client search results component
  */
 export const SsgResults = async () => {
   // fetch all courses from the cloudflare worker

@@ -10,9 +10,6 @@ import {
   getAssignmentsForCourse,
   Assignment,
 } from '@/services/database';
-import SearchResults, {
-  buildBannerCourseMap,
-} from '@/components/search/search-results/search-results';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';

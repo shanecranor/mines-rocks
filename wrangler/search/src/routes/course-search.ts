@@ -4,6 +4,7 @@ import { aggregateCourseData } from '../data-processing/aggregation/aggregate-co
 import { filterCourseList } from '../data-processing/filtering';
 import { getCourseSummaryData, getBannerData } from '../db-caching';
 import { log } from '../logging';
+import { ExecutionContext } from '@cloudflare/workers-types';
 
 export async function doCourseSearch(request: Request, env: Env, ctx: ExecutionContext) {
 	//get url params from the request

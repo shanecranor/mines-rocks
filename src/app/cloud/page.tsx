@@ -1,21 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import styles from './page.module.scss';
 
-import {
-  getAssignmentGroups,
-  getAssignments,
-  getCourseListFiltered,
-  getBannerData,
-  getDbSize,
-} from '@/services/database';
-import SearchResults, {
-  buildBannerCourseMap,
-} from '@/components/search/search-results/search-results';
+import { getDbSize } from '@/services/database';
 import SearchBar from '@/components/search/search-bar/search-bar';
 import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';
 import { CloudResults } from '@/components/search/search-results/cloud-results/cloud-results';
-import { create } from 'domain';
 
 export const metadata = {
   title: 'mines.rocks: data driven course selection',

@@ -1,11 +1,7 @@
 'use client';
 import { observer } from '@legendapp/state/react';
-import { splitCourseCode } from '@/services/data-aggregation';
 import { searchOptions$ } from '../../search-options';
-import {
-  CourseSummaryData,
-  CourseAttributes,
-} from '@/components/course-component/summary-data/new-summary-data';
+import { CourseSummaryData } from '@/components/course-component/summary-data/new-summary-data';
 import NewCourseComponent from '@/components/course-component/new-course-component';
 import { sortCourseList } from '../sort';
 import { filterCourseList } from '../filter';
@@ -17,7 +13,6 @@ const NUM_RESULTS = 20;
  * @param courses - The array of course summary data.
  * @returns The JSX element representing the search results.
  */
-
 const SsgSearchResultsClient = observer(
   ({ courses }: { courses: CourseSummaryData[] }) => {
     const searchOptions = searchOptions$.get();
