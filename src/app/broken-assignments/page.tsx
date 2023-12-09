@@ -32,6 +32,8 @@ export default async function Home() {
   //   const assignments = await getAssignmentsForCourse(String(course.id));
   //   assignmentMap.set(course.id, assignments);
   // }
+  console.log(Object.keys(assignments[900]));
+  console.log(assignments[900]);
   return (
     <>
       <Navbar />
