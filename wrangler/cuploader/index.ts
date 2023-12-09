@@ -63,30 +63,19 @@ export default {
       const { data: tableKeys } = await supabase.rpc('list_columns', {
         table_id: supabaseTable,
       });
-      const cleanedData = cleanAndFilterData(data, tableKeys, requiredKeys);
+      let cleanedData = cleanAndFilterData(data, tableKeys, requiredKeys);
       if (routeInfo.dontOverwriteIfNull) {
         //load existing assignments for the target course from the table
-        const { data: existingData } = await supabase
+        const supabaseResponse = await supabase
           .from(supabaseTable)
           .select('*')
           .eq('course_id', urlParams.get('course_id'));
-
-        for (const newRow of cleanedData) {
-          const assignmentId = newRow.assignment_id;
-          //find the existing row with the same assignment id
-          const existingRow = existingData?.find(
-            (r) => r.assignment_id === assignmentId,
-          );
-          //if the existing row exists and the new row has a null value for a key that we don't want to overwrite
-          //then set the new row's value to the existing row's value
-          if (existingRow) {
-            for (const key of routeInfo.dontOverwriteIfNull) {
-              if (newRow[key] === null && existingRow[key] !== null) {
-                newRow[key] = existingRow[key];
-              }
-            }
-          }
-        }
+        const existingData = supabaseResponse.data;
+        cleanedData = mergeData(
+          cleanedData,
+          existingData,
+          routeInfo.dontOverwriteIfNull,
+        );
       }
       //if uploadData is false, just return the cleaned data
       if (!routeInfo.uploadData) {
@@ -121,4 +110,35 @@ export async function upsertData(
   const { data: returnData, error } = await supabase.from(table).upsert(data);
   if (error) return `Upsert ERROR: ${JSON.stringify(error)}`;
   return data;
+}
+
+const findRowByAssignmentId = (data, id) =>
+  data?.find((r) => r.assignment_id === id);
+
+const mergeRows = (newRow: Row, existingRow: Row, keepCols: string[]) => {
+  return keepCols.reduce(
+    (acc, key) => {
+      if (newRow[key] === null && existingRow[key] !== null) {
+        acc[key] = existingRow[key];
+      }
+      return acc;
+    },
+    { ...newRow },
+  );
+};
+
+function mergeData(
+  cleanedData: Row[],
+  existingData: Row[],
+  keepCols: string[],
+) {
+  return cleanedData.map((newRow) => {
+    const existingRow = findRowByAssignmentId(
+      existingData,
+      newRow.assignment_id,
+    );
+    return existingRow
+      ? mergeRows(newRow, existingRow, keepCols)
+      : { ...newRow };
+  });
 }
