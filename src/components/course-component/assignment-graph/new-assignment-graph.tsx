@@ -88,12 +88,15 @@ export const NewAssignmentGraph = observer(
       startDate: number,
       endDate: number,
     ) {
+      function clamp(value: number, min: number, max: number) {
+        return Math.min(Math.max(value, min), max);
+      }
       const diff = endDate - startDate;
       const assignmentDateISO =
         assignment.due_at || assignment.updated_at || assignment.created_at;
       if (!assignmentDateISO) return 0;
       const assignmentDate = new Date(assignmentDateISO).getTime();
-      return ((assignmentDate - startDate) / diff) * 100; //.toFixed(2);
+      return clamp(((assignmentDate - startDate) / diff) * 100, 0, 100); //.toFixed(2);
     }
     const assignmentsFiltered = assignments.filter(
       (assignment) =>
