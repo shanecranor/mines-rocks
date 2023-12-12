@@ -238,6 +238,7 @@ export const NewAssignmentGraph = observer(
                     startDate,
                     endDate,
                   );
+
                   let labelTranslate = 'translate(10px)';
                   if (Number(assignmentDatePercentage) > 50) {
                     labelTranslate = 'translate(-100%)';
@@ -252,11 +253,21 @@ export const NewAssignmentGraph = observer(
                       groupStats.length,
                     );
                   }
+                  let opacity = 1;
+                  if (hoveredGroup$) {
+                    if (
+                      hoveredGroup$.get() &&
+                      hoveredGroup$.get() !== assignment.assignment_group_id
+                    ) {
+                      opacity = 0.25;
+                    }
+                  }
                   return (
                     <div
                       key={assignment.id}
                       className={styles['data-point']}
                       style={{
+                        opacity,
                         background: groupColor,
                         top: `0%`,
                         left: `${assignmentDatePercentage}%`,
