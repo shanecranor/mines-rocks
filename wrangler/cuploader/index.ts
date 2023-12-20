@@ -58,11 +58,15 @@ export default {
       // add an upload date to the data
       // its a little jank because it'll get removed when the data is cleaned if it isn't a column in the db
       // the course_summary table has an upload_date column so it should work as expected
-      data['upload_date'] = new Date().toISOString();
+      const getDate = async () => {
+        return new Date(Date.now()).toISOString();
+      };
+      data[0]['upload_date'] = await getDate();
 
       const { data: tableKeys } = await supabase.rpc('list_columns', {
         table_id: supabaseTable,
       });
+
       let cleanedData = cleanAndFilterData(data, tableKeys, requiredKeys);
       if (routeInfo.dontOverwriteIfNull) {
         //load existing assignments for the target course from the table
@@ -71,13 +75,15 @@ export default {
           .select('*')
           .eq('course_id', urlParams.get('course_id'));
         const existingData = supabaseResponse.data;
-        cleanedData = mergeData(
-          cleanedData,
-          existingData,
-          routeInfo.dontOverwriteIfNull,
-        );
+        if (existingData && existingData.length !== 0) {
+          cleanedData = mergeData(
+            cleanedData,
+            existingData,
+            routeInfo.dontOverwriteIfNull,
+          );
+        }
       }
-      //if uploadData is false, just return the cleaned data
+      //if uploadData is false, return the cleaned data without uploading to supabase
       if (!routeInfo.uploadData) {
         responses[endpointName] = cleanedData;
         continue;
@@ -124,10 +130,20 @@ const mergeRows = (newRow: Row, existingRow: Row, keepCols: string[]) => {
       return acc;
     },
     { ...newRow },
-  );
+  ) as Row;
 };
 
-function mergeData(
+/**
+ * Merges cleanedData with existingData based on assignment_id.
+ * If an existing row is found, it merges the rows using keepCols.
+ * If no existing row is found, it returns a new row.
+ *
+ * @param cleanedData The cleaned data to be merged.
+ * @param existingData The existing data to be merged with.
+ * @param keepCols The columns to keep when merging rows.
+ * @returns The merged data.
+ */
+export function mergeData(
   cleanedData: Row[],
   existingData: Row[],
   keepCols: string[],

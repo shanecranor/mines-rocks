@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeAll, afterAll } from 'vitest';
 import { Row, cleanRow } from '../shared-util/cleanData';
+import { mergeData } from '.';
 const courseTableKeys = [
   'grading_standard_id',
   'created_at',
@@ -130,6 +131,131 @@ describe('cleanRow', () => {
     const cleanedRow = cleanRow({}, assignmentTableKeys);
     //check that the clean row contains every single key in the table keys and no other keys
     validateRow(cleanedRow, assignmentTableKeys);
+  });
+  it('testing merge same rows', () => {
+    const mergedRow = mergeData(
+      [testAssignmentRow],
+      [testAssignmentRow],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow[0], assignmentTableKeys);
+    //check that the merged row is the same as the original row
+    expect(mergedRow[0]).toEqual(testAssignmentRow);
+  });
+  it('testing merge with different data', () => {
+    const mergedRow = mergeData(
+      [testAssignmentRow],
+      [{ ...testAssignmentRow, name: 'different name' }],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow[0], assignmentTableKeys);
+    //check that the merged row is the same as the original row
+    expect(mergedRow[0]).toEqual(testAssignmentRow);
+
+    const mergedRow2 = mergeData(
+      [{ ...testAssignmentRow, name: 'different name' }],
+      [testAssignmentRow],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow2[0], assignmentTableKeys);
+    //check that the merged row is the equal to the new row
+    expect(mergedRow2[0]).toEqual({
+      ...testAssignmentRow,
+      name: 'different name',
+    });
+  });
+  //testing overwriting with null
+  it('testing merge with null', () => {
+    const mergedRow = mergeData(
+      [testAssignmentRow],
+      [{ ...testAssignmentRow, name: null }],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow[0], assignmentTableKeys);
+    //check that the merged row is the same as the original row
+    expect(mergedRow[0]).toEqual(testAssignmentRow);
+
+    const mergedRow2 = mergeData(
+      [{ ...testAssignmentRow, name: null }],
+      [testAssignmentRow],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow2[0], assignmentTableKeys);
+    //check that the merged row is the equal to the new row
+    expect(mergedRow2[0]).toEqual(testAssignmentRow);
+  });
+  it('testing merge with null score_statistics', () => {
+    const mergedRow = mergeData(
+      [testAssignmentRow],
+      [{ ...testAssignmentRow, score_statistics: null }],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow[0], assignmentTableKeys);
+    //check that the merged row is the same as the original row
+    expect(mergedRow[0]).toEqual(testAssignmentRow);
+
+    const mergedRow2 = mergeData(
+      [{ ...testAssignmentRow, score_statistics: null }],
+      [testAssignmentRow],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow2[0], assignmentTableKeys);
+    //check that the merged row is the equal to the new row
+    expect(mergedRow2[0]).toEqual(testAssignmentRow);
+  });
+  //test with updated score statistics
+  it('testing merge with updated score_statistics', () => {
+    const mergedRow = mergeData(
+      [testAssignmentRow],
+      [
+        {
+          ...testAssignmentRow,
+          score_statistics: {
+            max: 25,
+            min: 0,
+            mean: 23,
+            median: 24,
+            lower_q: 21,
+            upper_q: 29,
+          },
+        },
+      ],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow[0], assignmentTableKeys);
+    //check that the merged row is the same as the original row
+    expect(mergedRow[0]).toEqual(testAssignmentRow);
+
+    const mergedRow2 = mergeData(
+      [
+        {
+          ...testAssignmentRow,
+          score_statistics: {
+            max: 25,
+            min: 0,
+            mean: 23,
+            median: 24,
+            lower_q: 21,
+            upper_q: 29,
+          },
+        },
+      ],
+      [testAssignmentRow],
+      assignmentTableKeys,
+    );
+    validateRow(mergedRow2[0], assignmentTableKeys);
+    //check that the merged row is the equal to the new row
+    expect(mergedRow2[0]).toEqual({
+      ...testAssignmentRow,
+      score_statistics: {
+        max: 25,
+        min: 0,
+        mean: 23,
+        median: 24,
+        lower_q: 21,
+        upper_q: 29,
+      },
+    });
   });
 });
 
