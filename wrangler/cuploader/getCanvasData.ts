@@ -29,7 +29,7 @@ export async function getResponses(
  * @param {string} request - The request to the worker.
  * @returns An object containing the routeInfoList and the Canvas API authentication token.
  */
-export function getRouteInfo(request: Request) {
+export async function getRouteInfo(request: Request) {
   const url = request.url;
   const { searchParams: urlParams } = new URL(url);
   // get the route from the url params
@@ -60,6 +60,7 @@ export function getRouteInfo(request: Request) {
     });
 
   // the router object will tell us what to do based on the route string
+  await log(`CUPLOADER: doing ${route}`);
   let routeInfoList = router[route];
   if (!routeInfoList)
     return new Response('ERROR: Invalid route', {
@@ -138,4 +139,10 @@ export async function getCanvasData(
     return `ERROR: ${response.status} ${response.statusText}`;
   }
   return await response.json();
+}
+
+const logURL = 'https://feedback.mines.rocks/?site=mines-rocks&message=';
+
+export async function log(message: string) {
+  await fetch(`${logURL}${encodeURI(message)}`);
 }

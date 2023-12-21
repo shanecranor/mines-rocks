@@ -24,7 +24,7 @@ export default {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
     // Get routeInfoList and Auth token from the url
-    const routeData = getRouteInfo(request);
+    const routeData = await getRouteInfo(request);
     const { searchParams: urlParams } = new URL(request.url);
 
     // return error if routeData is invalid
