@@ -2,19 +2,12 @@
 import styles from './page.module.scss';
 
 import {
-  getAssignmentGroups,
-  getAssignments,
   getCourseListFiltered,
-  getBannerData,
   getDbSize,
   getAssignmentsForCourse,
   Assignment,
 } from '@/services/database';
-import SearchBar from '@/components/search/search-bar/search-bar';
-import FilterSettings from '@/components/search/search-settings/filter-settings';
 import Navbar from '@/components/navbar/navbar';
-import { CloudResults } from '@/components/search/search-results/cloud-results/cloud-results';
-import { create } from 'domain';
 import { getCourseAttributes } from '@/services/data-aggregation';
 
 export const metadata = {
