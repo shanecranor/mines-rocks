@@ -1,5 +1,6 @@
 Check out the deployed site at [mines.rocks](mines.rocks)! 
 ![image](https://github.com/shanecranor/mines-rocks/assets/70922464/8402f3a9-6767-4992-bbbc-8d7d8d48997d)
+![image](https://github.com/shanecranor/mines-rocks/assets/70922464/d23d89e2-4f00-4104-ae5e-26a59f3f0e62)
 
 If you are interested in contributing or taking over the project feel free to shoot me a message in the Mines ACM discord.
 
