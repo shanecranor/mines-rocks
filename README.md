@@ -6,6 +6,8 @@ If you are interested in contributing or taking over the project feel free to sh
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+The project is deployed on cloudflare pages, and utilizes serverless tech (cloudflare workers) for data uploading and supabase for the postgres DB. Banner requests are proxied through an AWS EC2 instance.
+
 ## Getting Started
 
 First, run the development server:
